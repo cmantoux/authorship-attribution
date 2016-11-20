@@ -1,5 +1,7 @@
 import numpy as np
 
+# Commentaire inutile
+
 from numpy.random import randn
 
 k = 5
