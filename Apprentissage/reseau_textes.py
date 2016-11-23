@@ -2,8 +2,8 @@
 import numpy as np
 
 import classes
-from Représentation.fenetre import FenetreAffichage
-from pca import pca
+from Representation.fenetre import FenetreAffichage
+from Utilitaires.pca import pca
 
 
 class reseau_neurones(classes.Classifieur):
@@ -237,9 +237,10 @@ class reseau_neurones(classes.Classifieur):
         self.clusters = [[] for i in range(len(auteurs))]
         for i in range(len(eval_set)):
             s = self.sortie(self.col(eval_set[i].vecteur))
-            self.p[i] = [x[0] for x in s];
+            self.p[i] = [x[0] for x in s]
             self.p_ref[i] = [0]*len(auteurs)
-            self.p_ref[i][auteurs_inverses[training_set[i].auteur]] = 1
+            print(auteurs_inverses[eval_set[i].auteur])
+            self.p_ref[i][auteurs_inverses[eval_set[i].auteur]] = 1
             comp = self.composante_dominante(s)
             self.clusters[comp].append(eval_set[i])
 
