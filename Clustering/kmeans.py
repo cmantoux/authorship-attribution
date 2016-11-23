@@ -1,9 +1,7 @@
-import matplotlib.pyplot as plt
 import numpy as np
-
-from Utilitaires.pca import pca
 from classes import Classifieur
-
+from Utilitaires.pca import pca
+import matplotlib.pyplot as plt
 
 def distance(x,y):
     """Calcule la distance entre les vecteurs x et y."""
@@ -104,28 +102,50 @@ class Kmeans(Classifieur):
         print("Création du classifieur KMeans")
         pass
     
-    def classifier(self, liste_textes):
-        auteurs_differents = set([texte.auteur for texte in liste_textes])
-        k = len(auteurs_differents)
-        clusters = k_means(liste_textes,k)
-        return clusters
-        
-    def afficher(self, liste_textes, clusters):
-        clusters_plot(clusters)
-        print("Résultats du classificateur KMean sur le corpus étudié :")
-        
-        k = len(clusters)
-        auteurs = list(set([texte.auteur for texte in liste_textes]))
-
-        for i in range(k):
+    def classifier(self, training_set, eval_set):
+        self.liste_textes = training_set + eval_set
+        self.eval_set = eval_set
+        self.training_set = training_set
+        auteurs = list(set([texte.auteur for texte in self.liste_textes]))
+        k = len(auteurs)
+        clusters = k_means(self.liste_textes,k)
+        auteurs_par_cluster = ["?" for i in range(k)]
+        for j in range(k):
             nb_oeuvres_par_auteur = {}
             for auteur in auteurs:
                 nb_oeuvres_par_auteur[auteur] = 0
-                
-            for t in clusters[i]:
+            for t in clusters[j]:
                 nb_oeuvres_par_auteur[t.auteur] +=1
+            auteur_max = "?"
+            nb_max = 0
             for auteur in auteurs:
-                nb_oeuvres_par_auteur[auteur] =  "{0:.0f}%".format( 100 * nb_oeuvres_par_auteur[auteur] / len(clusters[i]))    
-            print("Cluster numero {}".format(i+1))
-            print(nb_oeuvres_par_auteur)
+                if nb_oeuvres_par_auteur[auteur] > nb_max :
+                    nb_max = nb_oeuvres_par_auteur[auteur]
+                    auteur_max = auteur
+            auteurs_par_cluster[j] = auteur_max
+        n = len(self.eval_set)
+        self.precision = 0
+        self.p = np.zeros((n,k))
+        self.p_ref = np.zeros((n,k))
+        for i in range(n):
+            t = self.eval_set[i]
+            auteur_reel = t.auteur
+            for j in range(k):
+                if t in clusters[j]:
+                    auteur_suppose = auteurs_par_cluster[j]
+            j_reel = auteurs.index(auteur_reel)
+            j_sup = auteurs.index(auteur_suppose)
+            self.p[i,j_sup] = 1
+            self.p_ref[i,j_reel] = 1
+            if j_sup == j_reel :
+                self.precision += 1
+        self.precision /= n
+        self.clusters = clusters
+
+        
+    def afficher(self):
+        print("Résultats du classificateur KMean sur le corpus étudié :")
+        print("Précision : " + str(self.precision))
+
+
         

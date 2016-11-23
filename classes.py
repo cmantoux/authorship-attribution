@@ -217,7 +217,7 @@ class Probleme:
         self.liste_textes = self.training_set + self.eval_set
         print("Textes de training_set et eval_set initialisés")
 
-    def analyser(self, normalisation = True):
+    def analyser(self, normalisation = False):
         """Applique la méthode analyser de l'analyseur : elle remplit les coordonnées du vecteur associé à chaque texte, et calcule le vecteur normalisé."""
         self.creer_textes()
         for texte in self.liste_textes:
@@ -244,7 +244,7 @@ class Probleme:
         print("Indice de Hubert interne : " + str(ei.huberts_interne(self.eval_set, self.classifieur.p)))
         print("/// Evaluation relative ///")
         #print("Indice de Hubert relatif : " + str(er.huberts_relatif(self.eval_set, self.classifieur.p)))
-        print("Indice de Dunn : " + str(er.dunn(self.eval_set, self.classifieur.p)))
+        #print("Indice de Dunn : " + str(er.dunn(self.eval_set, self.classifieur.p)))
         #print("Indice de Davies-Bouldin : " + str(er.davies_bouldin(self.eval_set, self.classifieur.p)))
         print("/// Evaluation externe ///")
         print("Entropie de la classification : " + str(ee.entropie(self.eval_set, self.classifieur.p, self.classifieur.p_ref)))
@@ -271,7 +271,7 @@ class Probleme:
         self.appliquer_classifieur()
         print("")
         print("Evaluation :")
-        #self.evaluer()
+        self.evaluer()
         print("La flemme d'évaluer, on fera ça un autre jour")
         print("")
         print("Interprétation :")

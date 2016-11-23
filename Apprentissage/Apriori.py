@@ -1,4 +1,5 @@
 import numpy as np
+from classes import Classifieur
 
 from Utilitaires.pca import pca
 

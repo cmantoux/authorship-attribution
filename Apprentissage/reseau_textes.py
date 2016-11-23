@@ -2,8 +2,8 @@
 import numpy as np
 
 import classes
-from Représentation.fenetre import FenetreAffichage
-from pca import pca
+from Representation.fenetre import FenetreAffichage
+from Utilitaires.pca import pca
 
 
 class reseau_neurones(classes.Classifieur):

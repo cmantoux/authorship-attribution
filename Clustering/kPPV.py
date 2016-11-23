@@ -2,8 +2,8 @@
 import numpy as np
 
 import classes
-from Représentation.fenetre import FenetreAffichage
-from pca import pca
+from Representation.fenetre import FenetreAffichage
+from Utilitaires.pca import pca
 
 
 class kPPV(classes.Classifieur):
@@ -95,5 +95,5 @@ class kPPV(classes.Classifieur):
                 self.clusters[i][j].vecteur = vecteurs[x]
                 liste_classes.append([self.clusters[i][j], i])
                 x += 1
-        fenetre = FenetreAffichage(liste_classes)
-        fenetre.show()
+        #fenetre = FenetreAffichage(liste_classes)
+        #fenetre.show()
