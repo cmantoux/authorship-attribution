@@ -4,12 +4,16 @@ from Representation.affichage import afficher_points
 from carac import *
 from classes import Analyseur, Probleme
 from Apprentissage.svm import SVM
+<<<<<<< HEAD
 from Apprentissage.Bayes import Bayes
 from Apprentissage.reseau_textes import reseau_neurones
 from Apprentissage.Apriori import Apriori
 from Clustering.kmeans import Kmeans
 from Clustering.kmedoids import KMedoids
 from Clustering.kPPV import kPPV
+=======
+from Apprentissage.reseau_textes import reseau_neurones
+>>>>>>> f0993eeeefbd8f0e1d2c940c09190421b28b5603
 
 
 d = time()
@@ -18,7 +22,7 @@ oeuvres_training_set =[("zola",k) for k in range(1,3)] + [("balzac",k) for k in 
 oeuvres_eval_set = [("zola",k) for k in range(3,5)] + [("balzac",k) for k in range(3,5)]
 taille_morceaux = 5000
 analyseur = Analyseur([freq_gram, plus_courants, freq_ponct, freq_stopwords])
-classifieur = SVM()
+classifieur = reseau_neurones()
 
 P = Probleme(oeuvres_training_set, oeuvres_eval_set, taille_morceaux, analyseur, classifieur, langue = "fr")
 
