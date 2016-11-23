@@ -1,7 +1,9 @@
-import numpy as np
-from classes import Classifieur
-from pca import pca
 import matplotlib.pyplot as plt
+import numpy as np
+
+from Utilitaires.pca import pca
+from classes import Classifieur
+
 
 def distance(x,y):
     """Calcule la distance entre les vecteurs x et y."""

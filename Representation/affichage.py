@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
-from pca import pca
 import numpy as np
 
-
+from Utilitaires.pca import pca
+from Interpretation.importance_composantes import importance
 
 markers_list = ["s", "o", "d", "x", "+", "p", "h", "H", "D", "*", "v", "^", "<", ">", "1", "2", "3", "4", "8"]
 colors_list = ["r", "b", "g", "c", "m", "y", "k"]

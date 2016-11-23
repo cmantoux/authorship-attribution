@@ -6,7 +6,7 @@ from scipy.integrate import quad
 
 
 def importance(clusters):
-    """la variable clusters est un dictionnaire de la forme {auteur : liste de vecteurs classifiés chez cet auteur par l'algorithme}
+    """la variable clusters est une liste où l'élément i est la liste des textes classifiés chez l'auteur numero i par l'algorithme}
         cette fonction estime le rôle de chaque composante des vecteurs dans la classification obtenue en comparant la variance moyenne de chaque composante au sein des clusters avec la distance inter-clusters => plus ce quotient est grand, plus la composante en question est pertinente"""
     nb_clusters = len(clusters)
     nb_composantes = len(clusters[0][0].vecteur)
@@ -32,6 +32,9 @@ def importance(clusters):
                 ecarts_inter_clusters += dist
     ecarts_inter_clusters = [e / n for e in ecarts_inter_clusters]
     importance_composantes = ecarts_inter_clusters/ecarts_intra_clusters
+    for i in range(len(importance_composantes)):
+        if importance_composantes[i] == np.nan:
+            importance_composantes[i] = 0
     return importance_composantes
 
 

@@ -1,10 +1,11 @@
 from sklearn.svm import SVC
-from importance_composantes import *
-from classes import *
-from pca import pca
-from conversion_classification import *
 
-    
+from Interpretation.importance_composantes import *
+from Utilitaires.conversion_classification import *
+from Utilitaires.pca import pca
+from classes import *
+
+
 class SVM(Classifieur):
     
     def __init__(self,kernel = 'rbf', gamma = "auto", C = 5, nombre_composantes = 30):

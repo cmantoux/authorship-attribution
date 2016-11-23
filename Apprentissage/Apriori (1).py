@@ -1,5 +1,7 @@
-from pca import pca
 import numpy as np
+
+from Utilitaires.pca import pca
+
 
 def Apprentissage(vecteurs, auteurs, seuil=0.5, pas=0.1, composantes=50):
     v = len(vecteurs) #nombre de vecteurs à traiter

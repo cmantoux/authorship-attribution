@@ -1,14 +1,16 @@
-import numpy as np
-import pickle
-from importation_et_pretraitement import importer, formater
-from normalisation import normaliser1,normaliser2, equilibrer1
-from treetaggerwrapper import TreeTagger, make_tags
 import codecs
 import csv
-import evaluation_relative as er
-import evaluation_interne as ei
-import evaluation_externe as ee
-from importance_composantes import gain_information, importance
+import pickle
+
+import numpy as np
+from treetaggerwrapper import TreeTagger, make_tags
+
+from Evaluation import evaluation_externe as ee
+from Evaluation import evaluation_interne as ei
+from Evaluation import evaluation_relative as er
+from Interpretation.importance_composantes import gain_information,importance
+from Utilitaires.importation_et_pretraitement import importer, formater
+from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1
 
 emplacement_dossier_groupe = "/Users/Guillaume/Google Drive/Cours X/PSC/Groupe PSC/"
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "ch" : "chinois"}
@@ -177,32 +179,43 @@ class Probleme:
     - classifieur = objet Classifieur
     """
 
-    def __init__(self, liste_id_oeuvres, taille_morceaux, analyseur, classifieur, langue = "fr", full_text = False):
+    def __init__(self, liste_id_oeuvres_training_set, liste_id_oeuvres_eval_set, taille_morceaux, analyseur, classifieur, langue = "fr", full_text = False):
         print("Assemblage du problème")
-        self.liste_id_oeuvres = liste_id_oeuvres
+        self.oeuvres_training_set = []
+        self.oeuvres_eval_set = []
         self.taille_morceaux = taille_morceaux
         self.liste_oeuvres = []
         print("Création - importation des oeuvres : ")
-        for id in liste_id_oeuvres:
+        for id in liste_id_oeuvres_training_set:
             auteur = id[0]
             numero = id[1]
             oeuvre = Oeuvre(auteur,numero,langue)
-            self.liste_oeuvres.append(oeuvre)
+            self.oeuvres_training_set.append(oeuvre)
+        for id in liste_id_oeuvres_eval_set:
+            auteur = id[0]
+            numero = id[1]
+            oeuvre = Oeuvre(auteur, numero, langue)
+            self.oeuvres_eval_set.append(oeuvre)
         print()
-        print("Liste_oeuvres : ok")
+        print("Liste_oeuvres remplie")
         self.analyseur = analyseur
-        print("Analyseur basé sur " + " ".join([f.__name__ for f in analyseur.liste_fonctions]) + ": ok")
+        print("Analyseur basé sur " + " ".join([f.__name__ for f in analyseur.liste_fonctions]) + " initialisé")
         self.classifieur = classifieur
-        print("Classifieur : ok")
-        self.liste_textes = []
+        print("Classifieur initialisé")
+        self.eval_set = []
+        self.training_set = []
+        self.liste_texts = []
         self.full_text = full_text
 
     def creer_textes(self, equilibrage = True):
-        for oeuvre in self.liste_oeuvres:
-            self.liste_textes.extend(oeuvre.split(self.taille_morceaux,self.full_text))
+        for oeuvre in self.oeuvres_training_set:
+            self.training_set.extend(oeuvre.split(self.taille_morceaux,self.full_text))
+        for oeuvre in self.oeuvres_eval_set:
+             self.eval_set.extend(oeuvre.split(self.taille_morceaux, self.full_text))
         if equilibrage :
-            self.liste_textes = equilibrer1(self.liste_textes)
-        print("Liste_textes : ok")
+            self.training_set = equilibrer1(self.training_set)
+        self.liste_textes = self.training_set + self.eval_set
+        print("Textes de training_set et eval_set initialisés")
 
     def analyser(self, normalisation = True):
         """Applique la méthode analyser de l'analyseur : elle remplit les coordonnées du vecteur associé à chaque texte, et calcule le vecteur normalisé."""
@@ -219,8 +232,6 @@ class Probleme:
 
     def appliquer_classifieur(self):
         """Applique la méthode classifier du classifieur pour obtenir une classification, sous un format a priori inconnu."""
-        self.training_set = self.liste_textes[::2]
-        self.eval_set = self.liste_textes[1::2]
         self.classifieur.liste_textes = self.liste_textes
         self.classifieur.training_set = self.training_set
         self.classifieur.eval_set = self.eval_set
@@ -243,12 +254,13 @@ class Probleme:
                 ee.calcul_taux(self.eval_set, self.classifieur.p, self.classifieur.p_ref)))
 
     def interpreter(self):
-        print("Composantes les plus importantes dans la classification")
+        print("Composantes les plus importantes dans la classification :")
         noms_composantes = self.analyseur.noms_composantes
-        importance1 = gain_information(self.classifieur.clusters)
+        importance1 = importance(self.classifieur.clusters)
         noms_et_importance1 = [(noms_composantes[k],importance1[k]) for k in range(len(noms_composantes))]
         noms_et_importance1.sort(key = lambda x : x[1], reverse=True)
-        print(noms_et_importance1[:10])
+        for couple in noms_et_importance1[:10]:
+            print(couple)
 
     def resoudre(self):
         print("")
@@ -259,7 +271,8 @@ class Probleme:
         self.appliquer_classifieur()
         print("")
         print("Evaluation :")
-        self.evaluer()
+        #self.evaluer()
+        print("La flemme d'évaluer, on fera ça un autre jour")
         print("")
         print("Interprétation :")
         self.interpreter()
