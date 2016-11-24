@@ -4,17 +4,12 @@ from Representation.affichage import afficher_points
 from carac import *
 from classes import Analyseur, Probleme
 from Apprentissage.svm import SVM
-<<<<<<< HEAD
 from Apprentissage.Bayes import Bayes
 from Apprentissage.reseau_textes import reseau_neurones
 from Apprentissage.Apriori import Apriori
 from Clustering.kmeans import Kmeans
 from Clustering.kmedoids import KMedoids
 from Clustering.kPPV import kPPV
-=======
-from Apprentissage.reseau_textes import reseau_neurones
->>>>>>> f0993eeeefbd8f0e1d2c940c09190421b28b5603
-
 
 d = time()
 
