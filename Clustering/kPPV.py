@@ -3,10 +3,12 @@ import numpy as np
 
 import classes
 from Representation.fenetre import FenetreAffichage
-from Utilitaires.pca import pca
 
 
 class kPPV(classes.Classifieur):
+    """
+    NB : le training_set du KPPV DOIT contenir un texte de chaque auteur
+    """
     def __init__(self):
         print("Classication par la méthode des k plus proches voisins")
 
@@ -45,7 +47,7 @@ class kPPV(classes.Classifieur):
     def classifier(self, training_set, eval_set):
         # format d'entrée : training_set contient les textes déjà classés, et eval_set contient les textes à classifier
 
-        self.k = min(len(training_set),9) # Initialisation du nombre de voisins, à adapter si besoin
+        self.k = min(len(training_set),9)  # Initialisation du nombre de voisins, à adapter si besoin
         self.liste_textes = training_set + eval_set
         self.training_set = training_set
         self.eval_set = eval_set
@@ -54,7 +56,7 @@ class kPPV(classes.Classifieur):
         self.classification = None
 
         # Initialisation de classes_auteurs, clusters et liste_textes_tuples
-        self.classes_auteurs = {} # auteurs_classes[auteur de la classe] = numero_classe
+        self.classes_auteurs = {}  # auteurs_classes[auteur de la classe] = numero_classe
         self.clusters = []
         for texte in self.training_set:
             if not texte.auteur in self.classes_auteurs.keys():
@@ -76,24 +78,21 @@ class kPPV(classes.Classifieur):
         for tuple in self.liste_textes_tuples:
             self.clusters[tuple[1]].append(tuple[0])
 
-        # Création de p
+        # On constitue la liste des auteurs => sert à construire p_ref
+        self.auteurs = []
+        self.auteurs_inverses = {}
+        for texte in training_set:
+            if texte.auteur not in self.auteurs:
+                self.auteurs.append(texte.auteur)
+                self.auteurs_inverses[texte.auteur] = len(self.auteurs) - 1
+
+        # Création de p et de p_ref
         self.p = np.zeros([len(self.liste_textes_tuples), len(self.clusters)])
+        self.p_ref = np.zeros([len(self.liste_textes_tuples), len(self.clusters)])
         for i in range(len(self.liste_textes_tuples)):
-            self.p[i][self.liste_textes_tuples[i][1]] = 1; # [texte, classe du texte]
+            self.p[i][self.liste_textes_tuples[i][1]] = 1  # [texte, classe du texte]
+            self.p_ref[i][self.auteurs_inverses[self.liste_textes_tuples[i][0].auteur]] = 1
 
     def afficher(self):
-        liste_classes = []
-        k = len(self.clusters)
-        vecteurs = []
-        for c in self.clusters:
-            for t in c:
-                vecteurs.append(t.vecteur)
-        vecteurs = pca(vecteurs)
-        x = 0
-        for i in range(k):
-            for j in range(len(self.clusters[i])):
-                self.clusters[i][j].vecteur = vecteurs[x]
-                liste_classes.append([self.clusters[i][j], i])
-                x += 1
-        #fenetre = FenetreAffichage(liste_classes)
-        #fenetre.show()
+        fenetre = FenetreAffichage(self.liste_textes, self.p, self.p_ref, self.auteurs, "pca")
+        fenetre.build()

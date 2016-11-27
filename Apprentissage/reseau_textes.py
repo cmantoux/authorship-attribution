@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-
 import classes
 from Representation.fenetre import FenetreAffichage
-from Utilitaires.pca import pca
 
 
 class reseau_neurones(classes.Classifieur):
     def __init__(self):
         self.setApprentissage = []  # /!\ différent de training_set (pas le même format)
         self.clusters = []
+        self.liste_textes = None
+        self.precision = None
+        self.clusters = None
+        self.p = self.p_ref = None
+        self.eval_set = self.training_set = None
+        self.Wmin = self.bmin = None
 
     # Crée les poids (W), les biais (b), et les fonctions d'activation de chaque couche (f)
     # Le format d'entrée de la structure est par exemple, pour un réseau à 5 entrées,
@@ -169,16 +173,16 @@ class reseau_neurones(classes.Classifieur):
 
     def classifier(self, training_set, eval_set):
         #On constitue la liste des auteurs
-        auteurs = []
-        auteurs_inverses = {}
+        self.auteurs = []
+        self.auteurs_inverses = {}
         for texte in training_set:
-            if texte.auteur not in auteurs:
-                auteurs.append(texte.auteur)
-                auteurs_inverses[texte.auteur] = len(auteurs)-1
+            if texte.auteur not in self.auteurs:
+                self.auteurs.append(texte.auteur)
+                self.auteurs_inverses[texte.auteur] = len(self.auteurs)-1
 
 
         # [nombre_entrees, taille des couches]
-        structure_reseau = np.array([len(eval_set[0].vecteur), 10, len(auteurs)])  # Le premier terme est la dimension de l'espace de départ
+        structure_reseau = np.array([len(eval_set[0].vecteur), 10, len(self.auteurs)])  # Le premier terme est la dimension de l'espace de départ
 
         self.W, self.b, self.f = self.initialise_reseau(structure_reseau)
         coeffApprentissage = 0.1
@@ -196,12 +200,12 @@ class reseau_neurones(classes.Classifieur):
         self.Wmin, self.bmin = self.W, self.b  # Valeurs des poids et des biais pour lesquelles le réseau a atteint sa meilleure performance
         erreur_min = 10  # On initialise l'erreur minimale à 10, elle sera mise à jour dès qu'on tombera sur plus petit
         borne_arret = 0.01  # si erreur<borneArret, la boucle s'arrête
-        etape_max = 1000
+        etape_max = 2000
 
         self.setApprentissage = []
         for i in range(len(training_set)):
-            vecteur_sortie = [0]*len(auteurs)
-            vecteur_sortie[auteurs_inverses[training_set[i].auteur]] = 1
+            vecteur_sortie = [0]*len(self.auteurs)
+            vecteur_sortie[self.auteurs_inverses[training_set[i].auteur]] = 1
             self.setApprentissage.append([self.col(training_set[i].vecteur), self.col(vecteur_sortie)])
 
         print("Classification par réseau de neurones")
@@ -211,15 +215,16 @@ class reseau_neurones(classes.Classifieur):
             cpt += 1
             cpt2 = 0
             for i in range(len(self.setApprentissage)-1):  # On parcourt l'ensemble d'apprentissage
-                cpt2+=1
-                if cpt2==1 and renormage:  # Si activé, régule les normes des poids à 1 (mais perte de précision)
-                    cpt2=0
-                    #On renorme les poids
+                cpt2 += 1
+                if cpt2 == 1 and renormage:  # Si activé, régule les normes des poids à 1 (mais perte de précision)
+                    cpt2 = 0
+                    # On renorme les poids
                     print("Normage des poids à 1")
                     for k in range(len(self.W)):
-                        for i in range(len(self.W[k])):
-                            self.W[k][i] = W[k][i]/self.norme(self.W[k][i])
-                    if verbose: print(self.W)
+                        for j in range(len(self.W[k])):
+                            self.W[k][j] = self.W[k][j]/self.norme(self.W[k][j])
+                    if verbose:
+                        print(self.W)
                 # On fait apprendre au réseau l'élément de l'ensemble d'apprentissage
                 oldDeltaW, oldDeltaB = self.apprend(self.W, self.b, self.f, coeffApprentissage, self.setApprentissage[i], oldDeltaW, oldDeltaB, momentum)
             erreur = self.erreur_quadratique_ensemble(self.setApprentissage)
@@ -232,15 +237,14 @@ class reseau_neurones(classes.Classifieur):
         self.W, self.b = self.Wmin, self.bmin
 
         # Création de self.clusters, p et p_ref : ne concerne que eval_set
-        self.p = np.zeros([len(eval_set), len(auteurs)])
-        self.p_ref = np.zeros([len(eval_set), len(auteurs)])
-        self.clusters = [[] for i in range(len(auteurs))]
+        self.p = np.zeros([len(eval_set), len(self.auteurs)])
+        self.p_ref = np.zeros([len(eval_set), len(self.auteurs)])
+        self.clusters = [[] for i in range(len(self.auteurs))]
         for i in range(len(eval_set)):
             s = self.sortie(self.col(eval_set[i].vecteur))
             self.p[i] = [x[0] for x in s]
-            self.p_ref[i] = [0]*len(auteurs)
-            print(auteurs_inverses[eval_set[i].auteur])
-            self.p_ref[i][auteurs_inverses[eval_set[i].auteur]] = 1
+            self.p_ref[i] = [0]*len(self.auteurs)
+            self.p_ref[i][self.auteurs_inverses[eval_set[i].auteur]] = 1
             comp = self.composante_dominante(s)
             self.clusters[comp].append(eval_set[i])
 
@@ -249,33 +253,18 @@ class reseau_neurones(classes.Classifieur):
         for i in range(len(training_set)):
             s = self.sortie(self.col(training_set[i].vecteur))
             comp = self.composante_dominante(s)
-            if(comp == auteurs_inverses[training_set[i].auteur]):
+            if(comp == self.auteurs_inverses[training_set[i].auteur]):
                 self.precision += 1.
         self.precision /= len(training_set)
 
     def afficher(self):
-        print("Précision : " + str(100*self.precision))
-        liste_classes = []
-        k = len(self.clusters)
-        vecteurs = []
-        for c in self.clusters:
-            for t in c:
-                vecteurs.append(t.vecteur)
-        vecteurs = pca(vecteurs)
-        x = 0
-        for i in range(k):
-            for j in range(len(self.clusters[i])):
-                self.clusters[i][j].vecteur = vecteurs[x]
-                liste_classes.append([self.clusters[i][j], i])
-                x += 1
-        fenetre = FenetreAffichage(liste_classes)
-        fenetre.show()
+        fenetre = FenetreAffichage(self.eval_set, self.p, self.p_ref, self.auteurs, "pca")
+        fenetre.build()
 
     def poids_composantes(self):
-        global W
-        tab = [0]*len(W[0][0])
-        for i in range(len(W[0])):
-            for j in range(len(W[0][i])):
-                tab[j]+=abs(W[0][i][j])
+        tab = [0]*len(self.W[0][0])
+        for i in range(len(self.W[0])):
+            for j in range(len(self.W[0][i])):
+                tab[j] += abs(self.W[0][i][j])
         for poids in tab:
             print(poids)

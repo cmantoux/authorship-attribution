@@ -13,8 +13,8 @@ from Clustering.kPPV import kPPV
 
 d = time()
 
-oeuvres_training_set =[("zola",k) for k in range(1,3)] + [("balzac",k) for k in range(1,3)]
-oeuvres_eval_set = [("zola",k) for k in range(3,5)] + [("balzac",k) for k in range(3,5)]
+oeuvres_training_set =[("zola",k) for k in range(1,3)] + [("balzac",k) for k in range(1,3)] + [("maupassant",k) for k in range(1,3)]
+oeuvres_eval_set = [("zola",k) for k in range(3,5)] + [("balzac",k) for k in range(3,5)] + [("maupassant",k) for k in range(3,5)]
 taille_morceaux = 5000
 analyseur = Analyseur([freq_gram, plus_courants, freq_ponct, freq_stopwords])
 classifieur = reseau_neurones()
@@ -33,8 +33,8 @@ print("Test de SVM")
 print()
 print("Test de reseau_neurones")
 
-#P.classifieur = reseau_neurones()
-#P.appliquer_classifieur()
+P.classifieur = reseau_neurones()
+P.appliquer_classifieur()
 #P.evaluer()
 
 print()
@@ -68,11 +68,11 @@ print("Test de Kmedoids")
 print()
 print("Test de kPPV")
 
-P.classifieur = kPPV()
-P.appliquer_classifieur()
-P.evaluer()
+#P.classifieur = kPPV()
+#P.appliquer_classifieur()
+#P.evaluer()
 
-afficher_points(P.classifieur)
+#afficher_points(P.classifieur)
 
 f = time()
 print()
