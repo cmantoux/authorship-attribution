@@ -130,5 +130,3 @@ class KMedoids(Classifieur):
     def afficher(self):
         print("Résultats du classificateur KMean sur le corpus étudié :")
         print("Précision : " + str(self.precision))
-        
-
