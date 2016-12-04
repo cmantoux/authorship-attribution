@@ -12,7 +12,7 @@ from Interpretation.importance_composantes import gain_information,importance
 from Utilitaires.importation_et_pretraitement import importer, formater
 from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1
 
-emplacement_dossier_groupe = "C:/Users/Clement/Google Drive/Groupe PSC/"
+emplacement_dossier_groupe = "/Users/Guillaume/Google Drive/Cours X/PSC/Groupe PSC/"
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "ch" : "chinois"}
 
 class Infos:
@@ -219,7 +219,6 @@ class Probleme:
 
     def analyser(self, normalisation = False):
         """Applique la méthode analyser de l'analyseur : elle remplit les coordonnées du vecteur associé à chaque texte, et calcule le vecteur normalisé."""
-        self.creer_textes()
         for texte in self.liste_textes:
             self.analyseur.analyser(texte)
         D = np.array([texte.vecteur for texte in self.liste_textes])
@@ -263,6 +262,8 @@ class Probleme:
             print(couple)
 
     def resoudre(self):
+        print("Création des textes :")
+        self.creer_textes()
         print("")
         print("Analyse :")
         self.analyser()

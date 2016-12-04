@@ -47,7 +47,7 @@ def freq_ponct(texte):
         if m in signes:
             dico_freq[m] += 1
     frequences = dico_freq.values()
-    S = sum(frequences)
+    S = len(texte.mots)
     if S == 0:
         A = [0] * len(frequences)
     else:
@@ -76,7 +76,7 @@ def freq_gram(texte):
         if p in natures:
             dico_freq[p] += 1
     frequences = dico_freq.values()
-    S = sum(frequences)
+    S = len(pos)
     if S==0:
         raise ValueError("Ca va pas du tout")
     return [f / S for f in frequences], ["Fréquence relative de la catégorie grammaticale {}".format(natures[k]) for k
