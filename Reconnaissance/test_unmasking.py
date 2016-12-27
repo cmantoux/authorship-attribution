@@ -82,14 +82,14 @@ class Unmasking(Classifieur):
         else:
             label = "auteurs differents"
 
-        J = list(range(nb_composantes))
+        J = list(range(0,nb_composantes,2))
         self.dist = []
         for j in J:
             k = nb_composantes-j
             self.dist.append(indice_precision(training_set, eval_set, k))
         a = self.dist[0]
-        for j in J:
-            self.dist[j]/=a
+        for l in range(len(self.dist)):
+            self.dist[l]/=a
         self.J = J
         return
         
@@ -106,36 +106,32 @@ oeuvres_training_set =[("hugo",k) for k in range(1,8)]
 oeuvres_eval_set = [("proust",1)]
 oeuvres_eval_set_bis = [("hugo",8)]
 
-taille_morceaux = 1000
+taille_morceaux = 500
 analyseur = Analyseur([freq_gram, freq_ponct, plus_courants, freq_lettres])
 classifieur = Unmasking()
 
-nb_essais = 7
-nb_oeuvres_base = 4
+nb_essais = 3
+nb_oeuvres_base = 1
 
 for k in range(nb_essais):
     oeuvres_training_set_sample = [oeuvres_training_set[i] for i in rd.choice(len(oeuvres_training_set),nb_oeuvres_base)]
     P = Probleme(oeuvres_training_set_sample, oeuvres_eval_set, taille_morceaux, analyseur, classifieur, langue = "fr")
-    P.creer_textes(equilibrage = True)
-    P.analyser(normalisation = True)
+    P.creer_textes(equilibrage = False)
+    P.analyser(normalisation = False)
     P.appliquer_classifieur()
     J = P.classifieur.J
     dist = P.classifieur.dist
     plt.plot(J,dist,label = "test" + str(k) +" diff")
 
-
 for k in range(nb_essais):
     oeuvres_training_set_sample = [oeuvres_training_set[i] for i in rd.choice(len(oeuvres_training_set),nb_oeuvres_base)]
     P = Probleme(oeuvres_training_set_sample, oeuvres_eval_set_bis, taille_morceaux, analyseur, classifieur, langue = "fr")
-    P.creer_textes(equilibrage = True)
-    P.analyser(normalisation = True)
+    P.creer_textes(equilibrage = False)
+    P.analyser(normalisation = False)
     P.appliquer_classifieur()
     J = P.classifieur.J
     dist = P.classifieur.dist
     plt.plot(J,dist, linestyle = "--", label = "test" + str(k) +" id")
-
-
-
 
 plt.xlabel("Nombre de composantes retirées")
 plt.ylabel("Séparation relative entre les paquets de textes")

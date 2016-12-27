@@ -85,7 +85,7 @@ def freq_gram(texte):
 
 # Fonctions basées sur les mots
 
-def plus_courants(texte, n=10):
+def plus_courants(texte, n=50):
     nltk_racines = nltk.Text(texte.racines)
     L = len(nltk_racines)
     fdist = nltk.FreqDist(nltk_racines)
@@ -93,7 +93,7 @@ def plus_courants(texte, n=10):
     return [m[1] / L for m in M], ["Fréquence du {}-ème mot le plus courant".format(k+1) for k in range(len(M))]
 
 
-def dif_plus_courants(texte, n=10):
+def dif_plus_courants(texte, n=50):
     P = plus_courants(texte, n)[0]
     D = [(P[k] - P[k + 1]) / P[k] for k in range(n - 1)]
     return D, ["Chute de fréquence entre le {}-ème token le plus courant et le {}+1-ème".format(k, k) for k in

@@ -8,7 +8,7 @@ from classes import *
 
 class SVM(Classifieur):
     
-    def __init__(self,kernel = 'rbf', gamma = "auto", C = 5, nombre_composantes = 30):
+    def __init__(self,kernel = 'rbf', gamma = "auto", C = 5, nombre_composantes = 50):
         print("Création du classifieur SVM")
         self.kernel = kernel
         self.gamma = gamma
@@ -34,7 +34,7 @@ class SVM(Classifieur):
         nouveaux_vecteurs = pca(vecteurs)
         #print(nouveaux_vecteurs)
         for k in range(len(self.liste_textes)):
-            self.liste_textes[k].vecteur_pca = nouveaux_vecteurs[k][:self.nombre_composantes]
+            self.liste_textes[k].vecteur_pca = nouveaux_vecteurs[k][:max(self.nombre_composantes, len(nouveaux_vecteurs[k]))]
         vecteurs_training = np.array([t.vecteur_pca for t in self.training_set])
         auteurs_training = np.array([t.auteur for t in self.training_set])
         vecteurs_eval = np.array([t.vecteur_pca for t in self.eval_set])
