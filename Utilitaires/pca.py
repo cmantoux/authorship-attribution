@@ -44,4 +44,9 @@ def pca(vecteurs):
     my_pca = PCA(donnees)
     return my_pca.Y
 
+def pca_matrice(vecteurs):
+    donnees = np.array(vecteurs)
+    my_pca = PCA(donnees)
+    return my_pca.Y, my_pca.A
+
 #p = PCA(vecteurs)

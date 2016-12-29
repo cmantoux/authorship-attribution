@@ -1,10 +1,130 @@
 # -*- coding: utf-8 -*-
 from tkinter import *
 from scipy.spatial import ConvexHull
-from Utilitaires.pca import pca
+from Utilitaires.pca import pca_matrice
+import numpy.linalg
+import numpy as np
 
 
 class FenetreAffichage:
+
+    def __init__(self, liste_textes, p, p_ref, noms_auteurs, methode_reduction):
+        self.height = 600
+        self.width = 600
+        self.liste_textes = liste_textes
+        self.p = p
+        self.p_ref = p_ref
+
+        self.matrice_proportions = None
+        self.indices_coefficients_separateurs = []  # Les indices des 10 coordonnées les plus importantes
+        self.coefficients_coordonnees = None  # Pondère les coordonnées les plus séparatrices
+        self.vecteurs_originaux = []  # Contient les vecteurs des textes avant PCA
+
+        # Application de methode_reduction
+        if methode_reduction == "pca":
+            # Application de methode_reduction
+            vecteurs = []
+            for texte in self.liste_textes:
+                vecteurs.append(texte.vecteur)
+                self.vecteurs_originaux.append(texte.vecteur)
+            vecteurs, self.matrice_proportions = pca_matrice(vecteurs)
+            for i in range(len(self.liste_textes)):
+                self.liste_textes[i].vecteur = vecteurs[i]
+
+            # Création des variables du système de réévaluation des composantes
+            norme_colonnes = []
+            for i in range(len(self.matrice_proportions)):
+                norme_colonnes.append(numpy.linalg.norm(self.matrice_proportions[i]))
+            self.indices_coefficients_separateurs = sorted(range(1, len(self.matrice_proportions)),
+                    key=(lambda k: norme_colonnes[k]))[:min(10, len(self.matrice_proportions))]
+            self.coefficients_coordonnees = [1 for i in range(len(self.indices_coefficients_separateurs))]
+
+            self.points = self.normaliser_points(vecteurs)
+
+        # Création des clusters
+        self.noms_auteurs = noms_auteurs
+        self.noms_auteurs_inverses = {}
+        self.clusters_theoriques_indices = [[] for i in
+                                            range(len(noms_auteurs))]  # permettra de calculer l'enveloppe convexe
+        self.clusters_concrets_indices = [[] for i in range(len(noms_auteurs))]
+        for i in range(len(self.noms_auteurs)):
+            self.noms_auteurs_inverses[self.noms_auteurs[i]] = i
+        for i in range(len(self.liste_textes)):
+            self.clusters_theoriques_indices[self.auteur_theorique(i)].append(i)
+            self.clusters_concrets_indices[self.auteur_concret(i)].append(i)
+
+        # Création des objets de la fenêtre
+        self.theorique = True
+        self.affiche_enveloppe = False
+
+        self.objets_dessines = []
+        self.fenetre = fenetre = Tk()
+        self.canvas = Canvas(fenetre, width=self.width, height=self.height, background="white")
+        self.couleurs = ["yellow", "red", "green", "blue", "black", "purple",
+                         "brown1", "gray", "cyan", "white", "royal blue", "dark violet"]
+
+        self.theorique_concret_switch = Button(self.fenetre, text="Afficher le résultat du classifieur",
+                                               command=self.switch_theorique_concret)
+        self.enveloppe_switch = Checkbutton(self.fenetre, text="Afficher les enveloppes convexes",
+                                            command=self.switch_points_enveloppe)
+
+        self.scales = []
+        for i in range(min(10, len(liste_textes[0].vecteur))):
+            sc = Scale(fenetre, orient='vertical', resolution=1, label='X_'+str(i), from_=1, to=100, command=self.change_proportion_builder(i))
+            sc.set(1)
+            self.scales.append(sc)
+
+    def change_proportion_builder(self, i):
+        return lambda arg: self.change_proportion(i, arg)
+
+    def change_proportion(self, i, arg2):
+        if arg2 == 0:
+            arg = 1
+        else:
+            arg = arg2
+        # on multiplie la matrice de proportion à droite par une matrice de transvection pour multiplier sa i-ème colonne
+        transvection = np.identity(len(self.matrice_proportions))
+        indice = self.indices_coefficients_separateurs[i]
+        transvection[indice][indice] = float(arg)/max(float(self.coefficients_coordonnees[i]), 0.1)
+        self.matrice_proportions = np.dot(self.matrice_proportions, transvection)
+        self.coefficients_coordonnees[i] = arg
+
+        vecteurs = []
+        for k in range(len(self.liste_textes)):
+            vecteurs.append(np.dot(self.matrice_proportions, self.liste_textes[k].vecteur))
+        self.points = self.normaliser_points(vecteurs)
+        self.repaint()
+
+    def normaliser_points(self, vecteurs):
+        """Transforme un tableau de vecteurs (ayant déjà subi methode_reduction)
+        en gardant ses deux premieres dimensions et en les renormalisant pour
+        l'affichage dans la fenetre"""
+        # On regarde les coordonnees extremales pour les normaliser
+        self.xMin = 0
+        self.yMin = 0
+        self.xMax = 0
+        self.yMax = 0
+        for vecteur in vecteurs:
+            x = vecteur[0]
+            y = vecteur[1]
+            if x > self.xMax:
+                self.xMax = x
+            if x < self.xMin:
+                self.xMin = x
+            if y > self.yMax:
+                self.yMax = y
+            if y < self.yMin:
+                self.yMin = y
+
+        proportion_x = self.width / (self.xMax - self.xMin) * 0.90
+        proportion_y = self.height / (self.yMax - self.yMin) * 0.90
+        points = []
+
+        for vecteur in vecteurs:
+            points.append(
+                [(vecteur[0] - self.xMin) * proportion_x + 0.05 * (self.xMax - self.xMin) * proportion_x,
+                 (vecteur[1] - self.yMin) * proportion_y + 0.05 * (self.yMax - self.yMin) * proportion_y])
+        return points
 
     def switch_theorique_concret(self):
         self.theorique = not self.theorique
@@ -29,72 +149,6 @@ class FenetreAffichage:
             if self.p[indice][i] > self.p[indice][res]:
                 res = i
         return res
-        
-    def __init__(self, liste_textes, p, p_ref, noms_auteurs, methode_reduction):
-        self.height = 600
-        self.width = 600
-
-        self.liste_textes = liste_textes
-        self.p = p
-        self.p_ref = p_ref
-
-        # Application de methode_reduction
-        if methode_reduction == "pca":
-            vecteurs = []
-            for texte in self.liste_textes:
-                vecteurs.append(texte.vecteur)
-            vecteurs = pca(vecteurs)
-            for i in range(len(self.liste_textes)):
-                self.liste_textes[i].vecteur = vecteurs[i]
-
-        # On regarde les coordonnées extrémales pour les normaliser
-        self.xMin = 0
-        self.yMin = 0
-        self.xMax = 0
-        self.yMax = 0
-        for texte in liste_textes:
-            x = texte.vecteur[0]
-            y = texte.vecteur[1]
-            if x > self.xMax:
-                self.xMax = x
-            if x < self.xMin:
-                self.xMin = x
-            if y > self.yMax:
-                self.yMax = y
-            if y < self.yMin:
-                self.yMin = y
-
-        self.noms_auteurs = noms_auteurs
-        self.noms_auteurs_inverses = {}
-        self.clusters_theoriques_indices = [[] for i in range(len(noms_auteurs))]  # permettra de calculer l'enveloppe convexe
-        self.clusters_concrets_indices = [[] for i in range(len(noms_auteurs))]
-        for i in range(len(self.noms_auteurs)):
-            self.noms_auteurs_inverses[self.noms_auteurs[i]] = i
-        for i in range(len(self.liste_textes)):
-            self.clusters_theoriques_indices[self.auteur_theorique(i)].append(i)
-            self.clusters_concrets_indices[self.auteur_concret(i)].append(i)
-
-        proportion_x = self.width / (self.xMax - self.xMin) * 0.90
-        proportion_y = self.height / (self.yMax - self.yMin) * 0.90
-        self.points = []
-
-        for texte in self.liste_textes:
-            self.points.append([(texte.vecteur[0] - self.xMin) * proportion_x + 0.05 * (self.xMax - self.xMin) * proportion_x,
-                               (texte.vecteur[1] - self.yMin) * proportion_y + 0.05*(self.yMax - self.yMin) * proportion_y])
-
-        self.theorique = True
-        self.affiche_enveloppe = False
-        
-        self.objets_dessines = []
-        self.fenetre = fenetre = Tk()
-        self.canvas = Canvas(fenetre, width=self.width, height=self.height, background="white")
-        self.couleurs = ["yellow", "red", "green", "blue", "black", "purple",
-                         "brown1", "gray", "cyan", "white", "royal blue", "dark violet"]
-
-        self.theorique_concret_switch = Button(self.fenetre, text="Afficher le résultat du classifieur",
-                                               command=self.switch_theorique_concret)
-        self.enveloppe_switch = Checkbutton(self.fenetre, text="Afficher les enveloppes convexes",
-                                               command=self.switch_points_enveloppe)
 
     def repaint(self):
         for objet in self.objets_dessines:
@@ -124,11 +178,11 @@ class FenetreAffichage:
                     outline=self.couleurs[k], fill="", width=3))
 
     def build(self):
-        self.canvas.grid(row=0, column=0, columnspan=2)
+        self.canvas.grid(row=0, column=0, rowspan=5, columnspan=2)
         self.repaint()
 
-        self.theorique_concret_switch.grid(row=1, column=0)
-        self.enveloppe_switch.grid(row=1, column=1)
+        self.theorique_concret_switch.grid(row=6, column=0)
+        self.enveloppe_switch.grid(row=6, column=1)
 
         frame_auteurs = Frame(self.fenetre, borderwidth=2)
         frame_clusters = Frame(self.fenetre, borderwidth=2)
@@ -157,7 +211,10 @@ class FenetreAffichage:
                 cluster_canvas.create_rectangle(x, 0, x2, 21, fill=self.couleurs[k])
                 x = x2+1
             cluster_canvas.grid(row=i, column=3, columnspan=6)
-        frame_auteurs.grid(row=3, column=0, columnspan=2, sticky=W)
-        frame_clusters.grid(row=4, column=0, columnspan=2, sticky=W)
+        frame_auteurs.grid(row=7, column=0, columnspan=2, sticky=W)
+        frame_clusters.grid(row=8, column=0, columnspan=2, sticky=W)
+
+        for i in range(len(self.scales)):
+            self.scales[i].grid(row=i // 2, column=2+i % 2, sticky=N)
 
         self.fenetre.mainloop()

@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import numpy as np
 
 fig1 = plt.figure()
 ax1 = fig1.add_subplot(111, aspect='equal')
