@@ -15,18 +15,17 @@ import Evaluation.evaluation_relative as er
 
 def norm(v):
     n = len(v)
-    return alg.norm(v)/np.sqrt(n)
+    return alg.norm(v)/np.sqrt(n) # dimension-independent 2-norm
 
 def similarity(texte1, texte2):
     v1 = texte1.vecteur
     v2 = texte2.vecteur
-    # s = -norm(v1-v2)
+    # s = -norm(v1-v2) # scaled euclidean norm
     # s = np.vdot(v1,v2)/(alg.norm(v1)*alg.norm(v2)) # cosine similarity
     gamma = 1
     s = np.exp(-gamma*norm(v1-v2)**2) # RBF kernel
     return s
     
-
 def AS(texte, liste_textes):
     sim = [similarity(texte, texte2) for texte2 in liste_textes]
     return np.mean(sim)
