@@ -12,7 +12,7 @@ from Interpretation.importance_composantes import gain_information,importance
 from Utilitaires.importation_et_pretraitement import importer, formater
 from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1
 
-emplacement_dossier_groupe = "C:/Users/Clement/Google Drive/Groupe PSC/"
+emplacement_dossier_groupe = "/Users/Guillaume/Google Drive/Cours X/PSC/Groupe PSC/"
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "ch" : "chinois"}
 
 class Infos:
