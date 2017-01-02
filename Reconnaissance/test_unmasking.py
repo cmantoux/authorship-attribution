@@ -110,7 +110,7 @@ taille_morceaux = 500
 analyseur = Analyseur([freq_gram, freq_ponct, plus_courants, freq_lettres])
 classifieur = Unmasking()
 
-nb_essais = 3
+nb_essais = 
 nb_oeuvres_base = 1
 
 for k in range(nb_essais):

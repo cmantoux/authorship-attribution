@@ -3,7 +3,7 @@
 
 import codecs
 
-def importer(auteur,numero,emplacement_corpus = '/Users/Guillaume/Dropbox/Polytechnique/Cours X/PSC/Mon bazar/Corpus/'):
+def importer(auteur,numero,emplacement_corpus):
     """permet d'ouvrir le fichier txt situé à l'adresse ci-dessous et nommé par exemple dumas1.txt => pour utiliser sur votre ordinateur, changez juste le chemin d'accès au corpus"""
 
 

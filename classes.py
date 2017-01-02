@@ -12,7 +12,7 @@ from Interpretation.importance_composantes import gain_information,importance
 from Utilitaires.importation_et_pretraitement import importer, formater
 from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1
 
-emplacement_dossier_groupe = "C:/Users/Clement/Google Drive/Groupe PSC/"
+emplacement_dossier_groupe = "/Users/Guillaume/Google Drive/Cours X/PSC/Groupe PSC/"
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "ch" : "chinois"}
 
 class Infos:
@@ -278,3 +278,78 @@ class Probleme:
         print("Interprétation :")
         self.interpreter()
 
+class Verification():
+    
+    def __init__(self, liste_id_oeuvres_base, liste_id_oeuvres_calibrage, liste_id_oeuvres_disputees, taille_morceaux, analyseur, demasqueur, langue = "fr", full_text = False):
+        print("Assemblage du problème de vérification")
+        self.oeuvres_base = []
+        self.oeuvres_calibrage = []
+        self.oeuvres_disputees = []
+        self.taille_morceaux = taille_morceaux
+        self.liste_oeuvres = []
+        print("Création - importation des oeuvres : ")
+        for id in liste_id_oeuvres_base:
+            auteur = id[0]
+            numero = id[1]
+            oeuvre = Oeuvre(auteur,numero,langue)
+            self.oeuvres_base.append(oeuvre)
+        for id in liste_id_oeuvres_calibrage:
+            auteur = id[0]
+            numero = id[1]
+            oeuvre = Oeuvre(auteur, numero, langue)
+            self.oeuvres_calibrage.append(oeuvre)
+        for id in liste_id_oeuvres_disputees:
+            auteur = id[0]
+            numero = id[1]
+            oeuvre = Oeuvre(auteur, numero, langue)
+            self.oeuvres_disputees.append(oeuvre)
+        print("")
+        print("Liste_oeuvres remplie")
+        self.analyseur = analyseur
+        print("Analyseur basé sur " + " ".join([f.__name__ for f in analyseur.liste_fonctions]) + " initialisé")
+        self.demasqueur = demasqueur
+        print("Classifieur initialisé")
+        self.textes_base = []
+        self.textes_calibrage = []
+        self.textes_disputes = []
+        self.full_text = full_text
+
+    def creer_textes(self):
+        for oeuvre in self.oeuvres_base:
+            self.textes_base.extend(oeuvre.split(self.taille_morceaux,self.full_text))
+        for oeuvre in self.oeuvres_calibrage:
+             self.textes_calibrage.extend(oeuvre.split(self.taille_morceaux, self.full_text))
+        for oeuvre in self.oeuvres_disputees:
+            self.textes_disputes.extend(oeuvre.split(self.taille_morceaux,self.full_text))
+        self.liste_textes = self.textes_base + self.textes_calibrage + self.textes_disputes
+        print("Textes initialisés")
+
+    def analyser(self, normalisation = True):
+        """Applique la méthode analyser de l'analyseur : elle remplit les coordonnées du vecteur associé à chaque texte, et calcule le vecteur normalisé."""
+        for texte in self.liste_textes:
+            self.analyseur.analyser(texte)
+        D = np.array([texte.vecteur for texte in self.liste_textes])
+        A = D
+        if normalisation:
+            A = normaliser1(D)
+        for k,texte in enumerate(self.liste_textes):
+            texte.vecteur = A[k]
+        print("Textes analysés et vectorisés")
+
+    def appliquer_demasqueur(self):
+        """Applique le demasqueur pour determiner la paternité de l'oeuvre disputée."""
+        self.demasqueur.calibrer(self.textes_base, self.textes_calibrage)
+        self.demasqueur.demasquer(self.textes_base, self.textes_disputes)
+        self.demasqueur.afficher()
+
+    def resoudre(self):
+        print("")
+        print("Création des textes :")
+        self.creer_textes()
+        print("")
+        print("Analyse :")
+        self.analyser()
+        print("")
+        print("Calibrage, démasquage et affichage :")
+        self.appliquer_demasqueur()
+        print("")
