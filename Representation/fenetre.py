@@ -4,7 +4,7 @@ from scipy.spatial import ConvexHull
 from Utilitaires.pca import pca_matrice
 import numpy.linalg
 import numpy as np
-
+from Interpretation.importance_composantes import importance
 
 class FenetreAffichage:
 
@@ -20,6 +20,18 @@ class FenetreAffichage:
         self.coefficients_coordonnees = None  # Pondère les coordonnées les plus séparatrices
         self.vecteurs_originaux = []  # Contient les vecteurs des textes avant PCA
 
+        # Création des clusters
+        self.noms_auteurs = noms_auteurs
+        self.noms_auteurs_inverses = {}
+        self.clusters_theoriques_indices = [[] for i in
+                                            range(len(noms_auteurs))]  # permettra de calculer l'enveloppe convexe
+        self.clusters_concrets_indices = [[] for i in range(len(noms_auteurs))]
+        for i in range(len(self.noms_auteurs)):
+            self.noms_auteurs_inverses[self.noms_auteurs[i]] = i
+        for i in range(len(self.liste_textes)):
+            self.clusters_theoriques_indices[self.auteur_theorique(i)].append(i)
+            self.clusters_concrets_indices[self.auteur_concret(i)].append(i)
+
         # Application de methode_reduction
         if methode_reduction == "pca":
             # Application de methode_reduction
@@ -32,6 +44,9 @@ class FenetreAffichage:
                 self.liste_textes[i].vecteur = vecteurs[i]
 
             # Création des variables du système de réévaluation des composantes
+
+            """
+            # Méthode basée sur le tri en norme 2 des colonnes de la matrice de PCA
             norme_colonnes = []
             for i in range(len(self.matrice_proportions)):
                 norme_colonnes.append(numpy.linalg.norm(self.matrice_proportions[i]))
@@ -41,17 +56,22 @@ class FenetreAffichage:
 
             self.points = self.normaliser_points(vecteurs)
 
-        # Création des clusters
-        self.noms_auteurs = noms_auteurs
-        self.noms_auteurs_inverses = {}
-        self.clusters_theoriques_indices = [[] for i in
-                                            range(len(noms_auteurs))]  # permettra de calculer l'enveloppe convexe
-        self.clusters_concrets_indices = [[] for i in range(len(noms_auteurs))]
-        for i in range(len(self.noms_auteurs)):
-            self.noms_auteurs_inverses[self.noms_auteurs[i]] = i
-        for i in range(len(self.liste_textes)):
-            self.clusters_theoriques_indices[self.auteur_theorique(i)].append(i)
-            self.clusters_concrets_indices[self.auteur_concret(i)].append(i)
+            """
+
+            # Méthode basée sur la fonction importance_composantes
+            clusters_concrets_textes = []
+            for cluster_indice in self.clusters_concrets_indices:
+                cluster = []
+                for indice in cluster_indice:
+                    cluster.append(self.liste_textes[i])
+                clusters_concrets_textes.append(cluster)
+            importance_composantes = importance(clusters_concrets_textes)
+            self.indices_coefficients_separateurs = sorted(range(1, len(self.matrice_proportions)),
+                                                    key=(lambda k: importance_composantes[k]))[
+                                                    :min(10, len(self.matrice_proportions))]
+            self.coefficients_coordonnees = [1 for i in range(len(self.indices_coefficients_separateurs))]
+
+            self.points = self.normaliser_points(vecteurs)
 
         # Création des objets de la fenêtre
         self.theorique = True
@@ -92,6 +112,7 @@ class FenetreAffichage:
         vecteurs = []
         for k in range(len(self.liste_textes)):
             vecteurs.append(np.dot(self.matrice_proportions, self.liste_textes[k].vecteur))
+            # vecteurs.append(np.dot(self.matrice_proportions, self.vecteurs_originaux[k]))
         self.points = self.normaliser_points(vecteurs)
         self.repaint()
 
