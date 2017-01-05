@@ -280,7 +280,7 @@ class Probleme:
 
 class Verification():
     
-    def __init__(self, liste_id_oeuvres_base, liste_id_oeuvres_calibrage, liste_id_oeuvres_disputees, taille_morceaux, analyseur, demasqueur, langue = "fr", full_text = False):
+    def __init__(self, liste_id_oeuvres_base, liste_id_oeuvres_calibrage, liste_id_oeuvres_disputees, taille_morceaux, analyseur, verificateur, langue = "fr", full_text = False):
         print("Assemblage du problème de vérification")
         self.oeuvres_base = []
         self.oeuvres_calibrage = []
@@ -307,8 +307,13 @@ class Verification():
         print("Liste_oeuvres remplie")
         self.analyseur = analyseur
         print("Analyseur basé sur " + " ".join([f.__name__ for f in analyseur.liste_fonctions]) + " initialisé")
-        self.demasqueur = demasqueur
-        print("Classifieur initialisé")
+        self.verificateur = verificateur
+        self.verificateur.liste_id_oeuvres_base = liste_id_oeuvres_base
+        self.verificateur.liste_id_oeuvres_calibrage = liste_id_oeuvres_calibrage
+        self.verificateur.liste_id_oeuvres_disputees = liste_id_oeuvres_disputees
+        self.verificateur.analyseur = analyseur
+        self.verificateur.taille_morceaux = taille_morceaux
+        print("Vérificateur initialisé")
         self.textes_base = []
         self.textes_calibrage = []
         self.textes_disputes = []
@@ -336,11 +341,11 @@ class Verification():
             texte.vecteur = A[k]
         print("Textes analysés et vectorisés")
 
-    def appliquer_demasqueur(self):
-        """Applique le demasqueur pour determiner la paternité de l'oeuvre disputée."""
-        self.demasqueur.calibrer(self.textes_base, self.textes_calibrage)
-        self.demasqueur.demasquer(self.textes_base, self.textes_disputes)
-        self.demasqueur.afficher()
+    def appliquer_verificateur(self):
+        """Applique le verificateur pour determiner la paternité de l'oeuvre disputée.""" 
+        self.verificateur.calibrer(self.textes_base, self.textes_calibrage)
+        self.verificateur.verifier(self.textes_base, self.textes_disputes)
+        self.verificateur.afficher()
 
     def resoudre(self):
         print("")
@@ -351,5 +356,5 @@ class Verification():
         self.analyser()
         print("")
         print("Calibrage, démasquage et affichage :")
-        self.appliquer_demasqueur()
+        self.appliquer_verificateur()
         print("")

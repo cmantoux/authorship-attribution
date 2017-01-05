@@ -9,7 +9,7 @@ from classes import *
 class SVM(Classifieur):
     
     def __init__(self, pc = True, kernel = 'rbf', gamma = "auto", C = 5, nombre_composantes = 5000):
-        print("Création du classifieur SVM")
+        #print("Création du classifieur SVM")
         self.pc = pc
         self.kernel = kernel
         self.gamma = gamma
