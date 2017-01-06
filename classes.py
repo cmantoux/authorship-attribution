@@ -242,9 +242,9 @@ class Probleme:
         print("/// Evaluation interne ///")
         print("Indice de Hubert interne : " + str(ei.huberts_interne(self.eval_set, self.classifieur.p)))
         print("/// Evaluation relative ///")
-        #print("Indice de Hubert relatif : " + str(er.huberts_relatif(self.eval_set, self.classifieur.p)))
-        #print("Indice de Dunn : " + str(er.dunn(self.eval_set, self.classifieur.p)))
-        #print("Indice de Davies-Bouldin : " + str(er.davies_bouldin(self.eval_set, self.classifieur.p)))
+        print("Indice de Hubert relatif : " + str(er.huberts_relatif(self.eval_set, self.classifieur.p)))
+        print("Indice de Dunn : " + str(er.dunn(self.eval_set, self.classifieur.p)))
+        print("Indice de Davies-Bouldin : " + str(er.davies_bouldin(self.eval_set, self.classifieur.p)))
         print("/// Evaluation externe ///")
         print("Entropie de la classification : " + str(ee.entropie(self.eval_set, self.classifieur.p, self.classifieur.p_ref)))
         print("Indice de Rand : " + str(ee.jaccard(self.eval_set, self.classifieur.p, self.classifieur.p_ref)))
@@ -252,13 +252,13 @@ class Probleme:
         print("Taux de liaisons et non-liaisons correctes et incorrectes : " + str(
                 ee.calcul_taux(self.eval_set, self.classifieur.p, self.classifieur.p_ref)))
 
-    def interpreter(self):
+    def interpreter(self, n=10):
         print("Composantes les plus importantes dans la classification :")
         noms_composantes = self.analyseur.noms_composantes
         importance1 = importance(self.classifieur.clusters)
         noms_et_importance1 = [(noms_composantes[k],importance1[k]) for k in range(len(noms_composantes))]
         noms_et_importance1.sort(key = lambda x : x[1], reverse=True)
-        for couple in noms_et_importance1[:10]:
+        for couple in noms_et_importance1[:n]:
             print(couple)
 
     def resoudre(self):
@@ -273,7 +273,6 @@ class Probleme:
         print("")
         print("Evaluation :")
         self.evaluer()
-        print("La flemme d'évaluer, on fera ça un autre jour")
         print("")
         print("Interprétation :")
         self.interpreter()
@@ -311,6 +310,9 @@ class Verification():
         self.verificateur.liste_id_oeuvres_base = liste_id_oeuvres_base
         self.verificateur.liste_id_oeuvres_calibrage = liste_id_oeuvres_calibrage
         self.verificateur.liste_id_oeuvres_disputees = liste_id_oeuvres_disputees
+        self.verificateur.oeuvres_base = self.oeuvres_base
+        self.verificateur.oeuvres_calibrage = self.oeuvres_calibrage
+        self.verificateur.oeuvres_disputees = self.oeuvres_disputees
         self.verificateur.analyseur = analyseur
         self.verificateur.taille_morceaux = taille_morceaux
         print("Vérificateur initialisé")

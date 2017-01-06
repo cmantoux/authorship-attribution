@@ -1,6 +1,7 @@
 import nltk
 import math
 from classes import emplacement_dossier_groupe
+from Utilitaires.stopwords import stopwords_en, stopwords_fr
 
 # Fonctions basées sur les caractères
 
@@ -85,7 +86,7 @@ def freq_gram(texte):
 
 # Fonctions basées sur les mots
 
-def plus_courants(texte, n=50):
+def plus_courants(texte, n=30):
     nltk_racines = nltk.Text(texte.racines)
     L = len(nltk_racines)
     fdist = nltk.FreqDist(nltk_racines)
@@ -93,18 +94,18 @@ def plus_courants(texte, n=50):
     return [m[1] / L for m in M], ["Fréquence du {}-ème mot le plus courant".format(k+1) for k in range(len(M))]
 
 
-def dif_plus_courants(texte, n=50):
+def dif_plus_courants(texte, n=30):
     P = plus_courants(texte, n)[0]
     D = [(P[k] - P[k + 1]) / P[k] for k in range(n - 1)]
-    return D, ["Chute de fréquence entre le {}-ème token le plus courant et le {}+1-ème".format(k, k) for k in
+    return D, ["Chute de fréquence entre le {}-ème token le plus courant et le {}-ème".format(k, k+1) for k in
                range(1, n)]
 
 
 def freq_stopwords(texte):
-    with open(
-            emplacement_dossier_groupe + "Bibliographie et ressources/Littérature/Stopwords/stopwords_" + texte.langue + ".txt",
-            "r") as fichier:
-        stopwords = fichier.read()
+    if texte.langue == "en":
+        stopwords = stopwords_en()
+    elif texte.langue == "fr":
+        stopwords = stopwords_fr()
     liste_stopwords = stopwords.split()
     fdist = nltk.FreqDist([m.lower() for m in texte.mots])
     frequences = [fdist.freq(sw) for sw in liste_stopwords]
@@ -125,8 +126,8 @@ def richesse_voc(texte):
     return A, ["Richesse du vocabulaire (divers indicateurs)"]*len(A)
 
 def longueur_mots(texte):
-    longueurs = [0 for k in range(20)]
-    for m in [texte.mots[k] for k in texte.mots if texte.mot[k] not in string.punctuation]:
-        longueurs[len(m)] +=1
+    longueurs = [0 for k in range(10)]
+    for m in [M for M in texte.mots if M not in [".",",",":","?","!","(",")","-","'"]]:
+        longueurs[min(len(m),len(longueurs)-1)] +=1
     S = sum(longueurs)
     return [l/S for l in longueurs], ["Fréquence des mots de longueur {}" for k in range(len(longueurs))]

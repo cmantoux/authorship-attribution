@@ -13,13 +13,16 @@ def importance(clusters):
     moyennes_clusters = []
     ecarts_intra_clusters = [0 for k in range(nb_composantes)]
     ecarts_inter_clusters = [0 for k in range(nb_composantes)]
+    nb_clusters = 0
     for c in clusters:
-        D = np.array([t.vecteur for t in c])
-        M = D.mean(axis = 0)
-        V = D.var(axis = 0)
-        S = np.sqrt(V)
-        moyennes_clusters.append(M)
-        ecarts_intra_clusters += S
+        if len(c) > 0:
+            nb_clusters+=1
+            D = np.array([t.vecteur for t in c])
+            M = D.mean(axis = 0)
+            V = D.var(axis = 0)
+            S = np.sqrt(V)
+            moyennes_clusters.append(M)
+            ecarts_intra_clusters += S
     ecarts_intra_clusters /= nb_clusters
     n = 0
     for i in range(nb_clusters):
@@ -31,10 +34,12 @@ def importance(clusters):
                 dist = np.abs(M1 - M2)
                 ecarts_inter_clusters += dist
     ecarts_inter_clusters = [e / n for e in ecarts_inter_clusters]
-    importance_composantes = ecarts_inter_clusters/ecarts_intra_clusters
+    importance_composantes = np.zeros((len(ecarts_inter_clusters)))
     for i in range(len(importance_composantes)):
-        if importance_composantes[i] == np.nan:
+        if ecarts_intra_clusters[i] == 0:
             importance_composantes[i] = 0
+        else:
+            importance_composantes[i] = ecarts_inter_clusters[i]/ecarts_intra_clusters[i]
     return importance_composantes
 
 
