@@ -96,7 +96,9 @@ class Similarity():
         return qualite, fp, fn, q, n, mauvaises_attributions, nb_auteur_different, mauvais_rejets, nb_meme_auteur 
     
     def calibrer(self, textes_base, textes_calibrage):
-        self.textes_base = textes_base
+        m = min(len(textes_base), len(textes_calibrage))
+        self.textes_base = rd.sample(textes_base, m)
+        self.textes_calibrage = rd.sample(textes_calibrage, m)
 
         self.M1 = np.zeros((len(textes_base), len(textes_base)))
         for i in range(len(textes_base)):
@@ -106,10 +108,7 @@ class Similarity():
         self.AGS_base = np.mean(self.AS_base)
         self.marge_base = np.sqrt(np.var(self.AS_base))
         
-        if len(textes_calibrage) > 0:
-            
-            self.textes_calibrage = rd.sample(textes_calibrage, len(textes_base))
-            #self.textes_calibrage = textes_calibrage
+        if len(self.textes_calibrage) > 0:
             self.textes = self.textes_base + self.textes_calibrage
             
             self.AS_calibrage = []
@@ -204,8 +203,8 @@ class Similarity():
         
     def evaluer(self, verif, vraie_verif):
         qualite, fp, fn, q, n, mauvaises_attributions, nb_auteur_different, mauvais_rejets, nb_meme_auteur   = self.qualite(verif, vraie_verif)
-        print("Mauvaises attributions : {} sur {}".format(mauvaises_attributions, nb_auteur_different))
-        print("Mauvais rejets : {} sur {}".format(mauvais_rejets, nb_meme_auteur))
+        print("Mauvaises attributions : {} sur {}, soit {} %".format(mauvaises_attributions, nb_auteur_different, int(100*fp)))
+        print("Mauvais rejets : {} sur {}, soit {} %".format(mauvais_rejets, nb_meme_auteur, int(100*fn)))
         #print("Nombre de vérifications correctes : {} sur {}".format(q,n))
         print("Efficacité moyenne : {} %".format(int(100*(1-(fp+fn)/2))))
     
@@ -214,6 +213,10 @@ class Similarity():
         print("Performance sur le calibrage")
         print("")
         self.evaluer(self.verif_calibrage, self.vraie_verif_calibrage)
+        print("")
+        print("Performance sur la verification")
+        print("")
+        self.evaluer(self.verif, self.vraie_verif)
         print("")
         aut_base = self.textes_base[0].auteur
         aut = self.textes_disputes[0].auteur
@@ -241,18 +244,3 @@ class Similarity():
             print("L'oeuvre " + aut + str(num) + " a été écrite par " + aut_base + " : " + str(nb_vrai) + " textes contre " + str(nb_faux))
         else:
             print("L'oeuvre " + aut + str(num) + " n'a pas été écrite par " + aut_base + " : " + str(nb_vrai) + " textes contre " + str(nb_faux))
-
-
-
-taille_morceaux = 1000
-analyseur = Analyseur([freq_ponct, freq_gram, plus_courants, freq_lettres])
-verificateur = Similarity()
-
-liste_id_oeuvres_base = [("hugo",k) for k in range(1,8)]
-
-liste_id_oeuvres_calibrage = [("proust",k) for k in range(1,7)]
-
-liste_id_oeuvres_disputees = [("hugo",8)] + [("dumas",9)]
-
-V = Verification(liste_id_oeuvres_base, liste_id_oeuvres_calibrage, liste_id_oeuvres_disputees, taille_morceaux, analyseur, verificateur)
-V.resoudre()

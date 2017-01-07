@@ -28,8 +28,9 @@ def lissage(courbe, k = 1):
 
 class UnmaskingCourbes(Classifieur):
 
-    def __init__(self, nb_essais = 10, pas = 5, taille_echantillon = 20, facteur = 10):
-        print("Création du classifieur Unmasking2")
+    def __init__(self, nb_essais, pas, taille_echantillon, facteur):
+        self.training_set = None
+        self.eval_set = None
         self.nb_essais = nb_essais
         self.pas = pas
         self.taille_echantillon = taille_echantillon
@@ -51,7 +52,7 @@ class UnmaskingCourbes(Classifieur):
         variances = (variances_eval + variances_training)/2
         importances = np.abs(moyennes_eval-moyennes_training)/np.sqrt(variances)
         
-        ordre = sorted(list(range(nb_composantes)), key = lambda i : importances[i])
+        ordre = sorted(list(range(nb_composantes)), key = lambda x : importances[x])
         importances.sort()
         for t in training_set:
             t.auteur = t.auteur + "1" 
@@ -93,14 +94,25 @@ class UnmaskingCourbes(Classifieur):
 
 class Unmasking:
     
-    def __init__(self, nb_selections = 5, nb_oeuvres = 1, taille_echantillon = 20 , facteur = 10, lissage = 0):
-        self.nb_selections = nb_selections 
+    def __init__(self, nb_selections = 5, nb_oeuvres = 1, taille_echantillon = 20 , facteur = 10, lissage = 0, nb_essais = 10, pas = 5):
+        self.liste_id_oeuvres_calibrage = None
+        self.liste_id_oeuvres_base = None
+        self.liste_id_oeuvres_disputees = None
+        self.taille_morceaux = 1000
+        self.analyseur = None
+        self.J = None
+        self.auteur_base = "?"
+        self.nb_selections = nb_selections
         self.nb_oeuvres = nb_oeuvres
         self.taille_echantillon = taille_echantillon
         self.facteur = facteur
         self.lissage = lissage
+        self.nb_essais = nb_essais
+        self.pas = pas
         self.verif = []
         self.PM_verif = []
+        self.PM_id = None
+        self.PM_dif = None
         self.taux = []
     
     def calibrer(self, textes_base, textes_calibrage):
@@ -120,7 +132,7 @@ class Unmasking:
             ob2 = [self.liste_id_oeuvres_base[i] for i in ob2_ind]
             oc1 = [self.liste_id_oeuvres_calibrage[i] for i in oc1_ind]
             
-            classifieur_id = UnmaskingCourbes()
+            classifieur_id = UnmaskingCourbes(self.nb_essais, self.pas, self.taille_echantillon, self.facteur)
             P_id = Probleme(ob1, ob2, self.taille_morceaux, self.analyseur, classifieur_id, "fr")
             P_id.creer_textes(equilibrage = True)
             P_id.analyser(normalisation = True)
@@ -131,8 +143,8 @@ class Unmasking:
             precision1 = [p/a for p in precision1]
             #plt.plot(J,precision1, linestyle = "--", color = "b")
 
-            classifieur_dif = UnmaskingCourbes()
-            P_dif = Probleme(ob1, oc1, self.taille_morceaux, self.analyseur, classifieur_id, "fr")
+            classifieur_dif = UnmaskingCourbes(self.nb_essais, self.pas, self.taille_echantillon, self.facteur)
+            P_dif = Probleme(ob1, oc1, self.taille_morceaux, self.analyseur, classifieur_dif, "fr")
             P_dif.creer_textes(equilibrage = True)
             P_dif.analyser(normalisation = True)
             P_dif.appliquer_classifieur()
@@ -162,12 +174,11 @@ class Unmasking:
                 print("Courbe de vérification n°{} pour l'oeuvre disputee {}".format(k+1, i+1))
                 print("")
                 lb = min(self.nb_oeuvres, len(self.liste_id_oeuvres_base))
-                ld = min(self.nb_oeuvres, len(self.liste_id_oeuvres_disputees))
                 ob1_ind = np.random.choice(len(self.liste_id_oeuvres_base), lb)
                 ob1 = [self.liste_id_oeuvres_base[i] for i in ob1_ind]
                 od1 = [self.liste_id_oeuvres_disputees[i]]
  
-                classifieur_verif = UnmaskingCourbes()
+                classifieur_verif = UnmaskingCourbes(self.nb_essais, self.pas, self.taille_echantillon, self.facteur)
                 P_verif = Probleme(ob1, od1, self.taille_morceaux, self.analyseur, classifieur_verif, "fr")
                 P_verif.creer_textes(equilibrage = True)
                 P_verif.analyser(normalisation = True)
@@ -184,13 +195,13 @@ class Unmasking:
             
             self.PM_verif[i] /= self.nb_selections
             self.PM_verif[i] = lissage(self.PM_verif[i], self.lissage)
-            self.d_id = norm(self.PM_verif[i] - self.PM_id)
-            self.d_dif = norm(self.PM_verif[i] - self.PM_dif)
-            if self.d_id < self.d_dif:
+            d_id = norm(self.PM_verif[i] - self.PM_id)
+            d_dif = norm(self.PM_verif[i] - self.PM_dif)
+            if d_id < d_dif:
                 self.verif.append(True)
             else:
                 self.verif.append(False)
-            self.taux.append((self.d_id,self.d_dif))
+            self.taux.append((d_id,d_dif))
     
     def afficher(self):
         print("")
@@ -214,20 +225,3 @@ class Unmasking:
             plt.title("Unmasking")
             plt.savefig("unmasking_graph"+ str(int(time())) + ".png")
             plt.show()
-            
-
-
-###############################################################################
-
-taille_morceaux = 500
-analyseur = Analyseur([freq_ponct, freq_gram, plus_courants, freq_lettres])
-verificateur = Unmasking()
-
-liste_id_oeuvres_base = [("zola",k) for k in range(1,10)]
-
-liste_id_oeuvres_calibrage = [("proust",k) for k in range(1,5)]
-
-liste_id_oeuvres_disputees = [("zola",11)] 
-
-V = Verification(liste_id_oeuvres_base, liste_id_oeuvres_calibrage, liste_id_oeuvres_disputees, taille_morceaux, analyseur, verificateur)
-V.resoudre()

@@ -1,5 +1,7 @@
 from time import time
 
+d = time()
+
 from Representation.affichage import afficher_points
 from carac import *
 from classes import Analyseur, Probleme
@@ -11,7 +13,7 @@ from Clustering.kmeans import Kmeans
 from Clustering.kmedoids import KMedoids
 from Clustering.kPPV import kPPV
 
-d = time()
+
 
 oeuvres_training_set =[("zola",k) for k in range(1,3)] + [("balzac",k) for k in range(1,3)] + [("maupassant",k) for k in range(1,3)]
 oeuvres_eval_set = [("zola",k) for k in range(3,5)] + [("balzac",k) for k in range(3,5)] + [("maupassant",k) for k in range(3,5)]
@@ -19,9 +21,9 @@ taille_morceaux = 5000
 analyseur = Analyseur([freq_gram, plus_courants, freq_ponct, freq_stopwords])
 classifieur = kPPV()
 
-P = Probleme(oeuvres_training_set, oeuvres_eval_set, taille_morceaux, analyseur, classifieur, langue = "fr")
+#P = Probleme(oeuvres_training_set, oeuvres_eval_set, taille_morceaux, analyseur, classifieur, langue = "fr")
 
-P.resoudre()
+#P.resoudre()
 
 print()
 print("Test de SVM")

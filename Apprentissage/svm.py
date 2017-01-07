@@ -4,8 +4,6 @@ from Interpretation.importance_composantes import *
 from Utilitaires.pca import pca
 from classes import *
 
-
-
 class SVM(Classifieur):
     
     def __init__(self, pc = True, kernel = 'rbf', gamma = "auto", C = 5, nombre_composantes = 5000):
@@ -75,11 +73,10 @@ class SVM(Classifieur):
         for t in self.eval_set:
             auteur_reel = t.auteur
             auteur_suppose = clf.predict([t.vecteur_pca])[0]
-            classification.append((t,auteur_reel,auteur_suppose))
+            classification.append((t, auteur_reel, auteur_suppose))
         self.classification = classification
         self.clusters = self.classification_to_clusters()
         self.p, self.p_ref = self.classification_to_matrices()
-
 
     def afficher(self):
         print("Résultats du classifieur SVM sur le corpus étudié :")
