@@ -44,7 +44,7 @@ class kPPV(classes.Classifieur):
         kppv_list = self.k_plus_proches_voisins(self.liste_textes_tuples, nombre_voisins, texte)
         self.liste_textes_tuples += [[texte, self.classe_majoritaire(kppv_list)]]
 
-    def classifier(self, training_set, eval_set):
+    def classifier(self, training_set, eval_set, noms_composantes):
         # format d'entrée : training_set contient les textes déjà classés, et eval_set contient les textes à classifier
 
         self.k = min(len(training_set),9)  # Initialisation du nombre de voisins, à adapter si besoin
@@ -54,6 +54,7 @@ class kPPV(classes.Classifieur):
         self.p = None
         self.p_ref = None
         self.classification = None
+        self.noms_composantes = noms_composantes
 
         # Initialisation de classes_auteurs, clusters et liste_textes_tuples
         self.classes_auteurs = {}  # auteurs_classes[auteur de la classe] = numero_classe
@@ -94,5 +95,5 @@ class kPPV(classes.Classifieur):
             self.p_ref[i][self.auteurs_inverses[self.liste_textes_tuples[i][0].auteur]] = 1
 
     def afficher(self):
-        fenetre = FenetreAffichage(self.liste_textes, self.p, self.p_ref, self.auteurs, "pca")
+        fenetre = FenetreAffichage([], self.liste_textes, self.p, self.p_ref, self.auteurs, "pca", self.poids_composantes(), self.noms_composantes)
         fenetre.build()

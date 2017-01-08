@@ -62,7 +62,7 @@ class Bayes(Classifieur):
         self.precision = None
         pass
     
-    def classifier(self, training_set, eval_set):
+    def classifier(self, training_set, eval_set, noms_composantes):
         self.eval_set = eval_set
         self.training_set = training_set
         vecteurs_training = [t.vecteur for t in training_set]

@@ -16,7 +16,7 @@ d = time()
 oeuvres_training_set =[("zola",k) for k in range(1,3)] + [("balzac",k) for k in range(1,3)] + [("maupassant",k) for k in range(1,3)]
 oeuvres_eval_set = [("zola",k) for k in range(3,5)] + [("balzac",k) for k in range(3,5)] + [("maupassant",k) for k in range(3,5)]
 taille_morceaux = 5000
-analyseur = Analyseur([freq_gram, plus_courants, freq_ponct, freq_stopwords])
+analyseur = Analyseur([freq_gram, plus_courants, freq_ponct])
 classifieur = kPPV()
 
 P = Probleme(oeuvres_training_set, oeuvres_eval_set, taille_morceaux, analyseur, classifieur, langue = "fr")

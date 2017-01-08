@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 from tkinter import *
 from scipy.spatial import ConvexHull
-from Utilitaires.pca import pca_matrice
+from Utilitaires.pca import pca, pca_matrice
 import numpy.linalg
 import numpy as np
-from Interpretation.importance_composantes import importance
+from Interpretation.importance_composantes import importance, gain_information
+
 
 class FenetreAffichage:
 
-    def __init__(self, liste_textes, p, p_ref, noms_auteurs, methode_reduction):
+    def __init__(self, training_set, eval_set, p, p_ref, noms_auteurs, methode_reduction, poids_composantes, noms_composantes):
         self.height = 600
         self.width = 600
-        self.liste_textes = liste_textes
-        self.p = p
-        self.p_ref = p_ref
+        self.liste_textes = training_set + eval_set
+        self.p, self.p_ref, self.noms_auteurs = nouvelles_matrices(training_set, p, p_ref, noms_auteurs)
+        self.n_points = len(self.liste_textes)
 
         self.matrice_proportions = None
         self.indices_coefficients_separateurs = []  # Les indices des 10 coordonnées les plus importantes
@@ -21,7 +22,6 @@ class FenetreAffichage:
         self.vecteurs_originaux = []  # Contient les vecteurs des textes avant PCA
 
         # Création des clusters
-        self.noms_auteurs = noms_auteurs
         self.noms_auteurs_inverses = {}
         self.clusters_theoriques_indices = [[] for i in
                                             range(len(noms_auteurs))]  # permettra de calculer l'enveloppe convexe
@@ -40,8 +40,8 @@ class FenetreAffichage:
                 vecteurs.append(texte.vecteur)
                 self.vecteurs_originaux.append(texte.vecteur)
             vecteurs, self.matrice_proportions = pca_matrice(vecteurs)
-            for i in range(len(self.liste_textes)):
-                self.liste_textes[i].vecteur = vecteurs[i]
+            #for i in range(self.n):
+            #    self.liste_textes[i].vecteur = vecteurs[i]
 
             # Création des variables du système de réévaluation des composantes
 
@@ -63,11 +63,12 @@ class FenetreAffichage:
             for cluster_indice in self.clusters_concrets_indices:
                 cluster = []
                 for indice in cluster_indice:
-                    cluster.append(self.liste_textes[i])
+                    cluster.append(self.liste_textes[indice])
                 clusters_concrets_textes.append(cluster)
-            importance_composantes = importance(clusters_concrets_textes)
+            importance_composantes = poids_composantes
+            # importance_composantes = importance(clusters_concrets_textes)
             self.indices_coefficients_separateurs = sorted(range(1, len(self.matrice_proportions)),
-                                                    key=(lambda k: importance_composantes[k]))[
+                                                    key=(lambda k: importance_composantes[k]))[::-1][
                                                     :min(10, len(self.matrice_proportions))]
             self.coefficients_coordonnees = [1 for i in range(len(self.indices_coefficients_separateurs))]
 
@@ -89,8 +90,12 @@ class FenetreAffichage:
                                             command=self.switch_points_enveloppe)
 
         self.scales = []
-        for i in range(min(10, len(liste_textes[0].vecteur))):
-            sc = Scale(fenetre, orient='vertical', resolution=1, label='X_'+str(i), from_=1, to=100, command=self.change_proportion_builder(i))
+        self.noms_scales = []
+        for i in range(min(10, len(self.liste_textes[0].vecteur))):
+            lb = Label(fenetre, text=noms_composantes[self.indices_coefficients_separateurs[i]])
+            self.noms_scales.append(lb)
+
+            sc = Scale(fenetre, orient='horizontal', resolution=1, label='X_'+str(i), from_=1, to=100, command=self.change_proportion_builder(i))
             sc.set(1)
             self.scales.append(sc)
 
@@ -110,7 +115,7 @@ class FenetreAffichage:
         self.coefficients_coordonnees[i] = arg
 
         vecteurs = []
-        for k in range(len(self.liste_textes)):
+        for k in range(self.n_points):
             vecteurs.append(np.dot(self.matrice_proportions, self.liste_textes[k].vecteur))
             # vecteurs.append(np.dot(self.matrice_proportions, self.vecteurs_originaux[k]))
         self.points = self.normaliser_points(vecteurs)
@@ -121,30 +126,31 @@ class FenetreAffichage:
         en gardant ses deux premieres dimensions et en les renormalisant pour
         l'affichage dans la fenetre"""
         # On regarde les coordonnees extremales pour les normaliser
-        self.xMin = 0
-        self.yMin = 0
-        self.xMax = 0
-        self.yMax = 0
+        xMin = vecteurs[0][0]
+        yMin = vecteurs[0][1]
+        xMax = vecteurs[0][0]
+        yMax = vecteurs[0][1]
         for vecteur in vecteurs:
             x = vecteur[0]
             y = vecteur[1]
-            if x > self.xMax:
-                self.xMax = x
-            if x < self.xMin:
-                self.xMin = x
-            if y > self.yMax:
-                self.yMax = y
-            if y < self.yMin:
-                self.yMin = y
+            if x > xMax:
+                xMax = x
+            if x < xMin:
+                xMin = x
+            if y > yMax:
+                yMax = y
+            if y < yMin:
+                yMin = y
 
-        proportion_x = self.width / (self.xMax - self.xMin) * 0.90
-        proportion_y = self.height / (self.yMax - self.yMin) * 0.90
+        proportion_x = self.width / (xMax - xMin) * 0.90
+        proportion_y = self.height / (yMax - yMin) * 0.90
         points = []
 
         for vecteur in vecteurs:
             points.append(
-                [(vecteur[0] - self.xMin) * proportion_x + 0.05 * (self.xMax - self.xMin) * proportion_x,
-                 (vecteur[1] - self.yMin) * proportion_y + 0.05 * (self.yMax - self.yMin) * proportion_y])
+                [(vecteur[0] - xMin) * proportion_x + 0.05 * (xMax - xMin) * proportion_x,
+                 (vecteur[1] - yMin) * proportion_y + 0.05 * (yMax - yMin) * proportion_y])
+
         return points
 
     def switch_theorique_concret(self):
@@ -176,7 +182,7 @@ class FenetreAffichage:
             self.canvas.delete(objet)
         self.objets_dessines = []
 
-        for i in range(len(self.liste_textes)):
+        for i in range(self.n_points):
             if self.theorique:
                 indice = self.auteur_theorique(i)
             else:
@@ -199,11 +205,11 @@ class FenetreAffichage:
                     outline=self.couleurs[k], fill="", width=3))
 
     def build(self):
-        self.canvas.grid(row=0, column=0, rowspan=5, columnspan=2)
+        self.canvas.grid(row=0, column=0, rowspan=10, columnspan=2)
         self.repaint()
 
-        self.theorique_concret_switch.grid(row=6, column=0)
-        self.enveloppe_switch.grid(row=6, column=1)
+        self.theorique_concret_switch.grid(row=11, column=0)
+        self.enveloppe_switch.grid(row=11, column=1)
 
         frame_auteurs = Frame(self.fenetre, borderwidth=2)
         frame_clusters = Frame(self.fenetre, borderwidth=2)
@@ -232,10 +238,32 @@ class FenetreAffichage:
                 cluster_canvas.create_rectangle(x, 0, x2, 21, fill=self.couleurs[k])
                 x = x2+1
             cluster_canvas.grid(row=i, column=3, columnspan=6)
-        frame_auteurs.grid(row=7, column=0, columnspan=2, sticky=W)
-        frame_clusters.grid(row=8, column=0, columnspan=2, sticky=W)
+        frame_auteurs.grid(row=12, column=0, columnspan=2, sticky=W)
+        frame_clusters.grid(row=13, column=0, columnspan=2, sticky=W)
 
         for i in range(len(self.scales)):
-            self.scales[i].grid(row=i // 2, column=2+i % 2, sticky=N)
+            self.noms_scales[i].grid(row=2*(i // 2), column=2+i % 2, sticky=N)
+            self.scales[i].grid(row=2*(i // 2)+1, column=2+i % 2, sticky=N)
 
         self.fenetre.mainloop()
+
+def nouvelles_matrices(training_set, p, p_ref, auteurs):
+    auteurs_eval = set(auteurs)
+    auteurs_training = set([t.auteur for t in training_set])
+    auteurs_sup_training = list(auteurs_training - auteurs_eval)
+    auteurs_total = auteurs + auteurs_sup_training
+    nt = len(training_set)
+    ne = p.shape[0]
+    na = len(auteurs_total)
+    p2 = np.zeros((nt+ne,na))
+    p_ref2 = np.zeros((nt+ne,na))
+    for i in range(nt):
+        t = training_set[i]
+        j = auteurs_total.index(t.auteur)
+        p2[i,j] = 1
+        p_ref2[i,j] = 1
+    for i in range(nt,nt+ne):
+        for j in range(len(auteurs)):
+            p2[i][j] = p[i-nt,j]
+            p_ref2[i][j] = p_ref[i-nt,j]
+    return p2,p_ref2, auteurs_total

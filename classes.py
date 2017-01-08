@@ -8,11 +8,11 @@ from treetaggerwrapper import TreeTagger, make_tags
 from Evaluation import evaluation_externe as ee
 from Evaluation import evaluation_interne as ei
 from Evaluation import evaluation_relative as er
-from Interpretation.importance_composantes import gain_information,importance
+from Interpretation.importance_composantes import gain_information, importance
 from Utilitaires.importation_et_pretraitement import importer, formater
 from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1
 
-emplacement_dossier_groupe = "/Users/Guillaume/Google Drive/Cours X/PSC/Groupe PSC/"
+emplacement_dossier_groupe = "C:/Users/Clement/Google Drive/Groupe PSC/"
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "ch" : "chinois"}
 
 class Infos:
@@ -157,7 +157,7 @@ class Classifieur:
     - p_ref = matrice de partition floue connue au préalable avec nos informations sur les auteurs des textes
     """
 
-    def classifier(self, training_set, eval_set):
+    def classifier(self, training_set, eval_set, noms_composantes):
         self.liste_textes = training_set + eval_set
         self.training_set = training_set
         self.eval_set = eval_set
@@ -166,6 +166,10 @@ class Classifieur:
         self.precision = 0
         self.classification = None
         self.clusters = None
+        #self.noms_composantes = noms_composantes
+
+    def poids_composantes(self):
+        return importance(self.clusters)
 
     def afficher(self):
         print("tada")
@@ -234,7 +238,8 @@ class Probleme:
         self.classifieur.liste_textes = self.liste_textes
         self.classifieur.training_set = self.training_set
         self.classifieur.eval_set = self.eval_set
-        self.classifieur.classifier(self.training_set, self.eval_set)
+        print(len(self.analyseur.noms_composantes))
+        self.classifieur.classifier(training_set=self.training_set, eval_set=self.eval_set, noms_composantes=self.analyseur.noms_composantes)
         print("Classification effectuée")
         self.classifieur.afficher()
 

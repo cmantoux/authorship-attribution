@@ -30,7 +30,7 @@ def importance(clusters):
                 M2 = moyennes_clusters[j]
                 dist = np.abs(M1 - M2)
                 ecarts_inter_clusters += dist
-    ecarts_inter_clusters = [e / n for e in ecarts_inter_clusters]
+    ecarts_inter_clusters = np.array([e / n for e in ecarts_inter_clusters])
     importance_composantes = ecarts_inter_clusters/ecarts_intra_clusters
     for i in range(len(importance_composantes)):
         if importance_composantes[i] == np.nan:
@@ -61,4 +61,3 @@ def gain_information(clusters):
     gains += entropie(tous_vecteurs)
     gains /= info_intrinseque
     return gains
-

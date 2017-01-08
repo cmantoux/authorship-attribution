@@ -26,7 +26,7 @@ class SVM(Classifieur):
         self.index = None
         self.importance_composantes = None
     
-    def classifier(self, training_set, eval_set):
+    def classifier(self, training_set, eval_set, noms_composantes):
         self.liste_textes = training_set + eval_set
         self.training_set = training_set
         self.eval_set = eval_set

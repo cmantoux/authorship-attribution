@@ -14,7 +14,7 @@ from classes import *
 from Utilitaires.pca import pca
 import matplotlib.pyplot as plt
 
-oeuvre = Oeuvre('hugo', 5)  # Les trois mousquetaires : Dumas 5
+oeuvre = Oeuvre('maupassant', 5)  # Les trois mousquetaires : Dumas 5
 
 taille_creneau = 10000
 
@@ -37,7 +37,7 @@ while k < min(100000,L)-taille_creneau:
 
 analyseur = Analyseur([freq_gram, plus_courants, freq_ponct, freq_stopwords])
 
-k  =0
+k = 0
 for texte in liste_textes:
     analyseur.analyser(texte)
     print(k/len(liste_textes))
