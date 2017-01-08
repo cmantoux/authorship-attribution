@@ -95,7 +95,7 @@ class UnmaskingCourbes(Classifieur):
 
 class Unmasking:
     
-    def __init__(self, nb_selections = 5, nb_oeuvres = 1, taille_echantillon = 20 , facteur = 10, lissage = 0, nb_essais = 10, pas = 5):
+    def __init__(self, nb_selections = 5, nb_oeuvres = 1, taille_echantillon = 20 , facteur = 10, lissage = 0, nb_essais = 10, pas = 5,langue = "fr"):
         self.liste_id_oeuvres_calibrage = None
         self.liste_id_oeuvres_base = None
         self.liste_id_oeuvres_disputees = None
@@ -115,6 +115,7 @@ class Unmasking:
         self.PM_id = None
         self.PM_dif = None
         self.taux = []
+        self.langue = langue
     
     def calibrer(self, textes_base, textes_calibrage):
         self.auteur_base = textes_base[0].auteur
@@ -134,7 +135,7 @@ class Unmasking:
             oc1 = [self.liste_id_oeuvres_calibrage[i] for i in oc1_ind]
             
             classifieur_id = UnmaskingCourbes(self.nb_essais, self.pas, self.taille_echantillon, self.facteur)
-            P_id = Probleme(ob1, ob2, self.taille_morceaux, self.analyseur, classifieur_id, "fr")
+            P_id = Probleme(ob1, ob2, self.taille_morceaux, self.analyseur, classifieur_id, self.langue)
             P_id.creer_textes(equilibrage = True, equilibrage_eval = False)
             P_id.analyser(normalisation = True)
             P_id.appliquer_classifieur()
@@ -145,7 +146,7 @@ class Unmasking:
             #plt.plot(J,precision1, linestyle = "--", color = "b")
 
             classifieur_dif = UnmaskingCourbes(self.nb_essais, self.pas, self.taille_echantillon, self.facteur)
-            P_dif = Probleme(ob1, oc1, self.taille_morceaux, self.analyseur, classifieur_dif, "fr")
+            P_dif = Probleme(ob1, oc1, self.taille_morceaux, self.analyseur, classifieur_dif, self.langue)
             P_dif.creer_textes(equilibrage = True, equilibrage_eval = False)
             P_dif.analyser(normalisation = True)
             P_dif.appliquer_classifieur()
@@ -180,7 +181,7 @@ class Unmasking:
                 od1 = [self.liste_id_oeuvres_disputees[i]]
  
                 classifieur_verif = UnmaskingCourbes(self.nb_essais, self.pas, self.taille_echantillon, self.facteur)
-                P_verif = Probleme(ob1, od1, self.taille_morceaux, self.analyseur, classifieur_verif, "fr")
+                P_verif = Probleme(ob1, od1, self.taille_morceaux, self.analyseur, classifieur_verif, self.langue)
                 P_verif.creer_textes(equilibrage = True, equilibrage_eval = False)
                 P_verif.analyser(normalisation = True)
                 P_verif.appliquer_classifieur()

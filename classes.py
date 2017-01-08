@@ -13,7 +13,7 @@ from Interpretation.importance_composantes import gain_information,importance, a
 from Utilitaires.importation_et_pretraitement import importer, formater
 from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1, equilibrer2
 
-emplacement_dossier_groupe = "/Users/Guillaume/Google Drive/Cours X/PSC/Groupe PSC/"
+emplacement_dossier_groupe = "/Users/maximegodin/Google Drive/Groupe PSC/"
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "ch" : "chinois"}
 
 class Infos:
@@ -190,6 +190,7 @@ class Probleme:
         for id in liste_id_oeuvres_training_set:
             auteur = id[0]
             numero = id[1]
+            print(langue)
             oeuvre = Oeuvre(auteur,numero,langue)
             self.oeuvres_training_set.append(oeuvre)
         for id in liste_id_oeuvres_eval_set:
