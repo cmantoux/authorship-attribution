@@ -112,7 +112,7 @@ class OPTICS(Classifieur):
         print("Création du classifieur OPTICS")
         pass
     
-    def classifier(self, training_set, eval_set, noms_composantes):
+    def classifier(self, training_set, eval_set):
         #paramètres Proust/Hugo
         eps=0.03
         Minpts=5

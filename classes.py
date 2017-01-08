@@ -1,3 +1,4 @@
+
 import codecs
 import csv
 import pickle
@@ -8,9 +9,13 @@ from treetaggerwrapper import TreeTagger, make_tags
 from Evaluation import evaluation_externe as ee
 from Evaluation import evaluation_interne as ei
 from Evaluation import evaluation_relative as er
-from Interpretation.importance_composantes import gain_information, importance
+
+from Interpretation.importance_composantes import gain_information,importance, auteurs_majoritaires
+
 from Utilitaires.importation_et_pretraitement import importer, formater
-from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1
+from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1, equilibrer2
+
+from Representation.fenetre import FenetreAffichage
 
 emplacement_dossier_groupe = "C:/Users/Clement/Google Drive/Groupe PSC/"
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "ch" : "chinois"}
@@ -157,7 +162,7 @@ class Classifieur:
     - p_ref = matrice de partition floue connue au préalable avec nos informations sur les auteurs des textes
     """
 
-    def classifier(self, training_set, eval_set, noms_composantes):
+    def classifier(self, training_set, eval_set):
         self.liste_textes = training_set + eval_set
         self.training_set = training_set
         self.eval_set = eval_set
@@ -166,7 +171,6 @@ class Classifieur:
         self.precision = 0
         self.classification = None
         self.clusters = None
-        #self.noms_composantes = noms_composantes
 
     def poids_composantes(self):
         return importance(self.clusters)
@@ -211,13 +215,15 @@ class Probleme:
         self.liste_texts = []
         self.full_text = full_text
 
-    def creer_textes(self, equilibrage = True):
+    def creer_textes(self, equilibrage = True, equilibrage_eval = False):
         for oeuvre in self.oeuvres_training_set:
             self.training_set.extend(oeuvre.split(self.taille_morceaux,self.full_text))
         for oeuvre in self.oeuvres_eval_set:
              self.eval_set.extend(oeuvre.split(self.taille_morceaux, self.full_text))
         if equilibrage :
             self.training_set = equilibrer1(self.training_set)
+        if equilibrage_eval :
+            self.eval_set = equilibrer1(self.eval_set)
         self.liste_textes = self.training_set + self.eval_set
         print("Textes de training_set et eval_set initialisés")
 
@@ -239,7 +245,7 @@ class Probleme:
         self.classifieur.training_set = self.training_set
         self.classifieur.eval_set = self.eval_set
         print(len(self.analyseur.noms_composantes))
-        self.classifieur.classifier(training_set=self.training_set, eval_set=self.eval_set, noms_composantes=self.analyseur.noms_composantes)
+        self.classifieur.classifier(training_set=self.training_set, eval_set=self.eval_set)
         print("Classification effectuée")
         self.classifieur.afficher()
 
@@ -247,6 +253,7 @@ class Probleme:
         print("/// Evaluation interne ///")
         print("Indice de Hubert interne : " + str(ei.huberts_interne(self.eval_set, self.classifieur.p)))
         print("/// Evaluation relative ///")
+        print("Trop long, décommentez les indices correspondants dans classes.py si vous avez du temps")
         #print("Indice de Hubert relatif : " + str(er.huberts_relatif(self.eval_set, self.classifieur.p)))
         #print("Indice de Dunn : " + str(er.dunn(self.eval_set, self.classifieur.p)))
         #print("Indice de Davies-Bouldin : " + str(er.davies_bouldin(self.eval_set, self.classifieur.p)))
@@ -260,11 +267,36 @@ class Probleme:
     def interpreter(self):
         print("Composantes les plus importantes dans la classification :")
         noms_composantes = self.analyseur.noms_composantes
-        importance1 = importance(self.classifieur.clusters)
-        noms_et_importance1 = [(noms_composantes[k],importance1[k]) for k in range(len(noms_composantes))]
-        noms_et_importance1.sort(key = lambda x : x[1], reverse=True)
-        for couple in noms_et_importance1[:10]:
-            print(couple)
+        A = importance(self.classifieur.clusters, comp = True)
+        #auteurs = auteurs_majoritaires(self.classifieur.clusters)
+        auteurs = self.classifieur.auteurs
+        importance1 = A[0]
+        ecarts_inter = A[1]
+        ecarts_intra = A[2]
+        moyennes_clusters = A[3]
+        indices_tries = sorted(list(range(len(importance1))), key = lambda k : importance1[k], reverse = True)
+        noms_et_importance1 = [(noms_composantes[k],importance1[k]) for k in indices_tries]
+        n=0
+        while noms_et_importance1[n][1]>1:
+            n+=1
+        if n>=len(noms_et_importance1):
+            n=len(noms_et_importance1)
+        for k in range(n):
+            print("")
+            print(str(k+1) + ") " + noms_et_importance1[k][0])
+            print("Importance : {:.4f}".format(noms_et_importance1[k][1]))
+            i = indices_tries[k]
+            print("   Ecart intra clusters pour cette composante : {:.4f} ".format(ecarts_intra[i]))
+            print("   Ecart inter clusters pour cette composante : {:.4f} ".format(ecarts_inter[i]))
+            for l in range(len(moyennes_clusters)):
+                m = moyennes_clusters[l]
+                aut = auteurs[l]
+                print("      Moyenne parmi les textes attribués à " + aut + " : {:.4f}".format(m[i]))
+        print("")
+
+    def afficher_graphique(self):
+        fenetre = FenetreAffichage(self.analyseur, self.classifieur, self.classifieur.poids_composantes())
+        fenetre.build()
 
     def resoudre(self):
         print("Création des textes :")
@@ -278,14 +310,13 @@ class Probleme:
         print("")
         print("Evaluation :")
         self.evaluer()
-        print("La flemme d'évaluer, on fera ça un autre jour")
         print("")
         print("Interprétation :")
         self.interpreter()
 
 class Verification():
     
-    def __init__(self, liste_id_oeuvres_base, liste_id_oeuvres_calibrage, liste_id_oeuvres_disputees, taille_morceaux, analyseur, demasqueur, langue = "fr", full_text = False):
+    def __init__(self, liste_id_oeuvres_base, liste_id_oeuvres_calibrage, liste_id_oeuvres_disputees, taille_morceaux, analyseur, verificateur, langue = "fr", full_text = False):
         print("Assemblage du problème de vérification")
         self.oeuvres_base = []
         self.oeuvres_calibrage = []
@@ -312,8 +343,16 @@ class Verification():
         print("Liste_oeuvres remplie")
         self.analyseur = analyseur
         print("Analyseur basé sur " + " ".join([f.__name__ for f in analyseur.liste_fonctions]) + " initialisé")
-        self.demasqueur = demasqueur
-        print("Classifieur initialisé")
+        self.verificateur = verificateur
+        self.verificateur.liste_id_oeuvres_base = liste_id_oeuvres_base
+        self.verificateur.liste_id_oeuvres_calibrage = liste_id_oeuvres_calibrage
+        self.verificateur.liste_id_oeuvres_disputees = liste_id_oeuvres_disputees
+        self.verificateur.oeuvres_base = self.oeuvres_base
+        self.verificateur.oeuvres_calibrage = self.oeuvres_calibrage
+        self.verificateur.oeuvres_disputees = self.oeuvres_disputees
+        self.verificateur.analyseur = analyseur
+        self.verificateur.taille_morceaux = taille_morceaux
+        print("Vérificateur initialisé")
         self.textes_base = []
         self.textes_calibrage = []
         self.textes_disputes = []
@@ -341,11 +380,11 @@ class Verification():
             texte.vecteur = A[k]
         print("Textes analysés et vectorisés")
 
-    def appliquer_demasqueur(self):
-        """Applique le demasqueur pour determiner la paternité de l'oeuvre disputée."""
-        self.demasqueur.calibrer(self.textes_base, self.textes_calibrage)
-        self.demasqueur.demasquer(self.textes_base, self.textes_disputes)
-        self.demasqueur.afficher()
+    def appliquer_verificateur(self):
+        """Applique le verificateur pour determiner la paternité de l'oeuvre disputée.""" 
+        self.verificateur.calibrer(self.textes_base, self.textes_calibrage)
+        self.verificateur.verifier(self.textes_base, self.textes_disputes)
+        self.verificateur.afficher()
 
     def resoudre(self):
         print("")
@@ -356,5 +395,5 @@ class Verification():
         self.analyser()
         print("")
         print("Calibrage, démasquage et affichage :")
-        self.appliquer_demasqueur()
+        self.appliquer_verificateur()
         print("")

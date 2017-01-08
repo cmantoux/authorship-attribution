@@ -171,9 +171,7 @@ class reseau_neurones(classes.Classifieur):
                 i = j
         return i
 
-    def classifier(self, training_set, eval_set, noms_composantes):
-        self.noms_composantes = noms_composantes
-
+    def classifier(self, training_set, eval_set):
         #On constitue la liste des auteurs
         self.auteurs = []
         self.auteurs_inverses = {}
@@ -267,9 +265,4 @@ class reseau_neurones(classes.Classifieur):
         return tab
 
     def afficher(self):
-        fenetre = FenetreAffichage(self.training_set, self.eval_set, self.p, self.p_ref, self.auteurs, "pca", self.poids_composantes(), self.noms_composantes)
-        fenetre.build()
-        fenetre = FenetreAffichage(self.training_set, self.eval_set, self.p, self.p_ref, self.auteurs, "pca", importance(self.clusters), self.noms_composantes)
-        fenetre.build()
-        fenetre = FenetreAffichage(self.training_set, self.eval_set, self.p, self.p_ref, self.auteurs, "pca", gain_information(self.clusters), self.noms_composantes)
-        fenetre.build()
+        print("TADADADA")

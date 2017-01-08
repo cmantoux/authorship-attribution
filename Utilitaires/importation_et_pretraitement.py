@@ -5,8 +5,6 @@ import codecs
 
 def importer(auteur,numero,emplacement_corpus):
     """permet d'ouvrir le fichier txt situé à l'adresse ci-dessous et nommé par exemple dumas1.txt => pour utiliser sur votre ordinateur, changez juste le chemin d'accès au corpus"""
-
-
     file = codecs.open(emplacement_corpus + auteur + str(numero) + '.txt', encoding = 'utf-8')
     raw = file.read()
     

@@ -128,7 +128,7 @@ class Apriori(Classifieur):
         self.indecis = None
         pass
     
-    def classifier(self, training_set, eval_set, noms_composantes):
+    def classifier(self, training_set, eval_set):
         self.eval_set = eval_set
         self.training_set = training_set
         vecteurs_training = [t.vecteur for t in training_set]
@@ -143,6 +143,7 @@ class Apriori(Classifieur):
         Intermediaires = Apprentissage(vecteurs_training, auteurs_training)
         Probabilite = Test(vecteurs_eval, Intermediaires[1])
         self.p = Probabilite
+        self.auteurs = Intermediaires[0]
         k = np.shape(Probabilite)[1]
         m = np.shape(Probabilite)[0]
         Reference = np.zeros((m,k))
@@ -171,14 +172,4 @@ class Apriori(Classifieur):
         
     def afficher(self):
         print("Résultats du classificateur Apriori sur le corpus étudié :")
-        print("On obtient une précision de : "+str(self.precision)+"%. Parmi les textes qui n'ont pas été attribués correctement, "+str(self.indecis)+"% des textes n'ont pas été attribués à un auteur donné.")                
-    
-    
-             
-               
-                
-                        
-                    
-                    
-                        
-    
+        print("On obtient une précision de : "+str(self.precision)+"%. Parmi les textes qui n'ont pas été attribués correctement, "+str(self.indecis)+"% des textes n'ont pas été attribués à un auteur donné.")

@@ -62,7 +62,7 @@ class Bayes(Classifieur):
         self.precision = None
         pass
     
-    def classifier(self, training_set, eval_set, noms_composantes):
+    def classifier(self, training_set, eval_set):
         self.eval_set = eval_set
         self.training_set = training_set
         vecteurs_training = [t.vecteur for t in training_set]
@@ -71,6 +71,7 @@ class Bayes(Classifieur):
         auteurs_eval = [t.auteur for t in eval_set]
         Intermediaires = f(vecteurs_training, auteurs_training)
         Probabilite = g(Intermediaires[0], Intermediaires[1], vecteurs_eval)
+        self.auteurs = Intermediaires[2]
         self.p = Probabilite
         k = np.shape(Probabilite)[1]
         m = np.shape(Probabilite)[0]

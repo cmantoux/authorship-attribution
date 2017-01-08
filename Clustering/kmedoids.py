@@ -1,5 +1,6 @@
 import numpy as np
 from classes import Classifieur
+from Representation.fenetre import FenetreAffichage
 
 def distance(x,y):
     return np.sum(np.abs(x-y))
@@ -85,7 +86,7 @@ class KMedoids(Classifieur):
         print("Création du classifieur KMedoids")
         pass
     
-    def classifier(self, training_set, eval_set, noms_composantes):
+    def classifier(self, training_set, eval_set):
         self.liste_textes = training_set + eval_set
         self.eval_set = eval_set
         self.training_set = training_set
@@ -94,39 +95,39 @@ class KMedoids(Classifieur):
         S,U,dis = build(self.liste_textes,k)
         swap(S,U,dis)
         clusters = clusterize(self.liste_textes,S,U,dis)
-        auteurs_par_cluster = ["?" for i in range(k)]
-        for j in range(k):
+
+        self.clusters = [[]]*self.k
+
+        auteurs_clusters = ["?" for i in range(self.k)]
+        for j in range(self.k):
             nb_oeuvres_par_auteur = {}
-            for auteur in auteurs:
+            for auteur in self.auteurs:
                 nb_oeuvres_par_auteur[auteur] = 0
             for t in clusters[j]:
-                nb_oeuvres_par_auteur[t.auteur] +=1
+                if t in self.training_set:
+                    nb_oeuvres_par_auteur[t.auteur] +=1
             auteur_max = "?"
             nb_max = 0
-            for auteur in auteurs:
+            for auteur in self.auteurs:
                 if nb_oeuvres_par_auteur[auteur] > nb_max :
                     nb_max = nb_oeuvres_par_auteur[auteur]
                     auteur_max = auteur
-            auteurs_par_cluster[j] = auteur_max
+            auteurs_clusters[j] = auteur_max
+
+        for i in range(self.k):
+            a = auteurs_clusters[i]
+            j = self.auteurs.index(a)
+            self.clusters[j]+=clusters[i]
         n = len(self.eval_set)
-        self.precision = 0
-        self.p = np.zeros((n,k))
-        self.p_ref = np.zeros((n,k))
+        self.p = np.zeros((n,self.k))
+        self.p_ref = np.zeros((n,self.k))
+
         for i in range(n):
-            t = self.eval_set[i]
-            auteur_reel = t.auteur
-            for j in range(k):
+            t = eval_set[i]
+            self.p_ref[i, self.auteurs.index(t.auteur)]
+            for j in range(self.k):
                 if t in clusters[j]:
-                    auteur_suppose = auteurs_par_cluster[j]
-            j_reel = auteurs.index(auteur_reel)
-            j_sup = auteurs.index(auteur_suppose)
-            self.p[i,j_sup] = 1
-            self.p_ref[i,j_reel] = 1
-            if j_sup == j_reel :
-                self.precision += 1
-        self.precision /= n
-        self.clusters = clusters
+                    self.p[i, j] = 1
         
     def afficher(self):
-        print("Résultats du classificateur KMean sur le corpus étudié :")
-        print("Précision : " + str(self.precision))
+        print("Pouet")

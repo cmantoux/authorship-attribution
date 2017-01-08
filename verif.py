@@ -3,17 +3,20 @@ import sys
 sys.path.append("/Users/Guillaume/Documents/Informatique/Projets-git/psc")
 from carac import *
 from classes import Analyseur, Verification
-from Reconnaissance.demasquage import Similarity
+from Verification.similarite import Similarity
+from Verification.unmasking import Unmasking
 
 taille_morceaux = 1000
-analyseur = Analyseur([freq_gram, freq_ponct, plus_courants, freq_lettres])
-demasqueur = Similarity()
+analyseur = Analyseur([freq_ponct, freq_gram, plus_courants])
 
-liste_id_oeuvres_base = [("zola",k) for k in range(1,5)]
+# verificateur = Unmasking()
+verificateur = Similarity()
 
-liste_id_oeuvres_calibrage = [("balzac",k) for k in range(1,5)] + [("maupassant",k) for k in range(1,5)] + [("flaubert",k) for k in range(1,5)]
+liste_id_oeuvres_base = [("dumas",k) for k in range(1,11)]
 
-liste_id_oeuvres_disputees = [("zola",11), ("zola", 13),("balzac",7), ("dumas",1), ("proust", 9)]
+liste_id_oeuvres_calibrage = [("zola",k) for k in range(1,7)]
 
-V = Verification(liste_id_oeuvres_base, liste_id_oeuvres_calibrage, liste_id_oeuvres_disputees, taille_morceaux, analyseur, demasqueur)
+liste_id_oeuvres_disputees = [("dumas",12), ("zola", 7), ("balzac", 1)]
+
+V = Verification(liste_id_oeuvres_base, liste_id_oeuvres_calibrage, liste_id_oeuvres_disputees, taille_morceaux, analyseur, verificateur)
 V.resoudre()

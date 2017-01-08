@@ -7,13 +7,35 @@ import numpy as np
 from Interpretation.importance_composantes import importance, gain_information
 
 
+def nouvelles_matrices(training_set, p, p_ref, auteurs):
+    auteurs_eval = set(auteurs)
+    auteurs_training = set([t.auteur for t in training_set])
+    auteurs_sup_training = list(auteurs_training - auteurs_eval)
+    auteurs_total = auteurs + auteurs_sup_training
+    nt = len(training_set)
+    ne = p.shape[0]
+    na = len(auteurs_total)
+    p2 = np.zeros((nt+ne,na))
+    p_ref2 = np.zeros((nt+ne,na))
+    for i in range(nt):
+        t = training_set[i]
+        j = auteurs_total.index(t.auteur)
+        p2[i,j] = 1
+        p_ref2[i,j] = 1
+    for i in range(nt,nt+ne):
+        for j in range(len(auteurs)):
+            p2[i][j] = p[i-nt,j]
+            p_ref2[i][j] = p_ref[i-nt,j]
+    return p2, p_ref2, auteurs_total
+
 class FenetreAffichage:
 
-    def __init__(self, training_set, eval_set, p, p_ref, noms_auteurs, methode_reduction, poids_composantes, noms_composantes):
+    def __init__(self, analyseur, classifieur, poids_composantes):
         self.height = 600
         self.width = 600
-        self.liste_textes = training_set + eval_set
-        self.p, self.p_ref, self.noms_auteurs = nouvelles_matrices(training_set, p, p_ref, noms_auteurs)
+        self.liste_textes = classifieur.training_set + classifieur.eval_set
+        self.p, self.p_ref, self.noms_auteurs = nouvelles_matrices(classifieur.training_set, classifieur.p,
+                                                                   classifieur.p_ref, classifieur.auteurs)
         self.n_points = len(self.liste_textes)
 
         self.matrice_proportions = None
@@ -24,8 +46,8 @@ class FenetreAffichage:
         # Création des clusters
         self.noms_auteurs_inverses = {}
         self.clusters_theoriques_indices = [[] for i in
-                                            range(len(noms_auteurs))]  # permettra de calculer l'enveloppe convexe
-        self.clusters_concrets_indices = [[] for i in range(len(noms_auteurs))]
+                                            range(len(self.noms_auteurs))]  # permettra de calculer l'enveloppe convexe
+        self.clusters_concrets_indices = [[] for i in range(len(self.noms_auteurs))]
         for i in range(len(self.noms_auteurs)):
             self.noms_auteurs_inverses[self.noms_auteurs[i]] = i
         for i in range(len(self.liste_textes)):
@@ -33,46 +55,44 @@ class FenetreAffichage:
             self.clusters_concrets_indices[self.auteur_concret(i)].append(i)
 
         # Application de methode_reduction
-        if methode_reduction == "pca":
-            # Application de methode_reduction
-            vecteurs = []
-            for texte in self.liste_textes:
-                vecteurs.append(texte.vecteur)
-                self.vecteurs_originaux.append(texte.vecteur)
-            vecteurs, self.matrice_proportions = pca_matrice(vecteurs)
-            #for i in range(self.n):
-            #    self.liste_textes[i].vecteur = vecteurs[i]
+        vecteurs = []
+        for texte in self.liste_textes:
+            vecteurs.append(texte.vecteur)
+            self.vecteurs_originaux.append(texte.vecteur)
+        vecteurs, self.matrice_proportions = pca_matrice(vecteurs)
+        # for i in range(self.n):
+        #    self.liste_textes[i].vecteur = vecteurs[i]
 
-            # Création des variables du système de réévaluation des composantes
+        # Création des variables du système de réévaluation des composantes
 
-            """
-            # Méthode basée sur le tri en norme 2 des colonnes de la matrice de PCA
-            norme_colonnes = []
-            for i in range(len(self.matrice_proportions)):
-                norme_colonnes.append(numpy.linalg.norm(self.matrice_proportions[i]))
-            self.indices_coefficients_separateurs = sorted(range(1, len(self.matrice_proportions)),
-                    key=(lambda k: norme_colonnes[k]))[:min(10, len(self.matrice_proportions))]
-            self.coefficients_coordonnees = [1 for i in range(len(self.indices_coefficients_separateurs))]
+        """
+        # Méthode basée sur le tri en norme 2 des colonnes de la matrice de PCA
+        norme_colonnes = []
+        for i in range(len(self.matrice_proportions)):
+            norme_colonnes.append(numpy.linalg.norm(self.matrice_proportions[i]))
+        self.indices_coefficients_separateurs = sorted(range(1, len(self.matrice_proportions)),
+                key=(lambda k: norme_colonnes[k]))[:min(10, len(self.matrice_proportions))]
+        self.coefficients_coordonnees = [1 for i in range(len(self.indices_coefficients_separateurs))]
 
-            self.points = self.normaliser_points(vecteurs)
+        self.points = self.normaliser_points(vecteurs)
 
-            """
+        """
 
-            # Méthode basée sur la fonction importance_composantes
-            clusters_concrets_textes = []
-            for cluster_indice in self.clusters_concrets_indices:
-                cluster = []
-                for indice in cluster_indice:
-                    cluster.append(self.liste_textes[indice])
-                clusters_concrets_textes.append(cluster)
-            importance_composantes = poids_composantes
-            # importance_composantes = importance(clusters_concrets_textes)
-            self.indices_coefficients_separateurs = sorted(range(1, len(self.matrice_proportions)),
-                                                    key=(lambda k: importance_composantes[k]))[::-1][
-                                                    :min(10, len(self.matrice_proportions))]
-            self.coefficients_coordonnees = [1 for i in range(len(self.indices_coefficients_separateurs))]
+        # Méthode basée sur la fonction importance_composantes
+        clusters_concrets_textes = []
+        for cluster_indice in self.clusters_concrets_indices:
+            cluster = []
+            for indice in cluster_indice:
+                cluster.append(self.liste_textes[indice])
+            clusters_concrets_textes.append(cluster)
+        importance_composantes = poids_composantes
+        # importance_composantes = importance(clusters_concrets_textes)
+        self.indices_coefficients_separateurs = sorted(range(1, len(self.matrice_proportions)),
+                                                key=(lambda k: importance_composantes[k]))[::-1][
+                                                :min(10, len(self.matrice_proportions))]
+        self.coefficients_coordonnees = [1 for i in range(len(self.indices_coefficients_separateurs))]
 
-            self.points = self.normaliser_points(vecteurs)
+        self.points = self.normaliser_points(vecteurs)
 
         # Création des objets de la fenêtre
         self.theorique = True
@@ -92,7 +112,7 @@ class FenetreAffichage:
         self.scales = []
         self.noms_scales = []
         for i in range(min(10, len(self.liste_textes[0].vecteur))):
-            lb = Label(fenetre, text=noms_composantes[self.indices_coefficients_separateurs[i]])
+            lb = Label(fenetre, text=analyseur.noms_composantes[self.indices_coefficients_separateurs[i]])
             self.noms_scales.append(lb)
 
             sc = Scale(fenetre, orient='horizontal', resolution=1, label='X_'+str(i), from_=1, to=100, command=self.change_proportion_builder(i))
@@ -246,24 +266,3 @@ class FenetreAffichage:
             self.scales[i].grid(row=2*(i // 2)+1, column=2+i % 2, sticky=N)
 
         self.fenetre.mainloop()
-
-def nouvelles_matrices(training_set, p, p_ref, auteurs):
-    auteurs_eval = set(auteurs)
-    auteurs_training = set([t.auteur for t in training_set])
-    auteurs_sup_training = list(auteurs_training - auteurs_eval)
-    auteurs_total = auteurs + auteurs_sup_training
-    nt = len(training_set)
-    ne = p.shape[0]
-    na = len(auteurs_total)
-    p2 = np.zeros((nt+ne,na))
-    p_ref2 = np.zeros((nt+ne,na))
-    for i in range(nt):
-        t = training_set[i]
-        j = auteurs_total.index(t.auteur)
-        p2[i,j] = 1
-        p_ref2[i,j] = 1
-    for i in range(nt,nt+ne):
-        for j in range(len(auteurs)):
-            p2[i][j] = p[i-nt,j]
-            p_ref2[i][j] = p_ref[i-nt,j]
-    return p2,p_ref2, auteurs_total
