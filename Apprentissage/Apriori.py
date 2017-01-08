@@ -143,6 +143,7 @@ class Apriori(Classifieur):
         Intermediaires = Apprentissage(vecteurs_training, auteurs_training)
         Probabilite = Test(vecteurs_eval, Intermediaires[1])
         self.p = Probabilite
+        self.auteurs = Intermediaires[0]
         k = np.shape(Probabilite)[1]
         m = np.shape(Probabilite)[0]
         Reference = np.zeros((m,k))
