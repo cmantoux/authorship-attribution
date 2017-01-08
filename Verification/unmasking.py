@@ -1,3 +1,4 @@
+
 import sys
 sys.path.append("/Users/Guillaume/Documents/Informatique/Projets-git/psc")
 from time import time
@@ -79,7 +80,7 @@ class UnmaskingCourbes(Classifieur):
             for e in range(self.nb_essais):
                 #print("Essai n°{}".format(e))
                 classifieur = SVM(pc = False)
-                indices = rd.choice(len(textes),min(self.taille_echantillon, len(textes)/self.facteur))
+                indices = rd.choice(len(textes),min(self.taille_echantillon, len(textes)//self.facteur))
                 non_indices = [i for i in range(len(textes)) if not (i in indices)]
                 eval_set_bis = [textes[i] for i in indices]
                 training_set_bis = [textes[i] for i in non_indices]
@@ -134,7 +135,7 @@ class Unmasking:
             
             classifieur_id = UnmaskingCourbes(self.nb_essais, self.pas, self.taille_echantillon, self.facteur)
             P_id = Probleme(ob1, ob2, self.taille_morceaux, self.analyseur, classifieur_id, "fr")
-            P_id.creer_textes(equilibrage = True)
+            P_id.creer_textes(equilibrage = True, equilibrage_eval = False)
             P_id.analyser(normalisation = True)
             P_id.appliquer_classifieur()
             J = P_id.classifieur.J
@@ -145,7 +146,7 @@ class Unmasking:
 
             classifieur_dif = UnmaskingCourbes(self.nb_essais, self.pas, self.taille_echantillon, self.facteur)
             P_dif = Probleme(ob1, oc1, self.taille_morceaux, self.analyseur, classifieur_dif, "fr")
-            P_dif.creer_textes(equilibrage = True)
+            P_dif.creer_textes(equilibrage = True, equilibrage_eval = False)
             P_dif.analyser(normalisation = True)
             P_dif.appliquer_classifieur()
             J = P_dif.classifieur.J
@@ -180,7 +181,7 @@ class Unmasking:
  
                 classifieur_verif = UnmaskingCourbes(self.nb_essais, self.pas, self.taille_echantillon, self.facteur)
                 P_verif = Probleme(ob1, od1, self.taille_morceaux, self.analyseur, classifieur_verif, "fr")
-                P_verif.creer_textes(equilibrage = True)
+                P_verif.creer_textes(equilibrage = True, equilibrage_eval = False)
                 P_verif.analyser(normalisation = True)
                 P_verif.appliquer_classifieur()
                 J = P_verif.classifieur.J
@@ -217,7 +218,7 @@ class Unmasking:
             plt.figure()
             plt.plot(self.J,self.PM_id, linewidth = 2, color = "g", label = self.auteur_base + " / " + self.auteur_base)
             plt.plot(self.J,self.PM_dif, linewidth = 2, color = "r", label = self.auteur_base + " / auteur different")
-            plt.plot(self.J,self.PM_verif[i], linewidth = 2, color = "b", label = self.auteur_base + " / auteur_inconnu")
+            plt.plot(self.J,self.PM_verif[i], linewidth = 2, color = "b", label = self.auteur_base + " / auteur inconnu")
             
             plt.xlabel("Nombre de composantes stylistiques retirées")
             plt.ylabel("Precision relative du classifieur")

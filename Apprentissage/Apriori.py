@@ -171,14 +171,4 @@ class Apriori(Classifieur):
         
     def afficher(self):
         print("Résultats du classificateur Apriori sur le corpus étudié :")
-        print("On obtient une précision de : "+str(self.precision)+"%. Parmi les textes qui n'ont pas été attribués correctement, "+str(self.indecis)+"% des textes n'ont pas été attribués à un auteur donné.")                
-    
-    
-             
-               
-                
-                        
-                    
-                    
-                        
-    
+        print("On obtient une précision de : "+str(self.precision)+"%. Parmi les textes qui n'ont pas été attribués correctement, "+str(self.indecis)+"% des textes n'ont pas été attribués à un auteur donné.")

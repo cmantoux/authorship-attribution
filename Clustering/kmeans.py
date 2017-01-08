@@ -147,5 +147,3 @@ class Kmeans(Classifieur):
 
     def afficher(self):
         print("Pouet")
-
-        

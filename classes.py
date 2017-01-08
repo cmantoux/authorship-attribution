@@ -1,3 +1,4 @@
+
 import codecs
 import csv
 import pickle
@@ -8,9 +9,9 @@ from treetaggerwrapper import TreeTagger, make_tags
 from Evaluation import evaluation_externe as ee
 from Evaluation import evaluation_interne as ei
 from Evaluation import evaluation_relative as er
-from Interpretation.importance_composantes import gain_information,importance
+from Interpretation.importance_composantes import gain_information,importance, auteurs_majoritaires
 from Utilitaires.importation_et_pretraitement import importer, formater
-from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1
+from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1, equilibrer2
 
 emplacement_dossier_groupe = "/Users/Guillaume/Google Drive/Cours X/PSC/Groupe PSC/"
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "ch" : "chinois"}
@@ -207,13 +208,15 @@ class Probleme:
         self.liste_texts = []
         self.full_text = full_text
 
-    def creer_textes(self, equilibrage = True):
+    def creer_textes(self, equilibrage = True, equilibrage_eval = False):
         for oeuvre in self.oeuvres_training_set:
             self.training_set.extend(oeuvre.split(self.taille_morceaux,self.full_text))
         for oeuvre in self.oeuvres_eval_set:
              self.eval_set.extend(oeuvre.split(self.taille_morceaux, self.full_text))
         if equilibrage :
             self.training_set = equilibrer1(self.training_set)
+        if equilibrage_eval :
+            self.eval_set = equilibrer1(self.eval_set)
         self.liste_textes = self.training_set + self.eval_set
         print("Textes de training_set et eval_set initialisés")
 
@@ -242,9 +245,10 @@ class Probleme:
         print("/// Evaluation interne ///")
         print("Indice de Hubert interne : " + str(ei.huberts_interne(self.eval_set, self.classifieur.p)))
         print("/// Evaluation relative ///")
-        print("Indice de Hubert relatif : " + str(er.huberts_relatif(self.eval_set, self.classifieur.p)))
-        print("Indice de Dunn : " + str(er.dunn(self.eval_set, self.classifieur.p)))
-        print("Indice de Davies-Bouldin : " + str(er.davies_bouldin(self.eval_set, self.classifieur.p)))
+        print("Trop long, décommentez les indices correspondants dans classes.py si vous avez du temps")
+        #print("Indice de Hubert relatif : " + str(er.huberts_relatif(self.eval_set, self.classifieur.p)))
+        #print("Indice de Dunn : " + str(er.dunn(self.eval_set, self.classifieur.p)))
+        #print("Indice de Davies-Bouldin : " + str(er.davies_bouldin(self.eval_set, self.classifieur.p)))
         print("/// Evaluation externe ///")
         print("Entropie de la classification : " + str(ee.entropie(self.eval_set, self.classifieur.p, self.classifieur.p_ref)))
         print("Indice de Rand : " + str(ee.jaccard(self.eval_set, self.classifieur.p, self.classifieur.p_ref)))
@@ -252,14 +256,35 @@ class Probleme:
         print("Taux de liaisons et non-liaisons correctes et incorrectes : " + str(
                 ee.calcul_taux(self.eval_set, self.classifieur.p, self.classifieur.p_ref)))
 
-    def interpreter(self, n=10):
+    def interpreter(self):
         print("Composantes les plus importantes dans la classification :")
         noms_composantes = self.analyseur.noms_composantes
-        importance1 = importance(self.classifieur.clusters)
-        noms_et_importance1 = [(noms_composantes[k],importance1[k]) for k in range(len(noms_composantes))]
-        noms_et_importance1.sort(key = lambda x : x[1], reverse=True)
-        for couple in noms_et_importance1[:n]:
-            print(couple)
+        A = importance(self.classifieur.clusters, comp = True)
+        #auteurs = auteurs_majoritaires(self.classifieur.clusters)
+        auteurs = self.classifieur.auteurs
+        importance1 = A[0]
+        ecarts_inter = A[1]
+        ecarts_intra = A[2]
+        moyennes_clusters = A[3]
+        indices_tries = sorted(list(range(len(importance1))), key = lambda k : importance1[k], reverse = True)
+        noms_et_importance1 = [(noms_composantes[k],importance1[k]) for k in indices_tries]
+        n=0
+        while noms_et_importance1[n][1]>1:
+            n+=1
+        if n>=len(noms_et_importance1):
+            n=len(noms_et_importance1)
+        for k in range(n):
+            print("")
+            print(str(k+1) + ") " + noms_et_importance1[k][0])
+            print("Importance : {:.4f}".format(noms_et_importance1[k][1]))
+            i = indices_tries[k]
+            print("   Ecart intra clusters pour cette composante : {:.4f} ".format(ecarts_intra[i]))
+            print("   Ecart inter clusters pour cette composante : {:.4f} ".format(ecarts_inter[i]))
+            for l in range(len(moyennes_clusters)):
+                m = moyennes_clusters[l]
+                aut = auteurs[l]
+                print("      Moyenne parmi les textes attribués à " + aut + " : {:.4f}".format(m[i]))
+        print("")
 
     def resoudre(self):
         print("Création des textes :")
