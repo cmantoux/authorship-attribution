@@ -21,9 +21,9 @@ taille_morceaux = 5000
 analyseur = Analyseur([freq_gram, plus_courants, freq_ponct, freq_stopwords])
 classifieur = kPPV()
 
-#P = Probleme(oeuvres_training_set, oeuvres_eval_set, taille_morceaux, analyseur, classifieur, langue = "fr")
+P = Probleme(oeuvres_training_set, oeuvres_eval_set, taille_morceaux, analyseur, classifieur, langue = "fr")
 
-#P.resoudre()
+P.resoudre()
 
 print()
 print("Test de SVM")

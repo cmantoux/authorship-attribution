@@ -91,3 +91,12 @@ def entropie(textes,p,p_ref):
                     s+= pj*np.log(pj)
         e -= len(ci) * s
     return e/N      
+
+def precision(textes, p,p_ref):
+    """Calcul de la précision """
+    prec = 0
+    for i in range(p.shape[0]):
+        for j in range(p.shape[1]):
+            if p[i][j] == p_ref[i][j] == 1:
+                prec+=1
+    return prec/len(textes)
