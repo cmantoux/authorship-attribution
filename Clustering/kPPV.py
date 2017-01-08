@@ -94,5 +94,4 @@ class kPPV(classes.Classifieur):
             self.p_ref[i][self.auteurs_inverses[self.liste_textes_tuples[i][0].auteur]] = 1
 
     def afficher(self):
-        fenetre = FenetreAffichage(self.liste_textes, self.p, self.p_ref, self.auteurs, "pca")
-        fenetre.build()
+        print("VLAN")

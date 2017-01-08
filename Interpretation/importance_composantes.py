@@ -33,6 +33,7 @@ def importance(clusters, comp = False):
                 M2 = moyennes_clusters[j]
                 dist = np.abs(M1 - M2)
                 ecarts_inter_clusters += dist
+
     ecarts_inter_clusters = [e / n for e in ecarts_inter_clusters]
     importance_composantes = np.zeros((len(ecarts_inter_clusters)))
     for i in range(len(importance_composantes)):

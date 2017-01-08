@@ -81,5 +81,3 @@ class SVM(Classifieur):
     def afficher(self):
         print("Résultats du classifieur SVM sur le corpus étudié :")
         print("Précision : " + str(self.precision))
-        #fenetre = FenetreAffichage(self.eval_set, self.p, self.p_ref, self.auteurs, "pca")
-        #fenetre.build()

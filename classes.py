@@ -9,11 +9,19 @@ from treetaggerwrapper import TreeTagger, make_tags
 from Evaluation import evaluation_externe as ee
 from Evaluation import evaluation_interne as ei
 from Evaluation import evaluation_relative as er
+
 from Interpretation.importance_composantes import gain_information,importance, auteurs_majoritaires
+
 from Utilitaires.importation_et_pretraitement import importer, formater
 from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1, equilibrer2
 
+<<<<<<< HEAD
 emplacement_dossier_groupe = "/Users/maximegodin/Google Drive/Groupe PSC/"
+=======
+from Representation.fenetre import FenetreAffichage
+
+emplacement_dossier_groupe = "C:/Users/Clement/Google Drive/Groupe PSC/"
+>>>>>>> refs/remotes/origin/master
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "ch" : "chinois"}
 
 class Infos:
@@ -168,6 +176,9 @@ class Classifieur:
         self.classification = None
         self.clusters = None
 
+    def poids_composantes(self):
+        return importance(self.clusters)
+
     def afficher(self):
         print("tada")
 
@@ -238,7 +249,8 @@ class Probleme:
         self.classifieur.liste_textes = self.liste_textes
         self.classifieur.training_set = self.training_set
         self.classifieur.eval_set = self.eval_set
-        self.classifieur.classifier(self.training_set, self.eval_set)
+        print(len(self.analyseur.noms_composantes))
+        self.classifieur.classifier(training_set=self.training_set, eval_set=self.eval_set)
         print("Classification effectuée")
         self.classifieur.afficher()
 
@@ -286,6 +298,10 @@ class Probleme:
                 aut = auteurs[l]
                 print("      Moyenne parmi les textes attribués à " + aut + " : {:.4f}".format(m[i]))
         print("")
+
+    def afficher_graphique(self):
+        fenetre = FenetreAffichage(self.analyseur, self.classifieur, self.classifieur.poids_composantes())
+        fenetre.build()
 
     def resoudre(self):
         print("Création des textes :")

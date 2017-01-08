@@ -71,6 +71,7 @@ class Bayes(Classifieur):
         auteurs_eval = [t.auteur for t in eval_set]
         Intermediaires = f(vecteurs_training, auteurs_training)
         Probabilite = g(Intermediaires[0], Intermediaires[1], vecteurs_eval)
+        self.auteurs = Intermediaires[2]
         self.p = Probabilite
         k = np.shape(Probabilite)[1]
         m = np.shape(Probabilite)[0]

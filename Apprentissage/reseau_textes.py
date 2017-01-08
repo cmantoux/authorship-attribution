@@ -2,7 +2,7 @@
 import numpy as np
 import classes
 from Representation.fenetre import FenetreAffichage
-
+from Interpretation.importance_composantes import importance, gain_information
 
 class reseau_neurones(classes.Classifieur):
     def __init__(self):
@@ -257,14 +257,12 @@ class reseau_neurones(classes.Classifieur):
                 self.precision += 1.
         self.precision /= len(training_set)
 
-    def afficher(self):
-        fenetre = FenetreAffichage(self.eval_set, self.p, self.p_ref, self.auteurs, "pca")
-        fenetre.build()
-
     def poids_composantes(self):
         tab = [0]*len(self.W[0][0])
         for i in range(len(self.W[0])):
             for j in range(len(self.W[0][i])):
                 tab[j] += abs(self.W[0][i][j])
-        for poids in tab:
-            print(poids)
+        return tab
+
+    def afficher(self):
+        print("TADADADA")
