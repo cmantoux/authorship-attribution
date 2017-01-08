@@ -5,7 +5,7 @@ from sklearn.neighbors import KernelDensity
 from scipy.integrate import quad
 
 
-def importance(clusters):
+def importance(clusters, comp = False):
     """la variable clusters est une liste où l'élément i est la liste des textes classifiés chez l'auteur numero i par l'algorithme}
         cette fonction estime le rôle de chaque composante des vecteurs dans la classification obtenue en comparant la variance moyenne de chaque composante au sein des clusters avec la distance inter-clusters => plus ce quotient est grand, plus la composante en question est pertinente"""
     nb_clusters = len(clusters)
@@ -40,7 +40,10 @@ def importance(clusters):
             importance_composantes[i] = 0
         else:
             importance_composantes[i] = ecarts_inter_clusters[i]/ecarts_intra_clusters[i]
-    return importance_composantes
+    if not comp:
+        return importance_composantes
+    else:
+        return importance_composantes, ecarts_inter_clusters, ecarts_intra_clusters, moyennes_clusters
 
 
 def entropie(vecteurs):
@@ -67,3 +70,15 @@ def gain_information(clusters):
     gains /= info_intrinseque
     return gains
 
+def auteurs_majoritaires(clusters):
+    auteurs_par_clusters = [[clusters[i][j].auteur for j in range(len(clusters[i]))] for i in range(len(clusters))]
+    auteurs_majoritaires = []
+    for i in range(len(clusters)):
+        auteurs_de_ce_cluster = list(set(auteurs_par_clusters[i]))
+        nb_textes_par_auteur = [0 for a in auteurs_de_ce_cluster]
+        for j in range(len(clusters[i])):
+            nb_textes_par_auteur[auteurs_de_ce_cluster.index(clusters[i][j].auteur)] += 1
+        Nmax = max(nb_textes_par_auteur)
+        aut = auteurs_de_ce_cluster[nb_textes_par_auteur.index(Nmax)]
+        auteurs_majoritaires.append(aut)
+    return auteurs_majoritaires

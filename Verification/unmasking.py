@@ -1,3 +1,4 @@
+
 import sys
 sys.path.append("/Users/Guillaume/Documents/Informatique/Projets-git/psc")
 from time import time
@@ -134,7 +135,7 @@ class Unmasking:
             
             classifieur_id = UnmaskingCourbes(self.nb_essais, self.pas, self.taille_echantillon, self.facteur)
             P_id = Probleme(ob1, ob2, self.taille_morceaux, self.analyseur, classifieur_id, "fr")
-            P_id.creer_textes(equilibrage = True)
+            P_id.creer_textes(equilibrage = True, equilibrage_eval = False)
             P_id.analyser(normalisation = True)
             P_id.appliquer_classifieur()
             J = P_id.classifieur.J
@@ -145,7 +146,7 @@ class Unmasking:
 
             classifieur_dif = UnmaskingCourbes(self.nb_essais, self.pas, self.taille_echantillon, self.facteur)
             P_dif = Probleme(ob1, oc1, self.taille_morceaux, self.analyseur, classifieur_dif, "fr")
-            P_dif.creer_textes(equilibrage = True)
+            P_dif.creer_textes(equilibrage = True, equilibrage_eval = False)
             P_dif.analyser(normalisation = True)
             P_dif.appliquer_classifieur()
             J = P_dif.classifieur.J
@@ -180,7 +181,7 @@ class Unmasking:
  
                 classifieur_verif = UnmaskingCourbes(self.nb_essais, self.pas, self.taille_echantillon, self.facteur)
                 P_verif = Probleme(ob1, od1, self.taille_morceaux, self.analyseur, classifieur_verif, "fr")
-                P_verif.creer_textes(equilibrage = True)
+                P_verif.creer_textes(equilibrage = True, equilibrage_eval = False)
                 P_verif.analyser(normalisation = True)
                 P_verif.appliquer_classifieur()
                 J = P_verif.classifieur.J

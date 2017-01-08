@@ -101,7 +101,6 @@ def dif_plus_courants(texte, n=30):
     return D, ["Chute de fréquence entre le {}-ème token le plus courant et le {}-ème".format(k, k + 1) for k in
                range(1, n)]
 
-
 def freq_stopwords(texte):
     if texte.langue == "en":
         stopwords = stopwords_en()
@@ -112,9 +111,7 @@ def freq_stopwords(texte):
     S = sum(frequences)
     return [f / S for f in frequences], ["Fréquence du stopword {}".format(stopwords[k]) for k in range(len(stopwords))]
 
-
 # Fonctions naives
-
 
 def richesse_voc(texte):
     n = 200
