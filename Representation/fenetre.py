@@ -6,6 +6,23 @@ import numpy.linalg
 import numpy as np
 from Interpretation.importance_composantes import importance
 
+def nouvelles_matrices(training_set, p, p_ref, noms_auteurs):
+    nt = len(training_set)
+    ne = p.shape[0]
+    na = p.shape[1]
+    p2 = np.zeros((nt+ne,na))
+    p_ref2 = np.zeros((nt+ne,na))
+    for i in range(nt):
+        t = training_set[i]
+        j = noms_auteurs.index(t.auteur)
+        p2[i,j] = 1
+        p_ref2[i,j] = 1
+    for i in range(nt,nt+ne):
+        for j in range(na):
+            p2[i][j] = p[i-nt,j]
+            p_ref2[i][j] = p_ref[i-nt,j]
+    return p2,p_ref2
+
 class FenetreAffichage:
 
     def __init__(self, liste_textes, p, p_ref, noms_auteurs, methode_reduction):

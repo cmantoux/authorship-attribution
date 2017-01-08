@@ -218,7 +218,7 @@ class Unmasking:
             plt.figure()
             plt.plot(self.J,self.PM_id, linewidth = 2, color = "g", label = self.auteur_base + " / " + self.auteur_base)
             plt.plot(self.J,self.PM_dif, linewidth = 2, color = "r", label = self.auteur_base + " / auteur different")
-            plt.plot(self.J,self.PM_verif[i], linewidth = 2, color = "b", label = self.auteur_base + " / auteur_inconnu")
+            plt.plot(self.J,self.PM_verif[i], linewidth = 2, color = "b", label = self.auteur_base + " / auteur inconnu")
             
             plt.xlabel("Nombre de composantes stylistiques retirées")
             plt.ylabel("Precision relative du classifieur")

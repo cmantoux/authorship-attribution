@@ -208,7 +208,7 @@ class Probleme:
         self.liste_texts = []
         self.full_text = full_text
 
-    def creer_textes(self, equilibrage = True, equilibrage_eval = True):
+    def creer_textes(self, equilibrage = True, equilibrage_eval = False):
         for oeuvre in self.oeuvres_training_set:
             self.training_set.extend(oeuvre.split(self.taille_morceaux,self.full_text))
         for oeuvre in self.oeuvres_eval_set:
@@ -260,7 +260,8 @@ class Probleme:
         print("Composantes les plus importantes dans la classification :")
         noms_composantes = self.analyseur.noms_composantes
         A = importance(self.classifieur.clusters, comp = True)
-        auteurs = auteurs_majoritaires(self.classifieur.clusters)
+        #auteurs = auteurs_majoritaires(self.classifieur.clusters)
+        auteurs = self.classifieur.auteurs
         importance1 = A[0]
         ecarts_inter = A[1]
         ecarts_intra = A[2]
@@ -277,8 +278,8 @@ class Probleme:
             print(str(k+1) + ") " + noms_et_importance1[k][0])
             print("Importance : {:.4f}".format(noms_et_importance1[k][1]))
             i = indices_tries[k]
-            print("   Variance intra clusters pour cette composante : {:.4f} ".format(ecarts_intra[i]))
-            print("   Variance inter clusters pour cette composante : {:.4f} ".format(ecarts_inter[i]))
+            print("   Ecart intra clusters pour cette composante : {:.4f} ".format(ecarts_intra[i]))
+            print("   Ecart inter clusters pour cette composante : {:.4f} ".format(ecarts_inter[i]))
             for l in range(len(moyennes_clusters)):
                 m = moyennes_clusters[l]
                 aut = auteurs[l]
