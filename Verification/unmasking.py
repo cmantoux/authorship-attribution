@@ -80,7 +80,7 @@ class UnmaskingCourbes(Classifieur):
             for e in range(self.nb_essais):
                 #print("Essai n°{}".format(e))
                 classifieur = SVM(pc = False)
-                indices = rd.choice(len(textes),min(self.taille_echantillon, len(textes)/self.facteur))
+                indices = rd.choice(len(textes),min(self.taille_echantillon, len(textes)//self.facteur))
                 non_indices = [i for i in range(len(textes)) if not (i in indices)]
                 eval_set_bis = [textes[i] for i in indices]
                 training_set_bis = [textes[i] for i in non_indices]

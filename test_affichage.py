@@ -21,7 +21,13 @@ classifieur = SVM()
 
 P = Probleme(oeuvres_training_set, oeuvres_eval_set, taille_morceaux, analyseur, classifieur, langue = "fr")
 
-P.resoudre()
+#P.resoudre() equivalent a
+
+P.creer_textes(equilibrage = False)
+P.analyser(normalisation = True)
+P.appliquer_classifieur()
+P.evaluer()
+P.interpreter()
 
 f = time()
 print()
