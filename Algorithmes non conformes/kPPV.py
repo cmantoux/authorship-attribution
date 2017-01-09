@@ -92,6 +92,3 @@ class kPPV(classes.Classifieur):
         for i in range(len(self.liste_textes_tuples)):
             self.p[i][self.liste_textes_tuples[i][1]] = 1  # [texte, classe du texte]
             self.p_ref[i][self.auteurs_inverses[self.liste_textes_tuples[i][0].auteur]] = 1
-
-    def afficher(self):
-        print("VLAN")

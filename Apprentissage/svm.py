@@ -67,7 +67,6 @@ class SVM(Classifieur):
         auteurs_eval = np.array([t.auteur for t in self.eval_set])
         clf = SVC(kernel = self.kernel, gamma=self.gamma, C=self.C)
         clf.fit(vecteurs_training, auteurs_training)
-        self.precision = clf.score(vecteurs_eval, auteurs_eval)
         classification = []
         self.auteurs = list(set([t.auteur for t in self.eval_set + self.training_set]))
         for t in self.eval_set:
@@ -77,7 +76,3 @@ class SVM(Classifieur):
         self.classification = classification
         self.clusters = self.classification_to_clusters()
         self.p, self.p_ref = self.classification_to_matrices()
-
-    def afficher(self):
-        print("Résultats du classifieur SVM sur le corpus étudié :")
-        print("Précision : " + str(self.precision))

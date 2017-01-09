@@ -1,18 +1,8 @@
-from time import time
-
-from Representation.affichage import afficher_points
-from carac import *
-from classes import Analyseur, Probleme
-from Apprentissage.svm import SVM
-from Apprentissage.Bayes import Bayes
-from Apprentissage.reseau_textes import reseau_neurones
-from Apprentissage.Apriori import Apriori
-from Clustering.kmeans import Kmeans
-from Clustering.kmedoids import KMedoids
-from Clustering.kPPV import kPPV
-from classes import *
-from Utilitaires.pca import pca
 import matplotlib.pyplot as plt
+
+from Utilitaires.pca import pca
+from carac import *
+from classes import *
 
 oeuvre = Oeuvre('maupassant', 5)  # Les trois mousquetaires : Dumas 5
 

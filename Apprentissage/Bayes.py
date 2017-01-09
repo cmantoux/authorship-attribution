@@ -76,8 +76,6 @@ class Bayes(Classifieur):
         k = np.shape(Probabilite)[1]
         m = np.shape(Probabilite)[0]
         Reference = np.zeros((m,k))
-        vrai = 0
-        faux = 0
         for i in range(m):
             max = Probabilite[i][0]
             categorie = 0
@@ -92,12 +90,7 @@ class Bayes(Classifieur):
                 faux += 1
             Reference[i][ref] = 1
         self.p_ref = Reference
-        self.precision = vrai/(vrai+faux) * 100
-        
-        
-    def afficher(self):
-        print("Résultats du classificateur Bayes sur le corpus étudié :")
-        print("On obtient une précision de : "+str(self.precision)+".")                
+
                 
         
             

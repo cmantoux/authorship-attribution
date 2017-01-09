@@ -135,15 +135,14 @@ class Kmeans(Classifieur):
             j = self.auteurs.index(a)
             self.clusters[j]+=clusters[i]
         n = len(self.eval_set)
+
         self.p = np.zeros((n,self.k))
         self.p_ref = np.zeros((n,self.k))
 
         for i in range(n):
             t = eval_set[i]
-            self.p_ref[i, self.auteurs.index(t.auteur)]
+            self.p_ref[i, self.auteurs.index(t.auteur)] = 1
             for j in range(self.k):
                 if t in clusters[j]:
                     self.p[i, j] = 1
 
-    def afficher(self):
-        print("Pouet")

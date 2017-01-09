@@ -147,9 +147,6 @@ class Apriori(Classifieur):
         k = np.shape(Probabilite)[1]
         m = np.shape(Probabilite)[0]
         Reference = np.zeros((m,k))
-        vrai = 0
-        faux = 0
-        indecis = 0
         for i in range(m):
             max = Probabilite[i][0]
             if(max == 1/k):
@@ -166,10 +163,3 @@ class Apriori(Classifieur):
                 faux += 1
             Reference[i][ref] = 1
         self.p_ref = Reference
-        self.precision = vrai/(vrai+faux) * 100
-        self.indecis = indecis/(vrai+faux) * 100
-        
-        
-    def afficher(self):
-        print("Résultats du classificateur Apriori sur le corpus étudié :")
-        print("On obtient une précision de : "+str(self.precision)+"%. Parmi les textes qui n'ont pas été attribués correctement, "+str(self.indecis)+"% des textes n'ont pas été attribués à un auteur donné.")

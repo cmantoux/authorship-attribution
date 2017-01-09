@@ -90,9 +90,9 @@ class KMedoids(Classifieur):
         self.liste_textes = training_set + eval_set
         self.eval_set = eval_set
         self.training_set = training_set
-        auteurs = list(set([texte.auteur for texte in self.liste_textes]))
-        k = len(auteurs)
-        S,U,dis = build(self.liste_textes,k)
+        self.auteurs = list(set([texte.auteur for texte in self.liste_textes]))
+        self.k = len(self.auteurs)
+        S,U,dis = build(self.liste_textes,self.k)
         swap(S,U,dis)
         clusters = clusterize(self.liste_textes,S,U,dis)
 
@@ -124,10 +124,7 @@ class KMedoids(Classifieur):
 
         for i in range(n):
             t = eval_set[i]
-            self.p_ref[i, self.auteurs.index(t.auteur)]
+            self.p_ref[i, self.auteurs.index(t.auteur)]=1
             for j in range(self.k):
                 if t in clusters[j]:
                     self.p[i, j] = 1
-        
-    def afficher(self):
-        print("Pouet")

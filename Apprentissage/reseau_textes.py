@@ -263,6 +263,3 @@ class reseau_neurones(classes.Classifieur):
             for j in range(len(self.W[0][i])):
                 tab[j] += abs(self.W[0][i][j])
         return tab
-
-    def afficher(self):
-        print("TADADADA")

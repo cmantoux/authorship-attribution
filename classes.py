@@ -15,13 +15,9 @@ from Interpretation.importance_composantes import gain_information,importance, a
 from Utilitaires.importation_et_pretraitement import importer, formater
 from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1, equilibrer2
 
-<<<<<<< HEAD
-emplacement_dossier_groupe = "/Users/maximegodin/Google Drive/Groupe PSC/"
-=======
 from Representation.fenetre import FenetreAffichage
 
-emplacement_dossier_groupe = "C:/Users/Clement/Google Drive/Groupe PSC/"
->>>>>>> refs/remotes/origin/master
+emplacement_dossier_groupe = "/Users/maximegodin/Google Drive/Groupe PSC/"
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "ch" : "chinois"}
 
 class Infos:
@@ -201,7 +197,6 @@ class Probleme:
         for id in liste_id_oeuvres_training_set:
             auteur = id[0]
             numero = id[1]
-            print(langue)
             oeuvre = Oeuvre(auteur,numero,langue)
             self.oeuvres_training_set.append(oeuvre)
         for id in liste_id_oeuvres_eval_set:
@@ -258,11 +253,12 @@ class Probleme:
         print("/// Evaluation interne ///")
         print("Indice de Hubert interne : " + str(ei.huberts_interne(self.eval_set, self.classifieur.p)))
         print("/// Evaluation relative ///")
-        print("Trop long, décommentez les indices correspondants dans classes.py si vous avez du temps")
-        #print("Indice de Hubert relatif : " + str(er.huberts_relatif(self.eval_set, self.classifieur.p)))
-        #print("Indice de Dunn : " + str(er.dunn(self.eval_set, self.classifieur.p)))
-        #print("Indice de Davies-Bouldin : " + str(er.davies_bouldin(self.eval_set, self.classifieur.p)))
+        #print("Trop long, décommentez les indices correspondants dans classes.py si vous avez du temps")
+        print("Indice de Hubert relatif : " + str(er.huberts_relatif(self.eval_set, self.classifieur.p)))
+        print("Indice de Dunn : " + str(er.dunn(self.eval_set, self.classifieur.p)))
+        print("Indice de Davies-Bouldin : " + str(er.davies_bouldin(self.eval_set, self.classifieur.p)))
         print("/// Evaluation externe ///")
+        print("Précision : " + str(ee.precision(self.eval_set, self.classifieur.p, self.classifieur.p_ref)))
         print("Entropie de la classification : " + str(ee.entropie(self.eval_set, self.classifieur.p, self.classifieur.p_ref)))
         print("Indice de Rand : " + str(ee.jaccard(self.eval_set, self.classifieur.p, self.classifieur.p_ref)))
         print("Indice de Fowlkes & Mallows : " + str(ee.fowlkes_mallows(self.eval_set, self.classifieur.p, self.classifieur.p_ref)))
@@ -302,6 +298,19 @@ class Probleme:
     def afficher_graphique(self):
         fenetre = FenetreAffichage(self.analyseur, self.classifieur, self.classifieur.poids_composantes())
         fenetre.build()
+
+    def afficher(self):
+
+        attrib_oeuvres = {}
+        for o in self.oeuvres_eval_set:
+            attrib_oeuvres[o.auteur+str(o.numero)] = np.zeros((len(self.classifieur.auteurs)))
+        for i in range(self.classifieur.p.shape[0]):
+            t = self.eval_set[i]
+            attrib_oeuvres[t.auteur + str(t.numero)]+= self.classifieur.p[i,:]
+        for o in self.oeuvres_eval_set:
+            j = np.argmax(attrib_oeuvres[o.auteur+str(o.numero)])
+            print(o.auteur+str(o.numero) + " a eté ecrit par "+ self.classifieur.auteurs[j])
+
 
     def resoudre(self):
         print("Création des textes :")
