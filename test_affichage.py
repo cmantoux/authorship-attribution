@@ -18,7 +18,7 @@ d = time()
 oeuvres_training_set =[("zola",k) for k in range(1,3)] + [("balzac",k) for k in range(1,3)] + [("maupassant",k) for k in range(1,3)]
 oeuvres_eval_set = [("zola",k) for k in range(3,5)] + [("balzac",k) for k in range(3,5)]
 taille_morceaux = 3000
-analyseur = Analyseur([freq_gram, plus_courants, freq_ponct, freq_stopwords])
+analyseur = Analyseur([freq_stopwords])
 classifieur = SVM()
 
 P = Probleme(oeuvres_training_set, oeuvres_eval_set, taille_morceaux, analyseur, classifieur, langue = "fr")
@@ -28,6 +28,7 @@ P = Probleme(oeuvres_training_set, oeuvres_eval_set, taille_morceaux, analyseur,
 P.creer_textes(equilibrage = False)
 P.analyser(normalisation = True)
 P.appliquer_classifieur()
+P.afficher_graphique()
 
 f = time()
 print()
