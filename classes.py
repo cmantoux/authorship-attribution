@@ -9,7 +9,7 @@ from Evaluation import evaluation_relative as er
 from Interpretation.importance_composantes import gain_information,importance, auteurs_majoritaires, nouveaux_clusters
 from Utilitaires.importation_et_pretraitement import importer, formater
 from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1, equilibrer2
-
+from Utilitaires.defuzze import defuzze
 from Representation.fenetre import FenetreAffichage
 
 
@@ -17,7 +17,7 @@ emplacement_maxime = "/Users/maximegodin/Google Drive/Groupe PSC/"
 emplacement_guillaume = "/Users/Guillaume/Google Drive/Cours X/PSC/Groupe PSC/"
 emplacement_clement = "C:/Users/Clement/Google Drive/Groupe PSC/"
 
-emplacement_dossier_groupe = emplacement_clement
+emplacement_dossier_groupe = emplacement_maxime
 
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "ch" : "chinois"}
 
@@ -176,9 +176,6 @@ class Classifieur:
     def poids_composantes(self, clusters=None):
         return importance(self.clusters)
 
-    def afficher(self):
-        print("tada")
-
 
 class Probleme:
     """Un objet Problème rassemble tous les éléments d'un questionnement d'attribution :
@@ -248,23 +245,23 @@ class Probleme:
         print(len(self.analyseur.noms_composantes))
         self.classifieur.classifier(training_set=self.training_set, eval_set=self.eval_set)
         print("Classification effectuée")
-        #self.classifieur.afficher()
 
     def evaluer(self):
+        p_d = defuzze(self.classifieur.p)
         print("/// Evaluation interne ///")
-        print("Indice de Hubert interne : " + str(ei.huberts_interne(self.eval_set, self.classifieur.p)))
+        print("Indice de Hubert interne : " + str(ei.huberts_interne(self.eval_set, p_d)))
         print("/// Evaluation relative ///")
         #print("Trop long, décommentez les indices correspondants dans classes.py si vous avez du temps")
         #print("Indice de Hubert relatif : " + str(er.huberts_relatif(self.eval_set, self.classifieur.p)))
-        print("Indice de Dunn : " + str(er.dunn(self.eval_set, self.classifieur.p)))
-        print("Indice de Davies-Bouldin : " + str(er.davies_bouldin(self.eval_set, self.classifieur.p)))
+        print("Indice de Dunn : " + str(er.dunn(self.eval_set, p_d)))
+        print("Indice de Davies-Bouldin : " + str(er.davies_bouldin(self.eval_set, p_d)))
         print("/// Evaluation externe ///")
-        print("Précision : " + str(ee.precision(self.eval_set, self.classifieur.p, self.classifieur.p_ref)))
-        print("Entropie de la classification : " + str(ee.entropie(self.eval_set, self.classifieur.p, self.classifieur.p_ref)))
-        print("Indice de Rand : " + str(ee.jaccard(self.eval_set, self.classifieur.p, self.classifieur.p_ref)))
-        print("Indice de Fowlkes & Mallows : " + str(ee.fowlkes_mallows(self.eval_set, self.classifieur.p, self.classifieur.p_ref)))
+        print("Précision : " + str(ee.precision(self.eval_set, p_d, self.classifieur.p_ref)))
+        print("Entropie de la classification : " + str(ee.entropie(self.eval_set, p_d, self.classifieur.p_ref)))
+        print("Indice de Rand : " + str(ee.jaccard(self.eval_set, p_d, self.classifieur.p_ref)))
+        print("Indice de Fowlkes & Mallows : " + str(ee.fowlkes_mallows(self.eval_set, p_d, self.classifieur.p_ref)))
         print("Taux de liaisons et non-liaisons correctes et incorrectes : " + str(
-                ee.calcul_taux(self.eval_set, self.classifieur.p, self.classifieur.p_ref)))
+                ee.calcul_taux(self.eval_set, p_d, self.classifieur.p_ref)))
 
     def interpreter(self, utiliser_textes_training = True, alpha = 1):
         print("Composantes les plus importantes dans la classification :")
@@ -301,12 +298,14 @@ class Probleme:
         print("")
 
     def afficher_graphique(self, poids_composantes=None):
+        print("Affichage graphique des résultats")
         if poids_composantes == None:
             poids_composantes = self.classifieur.poids_composantes
         fenetre = FenetreAffichage(self.analyseur, self.classifieur, poids_composantes(self.classifieur.clusters))
         fenetre.build()
 
     def afficher(self):
+        print("Affichage des résultats")
         attrib_oeuvres = {}
         for o in self.oeuvres_eval_set:
             attrib_oeuvres[o.auteur+str(o.numero)] = np.zeros((len(self.classifieur.auteurs)))

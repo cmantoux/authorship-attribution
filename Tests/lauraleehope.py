@@ -15,14 +15,15 @@ oeuvres_training_set = [("lgaris",k) for k in range(1,4)] + [("hgaris",k) for k 
 oeuvres_eval_set = [("lgaris",k) for k in range(11,13)] + [("hgaris",k) for k in range(11,24)]
 taille_morceaux = 5000
 analyseur = Analyseur([freq_ponct, freq_gram,freq_stopwords])
-classifieur = reseau_neurones()
+classifieur = SVM()
 P = Probleme(oeuvres_training_set, oeuvres_eval_set, taille_morceaux, analyseur, classifieur, langue = "en")
-P.creer_textes(equilibrage = True,equilibrage_eval=False)
-P.analyser(normalisation = True)
+P.creer_textes(equilibrage = False,equilibrage_eval=False)
+P.analyser(normalisation = False)
 P.appliquer_classifieur()
 P.afficher()
-#P.evaluer()
-P.afficher_graphique()
+P.evaluer()
+P.interpreter(utiliser_textes_training=True)
+P.afficher_graphique(poids_composantes=importance)
 
 # taille_morceaux = 1000
 # analyseur = Analyseur([freq_ponct, freq_gram,freq_stopwords])
