@@ -1,7 +1,5 @@
 from time import time
 
-d = time()
-
 from carac import *
 from classes import Analyseur, Probleme
 from Clustering.kmeans import Kmeans
@@ -19,20 +17,18 @@ taille_morceaux = 4000
 analyseur = Analyseur([freq_lettres, plus_courants])
 classifieur = reseau_neurones()
 
+
 P = Probleme(oeuvres_training_set, oeuvres_eval_set, taille_morceaux, analyseur, classifieur, langue = "fr")
 
 #P.resoudre() equivalent a
 
-P.creer_textes(equilibrage = False)
-P.analyser(normalisation = True)
+P.creer_textes()
+P.analyser()
 P.appliquer_classifieur()
 P.afficher_graphique()
 P.afficher_graphique(poids_composantes=importance)
-print("coucou")
 P.afficher_graphique(poids_composantes=gain_information)
 
 f = time()
 print()
 print("Temps d'exécution : " + str(f-d) + "s")
-
-P.afficher()

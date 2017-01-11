@@ -6,14 +6,14 @@ from treetaggerwrapper import TreeTagger, make_tags
 from Evaluation import evaluation_externe as ee
 from Evaluation import evaluation_interne as ei
 from Evaluation import evaluation_relative as er
-from Interpretation.importance_composantes import gain_information,importance, auteurs_majoritaires
+from Interpretation.importance_composantes import gain_information,importance, auteurs_majoritaires, nouveaux_clusters
 from Utilitaires.importation_et_pretraitement import importer, formater
 from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1, equilibrer2
 
 from Representation.fenetre import FenetreAffichage
 
 
-emplacement_max = "/Users/maximegodin/Google Drive/Groupe PSC/"
+emplacement_maxime = "/Users/maximegodin/Google Drive/Groupe PSC/"
 emplacement_guillaume = "/Users/Guillaume/Google Drive/Cours X/PSC/Groupe PSC/"
 emplacement_clement = "C:/Users/Clement/Google Drive/Groupe PSC/"
 
@@ -248,14 +248,14 @@ class Probleme:
         print(len(self.analyseur.noms_composantes))
         self.classifieur.classifier(training_set=self.training_set, eval_set=self.eval_set)
         print("Classification effectuée")
-        self.classifieur.afficher()
+        #self.classifieur.afficher()
 
     def evaluer(self):
         print("/// Evaluation interne ///")
         print("Indice de Hubert interne : " + str(ei.huberts_interne(self.eval_set, self.classifieur.p)))
         print("/// Evaluation relative ///")
         #print("Trop long, décommentez les indices correspondants dans classes.py si vous avez du temps")
-        print("Indice de Hubert relatif : " + str(er.huberts_relatif(self.eval_set, self.classifieur.p)))
+        #print("Indice de Hubert relatif : " + str(er.huberts_relatif(self.eval_set, self.classifieur.p)))
         print("Indice de Dunn : " + str(er.dunn(self.eval_set, self.classifieur.p)))
         print("Indice de Davies-Bouldin : " + str(er.davies_bouldin(self.eval_set, self.classifieur.p)))
         print("/// Evaluation externe ///")
@@ -266,10 +266,14 @@ class Probleme:
         print("Taux de liaisons et non-liaisons correctes et incorrectes : " + str(
                 ee.calcul_taux(self.eval_set, self.classifieur.p, self.classifieur.p_ref)))
 
-    def interpreter(self):
+    def interpreter(self, utiliser_textes_training = True, alpha = 1):
         print("Composantes les plus importantes dans la classification :")
         noms_composantes = self.analyseur.noms_composantes
-        A = importance(self.classifieur.clusters, comp = True)
+        if utiliser_textes_training:
+            new_clusters = nouveaux_clusters(self.classifieur.training_set, self.classifieur.clusters, self.classifieur.auteurs)
+        else:
+            new_clusters = self.classifieur.clusters
+        A = importance(new_clusters, comp = True)
         #auteurs = auteurs_majoritaires(self.classifieur.clusters)
         auteurs = self.classifieur.auteurs
         importance1 = A[0]
@@ -279,7 +283,7 @@ class Probleme:
         indices_tries = sorted(list(range(len(importance1))), key = lambda k : importance1[k], reverse = True)
         noms_et_importance1 = [(noms_composantes[k],importance1[k]) for k in indices_tries]
         n=0
-        while noms_et_importance1[n][1]>1:
+        while noms_et_importance1[n][1]>alpha and n<30:
             n+=1
         if n>=len(noms_et_importance1):
             n=len(noms_et_importance1)
@@ -303,7 +307,6 @@ class Probleme:
         fenetre.build()
 
     def afficher(self):
-
         attrib_oeuvres = {}
         for o in self.oeuvres_eval_set:
             attrib_oeuvres[o.auteur+str(o.numero)] = np.zeros((len(self.classifieur.auteurs)))
@@ -312,7 +315,10 @@ class Probleme:
             attrib_oeuvres[t.auteur + str(t.numero)]+= self.classifieur.p[i,:]
         for o in self.oeuvres_eval_set:
             j = np.argmax(attrib_oeuvres[o.auteur+str(o.numero)])
-            print(o.auteur+str(o.numero) + " a eté ecrit par "+ self.classifieur.auteurs[j])
+            if attrib_oeuvres[o.auteur+str(o.numero)][j] == 0:
+                print(o.auteur + str(o.numero) + "n'a pas été attribué.")
+            else:
+                print(o.auteur+str(o.numero) + " a eté ecrit par "+ self.classifieur.auteurs[j] +" (" + str(attrib_oeuvres[o.auteur+str(o.numero)][j]*100/np.sum(attrib_oeuvres[o.auteur+str(o.numero)]))+" %).")
 
 
     def resoudre(self):
@@ -322,7 +328,7 @@ class Probleme:
         print("Analyse :")
         self.analyser()
         print("")
-        print("Classification et affichage :")
+        print("Classification :")
         self.appliquer_classifieur()
         print("")
         print("Evaluation :")
@@ -330,6 +336,9 @@ class Probleme:
         print("")
         print("Interprétation :")
         self.interpreter()
+        print("")
+        print("Affichage : ")
+        self.afficher()
 
 class Verification():
     
