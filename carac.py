@@ -10,6 +10,7 @@ def freq_lettres(texte):
     texte1 = texte.texte_brut.lower()
     lettres = ["a", "z", "e", "r", "t", "y", "u", "i", "o", "p", "q", "s", "d", "f", "g", "h", "j", "k", "l", "m", "w",
                "x", "c", "v", "b", "n"]
+    correspondance_lettres_speciales = []
     if texte.langue == "fr":
         lettres_speciales = ["à", "â", "é", "è", "ê", "ë", "î", "ï", "ô", "ù", "û", "ü"]
         correspondance_lettres_speciales = ["a", "a", "e", "e", "e", "e", "i", "i", "o", "u", "u", "u"]

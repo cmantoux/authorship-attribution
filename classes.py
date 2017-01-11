@@ -17,7 +17,7 @@ emplacement_max = "/Users/maximegodin/Google Drive/Groupe PSC/"
 emplacement_guillaume = "/Users/Guillaume/Google Drive/Cours X/PSC/Groupe PSC/"
 emplacement_clement = "C:/Users/Clement/Google Drive/Groupe PSC/"
 
-emplacement_dossier_groupe = emplacement_guillaume
+emplacement_dossier_groupe = emplacement_clement
 
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "ch" : "chinois"}
 
@@ -173,7 +173,7 @@ class Classifieur:
         self.classification = None
         self.clusters = None
 
-    def poids_composantes(self):
+    def poids_composantes(self, clusters=None):
         return importance(self.clusters)
 
     def afficher(self):
@@ -296,8 +296,10 @@ class Probleme:
                 print("      Moyenne parmi les textes attribués à " + aut + " : {:.4f}".format(m[i]))
         print("")
 
-    def afficher_graphique(self):
-        fenetre = FenetreAffichage(self.analyseur, self.classifieur, self.classifieur.poids_composantes())
+    def afficher_graphique(self, poids_composantes=None):
+        if poids_composantes == None:
+            poids_composantes = self.classifieur.poids_composantes
+        fenetre = FenetreAffichage(self.analyseur, self.classifieur, poids_composantes(self.classifieur.clusters))
         fenetre.build()
 
     def afficher(self):
