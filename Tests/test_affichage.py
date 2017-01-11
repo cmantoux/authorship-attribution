@@ -18,9 +18,6 @@ taille_morceaux = 4000
 analyseur = Analyseur([freq_ponct])
 classifieur = SVM()
 
-analyseur = Analyseur([freq_stopwords, freq_gram, freq_ponct])
-classifieur = SVM()
-
 
 P = Probleme(oeuvres_training_set, oeuvres_eval_set, taille_morceaux, analyseur, classifieur, langue = "fr")
 
