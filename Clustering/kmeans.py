@@ -146,3 +146,4 @@ class Kmeans(Classifieur):
                 if t in clusters[j]:
                     self.p[i, j] = 1
 
+
