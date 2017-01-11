@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import codecs
 import csv
 import pickle
@@ -8,6 +9,7 @@ from Evaluation import evaluation_interne as ei
 from Evaluation import evaluation_relative as er
 from Interpretation.importance_composantes import gain_information,importance, auteurs_majoritaires, nouveaux_clusters
 from Utilitaires.importation_et_pretraitement import importer, formater
+from Utilitaires.importation_et_pretraitement_pour_le_chinois import importer
 from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1, equilibrer2
 from Utilitaires.defuzze import defuzze
 from Representation.fenetre import FenetreAffichage
@@ -16,10 +18,11 @@ from Representation.fenetre import FenetreAffichage
 emplacement_maxime = "/Users/maximegodin/Google Drive/Groupe PSC/"
 emplacement_guillaume = "/Users/Guillaume/Google Drive/Cours X/PSC/Groupe PSC/"
 emplacement_clement = "C:/Users/Clement/Google Drive/Groupe PSC/"
+emplacement_wang = "/home/wang/Documents/PSC/GitDePSC/"
 
 emplacement_dossier_groupe = emplacement_maxime
 
-dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "ch" : "chinois"}
+dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "zh" : "chinois"}
 
 class Infos:
     """Contient les méta-données concernant notre oeuvre : nom complet de l'auteur, titre de l'oeuvre, année, genre. Ces infos sont extraites du fichier csv (tableur) infos_corpus situé à la racine du dossier Corpus."""

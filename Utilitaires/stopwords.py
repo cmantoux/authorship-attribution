@@ -15,3 +15,11 @@ def stopwords_fr2():
     with open("stopwords_fr.txt", "r") as fichier:
         s = fichier.read()
     return s.split()
+
+def stopwords_zh():
+    return stopwords.words("chinese")
+    
+def stopwords_zh2():
+    with open("stopwords_zh.txt", "r") as fichier:
+        s = fichier.read()
+    return s.split()

@@ -43,6 +43,8 @@ def freq_lettres(texte):
 
 def freq_ponct(texte):
     signes = [".", ",", ":", "!", "?", "-"]
+    if texte.langue == "zh":
+        signes = ["。", "，", "：", "！", "？", "“", "”", "；"]
     dico_freq = {}
     for s in signes:
         dico_freq[s] = 0
@@ -72,6 +74,10 @@ def freq_gram(texte):
                    'NPS', 'PDT', 'POS', 'PP', 'PP$', 'RB', 'RBR', 'RBS', 'RP', 'SENT', 'SYM TO', 'UH', 'VB', 'VBD',
                    'VBG', 'VBN', 'VBZ', 'VBP', 'VD', 'VDD', 'VDG', 'VDN', 'VDZ', 'VDP', 'VH', 'VHD VHG', 'VHN', 'VHZ',
                    'VHP', 'VV', 'VVD', 'VVG', 'VVN', 'VVP', 'VVZ', 'WDT', 'WP', 'WP$', 'WRB']
+    elif texte.langue == "zh":
+        natures = ["a", "ad", "ag", "an", "b", "bg", "c", "cg", "d", "dg", "e", "ew", "f", "fg", "g", "h", "i", 
+                   "j", "k", "l", "m", "mg", "n", "ng", "nr", "ns", "nt", "nx", "nz", "o", "p", "pg", "q", "qg", 
+                   "r", "rg", "s", "t", "tg", "u", "v", "vd", "vg", "vn", "w", "x", "y", "yg", "z", "zg"]
     dico_freq = {}
     for p in natures:
         dico_freq[p] = 0
@@ -107,6 +113,8 @@ def freq_stopwords(texte):
         stopwords = stopwords_en()
     elif texte.langue == "fr":
         stopwords = stopwords_fr()
+    elif texte.langue == "zh":
+        stopwords = stopwords_zh()
     fdist = nltk.FreqDist([m.lower() for m in texte.mots])
     frequences = [fdist.freq(sw) for sw in stopwords]
     S = sum(frequences)
@@ -128,5 +136,8 @@ def longueur_mots(texte):
     longueurs = [0 for k in range(10)]
     for m in [M for M in texte.mots if M not in [".", ",", ":", "?", "!", "(", ")", "-", "'"]]:
         longueurs[min(len(m), len(longueurs) - 1)] += 1
+    if texte.langue == "zh":
+        for m in [M for M in texte.mots if M not in ["。", "，", "：", "？", "！", "（", "）", "；", "”"]]:
+            longueurs[min(len(m), len(longueurs) - 1)] += 1
     S = sum(longueurs)
     return [l / S for l in longueurs], ["Fréquence des mots de longueur {}".format(k) for k in range(len(longueurs))]
