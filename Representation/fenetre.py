@@ -87,9 +87,9 @@ class FenetreAffichage:
             clusters_concrets_textes.append(cluster)
         importance_composantes = poids_composantes
         # importance_composantes = importance(clusters_concrets_textes)
-        self.indices_coefficients_separateurs = sorted(range(1, len(self.matrice_proportions)),
+        self.indices_coefficients_separateurs = sorted(range(0, len(self.matrice_proportions)),
                                                 key=(lambda k: importance_composantes[k]))[::-1][
-                                                :min(10, len(self.matrice_proportions))]
+                                                :min(10, len(self.liste_textes[0].vecteur)+1)]
         self.coefficients_coordonnees = [1 for i in range(len(self.indices_coefficients_separateurs))]
 
         self.points = self.normaliser_points(vecteurs)
