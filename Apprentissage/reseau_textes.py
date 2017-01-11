@@ -257,7 +257,7 @@ class reseau_neurones(classes.Classifieur):
                 self.precision += 1.
         self.precision /= len(training_set)
 
-    def poids_composantes(self):
+    def poids_composantes(self, clusters=None):
         tab = [0]*len(self.W[0][0])
         for i in range(len(self.W[0])):
             for j in range(len(self.W[0][i])):

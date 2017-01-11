@@ -1,19 +1,26 @@
 from time import time
 
-from carac import freq_stopwords, freq_gram, freq_ponct
+from carac import *
 from classes import Analyseur, Probleme
+from Clustering.kmeans import Kmeans
+from Apprentissage.reseau_textes import reseau_neurones
 from Apprentissage.svm import SVM
+from Interpretation.importance_composantes import importance, gain_information
 
 
 d = time()
 
-oeuvres_training_set =[("zola",k) for k in range(1,3)] + [("balzac",k) for k in range(1,3)] + [("maupassant",k) for k in range(1,3)]
-oeuvres_eval_set = [("maupassant",k) for k in range(3,5)] + [("balzac",k) for k in range(3,5)]
-taille_morceaux = 1000
+oeuvres_training_set =[("proust",k) for k in range(1,3)] + [("balzac",k) for k in range(1,3)] + [("dumas",k) for k in range(1,3)]
+oeuvres_eval_set = [("proust",k) for k in range(3,5)] + [("balzac",k) for k in range(3,5)] + [("dumas",k) for k in range(3,5)]
+taille_morceaux = 4000
 
+
+analyseur = Analyseur([freq_lettres, plus_courants])
+classifieur = reseau_neurones()
 
 analyseur = Analyseur([freq_stopwords, freq_gram, freq_ponct])
 classifieur = SVM()
+
 
 P = Probleme(oeuvres_training_set, oeuvres_eval_set, taille_morceaux, analyseur, classifieur, langue = "fr")
 
@@ -22,9 +29,9 @@ P = Probleme(oeuvres_training_set, oeuvres_eval_set, taille_morceaux, analyseur,
 P.creer_textes()
 P.analyser()
 P.appliquer_classifieur()
-
-
-P.afficher()
+P.afficher_graphique()
+P.afficher_graphique(poids_composantes=importance)
+P.afficher_graphique(poids_composantes=gain_information)
 
 f = time()
 print()
