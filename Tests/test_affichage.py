@@ -14,8 +14,8 @@ oeuvres_eval_set = [("proust",k) for k in range(3,5)] + [("balzac",k) for k in r
 taille_morceaux = 4000
 
 
-analyseur = Analyseur([freq_lettres, plus_courants])
-classifieur = reseau_neurones()
+analyseur = Analyseur([freq_ponct])
+classifieur = SVM()
 
 
 P = Probleme(oeuvres_training_set, oeuvres_eval_set, taille_morceaux, analyseur, classifieur, langue = "fr")
