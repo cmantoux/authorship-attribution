@@ -6,7 +6,7 @@ from treetaggerwrapper import TreeTagger, make_tags
 from Evaluation import evaluation_externe as ee
 from Evaluation import evaluation_interne as ei
 from Evaluation import evaluation_relative as er
-from Interpretation.importance_composantes import gain_information,importance, auteurs_majoritaires
+from Interpretation.importance_composantes import gain_information,importance, auteurs_majoritaires, nouveaux_clusters
 from Utilitaires.importation_et_pretraitement import importer, formater
 from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1, equilibrer2
 
@@ -248,7 +248,7 @@ class Probleme:
         print(len(self.analyseur.noms_composantes))
         self.classifieur.classifier(training_set=self.training_set, eval_set=self.eval_set)
         print("Classification effectuée")
-        self.classifieur.afficher()
+        #self.classifieur.afficher()
 
     def evaluer(self):
         print("/// Evaluation interne ///")
@@ -266,10 +266,14 @@ class Probleme:
         print("Taux de liaisons et non-liaisons correctes et incorrectes : " + str(
                 ee.calcul_taux(self.eval_set, self.classifieur.p, self.classifieur.p_ref)))
 
-    def interpreter(self):
+    def interpreter(self, utiliser_textes_training = True, alpha = 1):
         print("Composantes les plus importantes dans la classification :")
         noms_composantes = self.analyseur.noms_composantes
-        A = importance(self.classifieur.clusters, comp = True)
+        if utiliser_textes_training:
+            new_clusters = nouveaux_clusters(self.classifieur.training_set, self.classifieur.clusters, self.classifieur.auteurs)
+        else:
+            new_clusters = self.classifieur.clusters
+        A = importance(new_clusters, comp = True)
         #auteurs = auteurs_majoritaires(self.classifieur.clusters)
         auteurs = self.classifieur.auteurs
         importance1 = A[0]
@@ -279,7 +283,7 @@ class Probleme:
         indices_tries = sorted(list(range(len(importance1))), key = lambda k : importance1[k], reverse = True)
         noms_et_importance1 = [(noms_composantes[k],importance1[k]) for k in indices_tries]
         n=0
-        while noms_et_importance1[n][1]>1:
+        while noms_et_importance1[n][1]>alpha and n<30:
             n+=1
         if n>=len(noms_et_importance1):
             n=len(noms_et_importance1)
@@ -301,7 +305,6 @@ class Probleme:
         fenetre.build()
 
     def afficher(self):
-
         attrib_oeuvres = {}
         for o in self.oeuvres_eval_set:
             attrib_oeuvres[o.auteur+str(o.numero)] = np.zeros((len(self.classifieur.auteurs)))
@@ -320,7 +323,7 @@ class Probleme:
         print("Analyse :")
         self.analyser()
         print("")
-        print("Classification et affichage :")
+        print("Classification :")
         self.appliquer_classifieur()
         print("")
         print("Evaluation :")
@@ -328,6 +331,9 @@ class Probleme:
         print("")
         print("Interprétation :")
         self.interpreter()
+        print("")
+        print("Affichage : ")
+        self.afficher()
 
 class Verification():
     
