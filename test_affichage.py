@@ -5,6 +5,7 @@ d = time()
 from carac import *
 from classes import Analyseur, Probleme
 from Clustering.kmeans import Kmeans
+from Clustering.kmedoids import KMedoids
 
 d = time()
 
@@ -14,7 +15,7 @@ taille_morceaux = 3000
 
 
 analyseur = Analyseur([freq_stopwords])
-classifieur = SVM()
+classifieur = KMedoids()
 
 P = Probleme(oeuvres_training_set, oeuvres_eval_set, taille_morceaux, analyseur, classifieur, langue = "fr")
 

@@ -117,14 +117,18 @@ class KMedoids(Classifieur):
         for i in range(self.k):
             a = auteurs_clusters[i]
             j = self.auteurs.index(a)
-            self.clusters[j]+=clusters[i]
+            for t in clusters[i]:
+                if t in eval_set:
+                    self.clusters[j].append(t)
+
         n = len(self.eval_set)
-        self.p = np.zeros((n,self.k))
-        self.p_ref = np.zeros((n,self.k))
+
+        self.p = np.zeros((n, self.k))
+        self.p_ref = np.zeros((n, self.k))
 
         for i in range(n):
             t = eval_set[i]
-            self.p_ref[i, self.auteurs.index(t.auteur)]=1
+            self.p_ref[i, self.auteurs.index(t.auteur)] = 1
             for j in range(self.k):
-                if t in clusters[j]:
+                if t in self.clusters[j]:
                     self.p[i, j] = 1
