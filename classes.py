@@ -13,11 +13,11 @@ from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1, e
 from Representation.fenetre import FenetreAffichage
 
 
-emplacement_max = "/Users/maximegodin/Google Drive/Groupe PSC/"
+emplacement_maxime = "/Users/maximegodin/Google Drive/Groupe PSC/"
 emplacement_guillaume = "/Users/Guillaume/Google Drive/Cours X/PSC/Groupe PSC/"
 emplacement_clement = "C:/Users/Clement/Google Drive/Groupe PSC/"
 
-emplacement_dossier_groupe = emplacement_guillaume
+emplacement_dossier_groupe = emplacement_maxime
 
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "ch" : "chinois"}
 
@@ -255,7 +255,7 @@ class Probleme:
         print("Indice de Hubert interne : " + str(ei.huberts_interne(self.eval_set, self.classifieur.p)))
         print("/// Evaluation relative ///")
         #print("Trop long, décommentez les indices correspondants dans classes.py si vous avez du temps")
-        print("Indice de Hubert relatif : " + str(er.huberts_relatif(self.eval_set, self.classifieur.p)))
+        #print("Indice de Hubert relatif : " + str(er.huberts_relatif(self.eval_set, self.classifieur.p)))
         print("Indice de Dunn : " + str(er.dunn(self.eval_set, self.classifieur.p)))
         print("Indice de Davies-Bouldin : " + str(er.davies_bouldin(self.eval_set, self.classifieur.p)))
         print("/// Evaluation externe ///")
@@ -313,7 +313,10 @@ class Probleme:
             attrib_oeuvres[t.auteur + str(t.numero)]+= self.classifieur.p[i,:]
         for o in self.oeuvres_eval_set:
             j = np.argmax(attrib_oeuvres[o.auteur+str(o.numero)])
-            print(o.auteur+str(o.numero) + " a eté ecrit par "+ self.classifieur.auteurs[j])
+            if attrib_oeuvres[o.auteur+str(o.numero)][j] == 0:
+                print(o.auteur + str(o.numero) + "n'a pas été attribué.")
+            else:
+                print(o.auteur+str(o.numero) + " a eté ecrit par "+ self.classifieur.auteurs[j] +" (" + str(attrib_oeuvres[o.auteur+str(o.numero)][j]*100/np.sum(attrib_oeuvres[o.auteur+str(o.numero)]))+" %).")
 
 
     def resoudre(self):
