@@ -12,6 +12,9 @@ from classes import Analyseur,Classifieur,Probleme
 from Interpretation.importance_composantes import importance, gain_information
 from Apprentissage.svm import SVM
 from Clustering.kmeans import Kmeans
+from Utilitaires.defuzze import defuzze
+import Evaluation.evaluation_externe as ee
+from Utilitaires.equilibrage_et_normalisation import equilibrer1
 
 def surete(d_id, d_dif):
     s = np.abs(d_id-d_dif)/np.max(d_id,d_dif) 
@@ -36,6 +39,7 @@ class UnmaskingCourbes(Classifieur):
         self.pas = pas
         self.taille_echantillon = taille_echantillon
         self.facteur = facteur
+        self.equi = False
 
     def classifier(self, training_set, eval_set):
         self.training_set = training_set
@@ -68,8 +72,9 @@ class UnmaskingCourbes(Classifieur):
 
         textes = training_set
         textes.extend(eval_set)
-        rd.shuffle(textes)
-        self.J = list(range(0,nb_composantes,self.pas))
+        if self.equi:
+            textes = equilibrer1(textes)
+        self.J = list(range(0,nb_composantes-self.pas,self.pas))
         self.precision = []
         for j in self.J:
             print("Nombre de composantes retirées : {}".format(j))
@@ -78,15 +83,28 @@ class UnmaskingCourbes(Classifieur):
             for t in textes:
                 t.vecteur = t.vecteur[:k]
             for e in range(self.nb_essais):
+                nb_loupes = 0
                 #print("Essai n°{}".format(e))
                 classifieur = SVM(pc = False)
                 indices = rd.choice(len(textes),min(self.taille_echantillon, len(textes)//self.facteur))
-                non_indices = [i for i in range(len(textes)) if not (i in indices)]
+                #non_indices = [i for i in range(len(textes)) if not (i in indices)]
+                non_indices = rd.choice(len(textes),min((self.facteur-1)*self.taille_echantillon, len(textes)*(self.facteur-1)//self.facteur))
                 eval_set_bis = [textes[i] for i in indices]
                 training_set_bis = [textes[i] for i in non_indices]
-                classifieur.classifier(training_set_bis, eval_set_bis)
-                precision_moyenne += classifieur.precision
-            precision_moyenne /= self.nb_essais
+                m = 0
+                while len(list(set([t.auteur for t in training_set_bis])))<=1 and m < 20:
+                    m+=1
+                    indices = rd.choice(len(textes),min(self.taille_echantillon, len(textes)//self.facteur))
+                    #non_indices = [i for i in range(len(textes)) if not (i in indices)]
+                    non_indices = rd.choice(len(textes),min((self.facteur-1)*self.taille_echantillon, len(textes)*(self.facteur-1)//self.facteur))
+                if len(list(set([t.auteur for t in training_set_bis])))<=1 or len(training_set)<4 or len(eval_set_bis)<4:
+                    nb_loupes += 1
+                else:
+                    classifieur.classifier(training_set_bis, eval_set_bis)
+                    precision_moyenne+= ee.precision(classifieur.eval_set,defuzze(classifieur.p),classifieur.p_ref)
+            if nb_loupes >= self.nb_essais - 4 :
+                raise ValueError("Les corpus sont trop petits")
+            precision_moyenne /= (self.nb_essais-nb_loupes)
             self.precision.append(precision_moyenne)
         return
 
@@ -95,7 +113,7 @@ class UnmaskingCourbes(Classifieur):
 
 class Unmasking:
     
-    def __init__(self, nb_selections = 5, nb_oeuvres = 1, taille_echantillon = 20 , facteur = 10, lissage = 0, nb_essais = 10, pas = 5,langue = "fr"):
+    def __init__(self, nb_selections = 10, nb_oeuvres = 2, taille_echantillon = 10, facteur = 3, lissage = 0, nb_essais = 10, pas = 3,langue = "fr"):
         self.liste_id_oeuvres_calibrage = None
         self.liste_id_oeuvres_base = None
         self.liste_id_oeuvres_disputees = None
@@ -184,6 +202,7 @@ class Unmasking:
                 P_verif = Probleme(ob1, od1, self.taille_morceaux, self.analyseur, classifieur_verif, self.langue)
                 P_verif.creer_textes(equilibrage = True, equilibrage_eval = False)
                 P_verif.analyser(normalisation = True)
+                P_verif.classifieur.equi = True
                 P_verif.appliquer_classifieur()
                 J = P_verif.classifieur.J
                 precision3 = P_verif.classifieur.precision
@@ -226,4 +245,22 @@ class Unmasking:
             plt.legend(loc="best")
             plt.title("Unmasking")
             plt.savefig("unmasking_graph"+ str(int(time())) + ".png")
-            plt.show()
+            #plt.show()
+            plt.close()
+
+
+verificateur = Unmasking()
+
+taille_morceaux = 1000
+analyseur = Analyseur([freq_gram, freq_stopwords])
+
+liste_id_oeuvres_base = [("corneille",k) for k in range(1,16)]
+
+liste_id_oeuvres_calibrage = [("racine",k) for k in range(1,11)]
+
+liste_id_oeuvres_disputees = [("moliere",k) for k in [1,11]]
+
+V = Verification(liste_id_oeuvres_base, liste_id_oeuvres_calibrage, liste_id_oeuvres_disputees, taille_morceaux, analyseur, verificateur)
+V.creer_textes()
+V.analyser(normalisation = False)
+V.appliquer_verificateur()

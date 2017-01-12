@@ -9,7 +9,7 @@ from Evaluation import evaluation_interne as ei
 from Evaluation import evaluation_relative as er
 from Interpretation.importance_composantes import gain_information,importance, auteurs_majoritaires, nouveaux_clusters
 from Utilitaires.importation_et_pretraitement import importer, formater
-from Utilitaires.importation_et_pretraitement_pour_le_chinois import importer
+#from Utilitaires.importation_et_pretraitement_pour_le_chinois import importer
 from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1, equilibrer2
 from Utilitaires.defuzze import defuzze
 from Representation.fenetre import FenetreAffichage
@@ -20,7 +20,7 @@ emplacement_guillaume = "/Users/Guillaume/Google Drive/Cours X/PSC/Groupe PSC/"
 emplacement_clement = "C:/Users/Clement/Google Drive/Groupe PSC/"
 emplacement_wang = "/home/wang/Documents/PSC/GitDePSC/"
 
-emplacement_dossier_groupe = emplacement_maxime
+emplacement_dossier_groupe = emplacement_guillaume
 
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "zh" : "chinois"}
 
