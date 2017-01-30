@@ -66,7 +66,7 @@ def equilibrer2(liste_textes):
     n = min([len(l) for l in textes_par_auteur.values()])
     print("Nombre de textes par auteur après équilibrage : " + str(n))
     for a in textes_par_auteur.keys():
-        while(len(textes_par_auteur[a]) > n):
+        while len(textes_par_auteur[a]) > n:
             s = random.sample(textes_par_auteur[a],2)
             t1 = s[0]
             t2 = s[1]

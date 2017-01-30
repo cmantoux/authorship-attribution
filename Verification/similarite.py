@@ -1,17 +1,9 @@
-from time import time
 import sys
 sys.path.append("/Users/Guillaume/Documents/Informatique/Projets-git/psc")
-from carac import *
 import numpy as np
 import numpy.linalg as alg
 import random as rd
 import matplotlib.pyplot as plt
-from sklearn.svm import SVC
-from Apprentissage.svm import SVM
-from classes import Analyseur, Verification
-from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1
-from matplotlib import cm
-from copy import deepcopy
 
 def norm(v):
     n = len(v)
@@ -60,40 +52,66 @@ def trace_qual():
     plt.savefig("graphe_qualite.png")
     plt.show()
 
-class Similarity():
+def eval_qualite(verif, vraie_verif):
+    n = len(verif)
+    nb_meme_auteur = 0
+    nb_auteur_different = 0
+    mauvaises_attributions = 0
+    mauvais_rejets = 0
+    q = 0
+    for i in range(n):
+        if verif[i] == vraie_verif[i]:
+            q += 1
+        if vraie_verif[i]:
+            nb_meme_auteur += 1
+            if not verif[i]:
+                mauvais_rejets += 1
+        if not vraie_verif[i]:
+            nb_auteur_different += 1
+            if verif[i]:
+                mauvaises_attributions += 1
+    if nb_auteur_different == 0:
+        fp = 0
+    else:
+        fp = mauvaises_attributions / nb_auteur_different
+    if nb_meme_auteur == 0:
+        fn = 0
+    else:
+        fn = mauvais_rejets / nb_meme_auteur
+    qualite = qual(fp, fn)
+    return qualite, fp, fn, q, n, mauvaises_attributions, nb_auteur_different, mauvais_rejets, nb_meme_auteur
+
+
+def evaluer(verif, vraie_verif):
+    qualite, fp, fn, q, n, mauvaises_attributions, nb_auteur_different, mauvais_rejets, nb_meme_auteur = eval_qualite(
+        verif, vraie_verif)
+    print("Mauvaises attributions : {} sur {}, soit {} %".format(mauvaises_attributions, nb_auteur_different,
+                                                                 int(100 * fp)))
+    print("Mauvais rejets : {} sur {}, soit {} %".format(mauvais_rejets, nb_meme_auteur, int(100 * fn)))
+    # print("Nombre de vérifications correctes : {} sur {}".format(q,n))
+    print("Efficacité moyenne : {} %".format(int(100 * (1 - (fp + fn) / 2))))
+
+class Similarity:
     
     def __init__(self):
         print("Creation du vérificateur par similarité")
         self.plot = False
-    
-    def qualite(self, verif, vraie_verif):
-        n = len(verif)
-        nb_meme_auteur = 0
-        nb_auteur_different = 0
-        mauvaises_attributions = 0
-        mauvais_rejets = 0
-        q = 0
-        for i in range(n):
-            if verif[i] == vraie_verif[i]:
-                q += 1
-            if vraie_verif[i]:
-                nb_meme_auteur += 1
-                if not verif[i]:
-                    mauvais_rejets += 1
-            if not vraie_verif[i]:
-                nb_auteur_different += 1
-                if verif[i]:
-                    mauvaises_attributions += 1
-        if nb_auteur_different == 0:
-            fp = 0
-        else :
-            fp = mauvaises_attributions/nb_auteur_different
-        if nb_meme_auteur == 0:
-            fn = 0
-        else :
-            fn = mauvais_rejets/nb_meme_auteur
-        qualite = qual(fp,fn)
-        return qualite, fp, fn, q, n, mauvaises_attributions, nb_auteur_different, mauvais_rejets, nb_meme_auteur 
+        self.textes_base = None
+        self.textes_calibrage = None
+        self.textes_disputes = None
+        self.textes = None
+        self.M1 = None
+        self.AS_base = None
+        self.AGS_base = None
+        self.marge_base = None
+        self.AS_calibrage = None
+        self.ADGS_calibrage = None
+        self.marge_calibrage = None
+        self.verif_calibrage = None
+        self.vraie_verif_calibrage = None
+        self.a = None
+        self.verif = None
+        self.vraie_verif = None
     
     def calibrer(self, textes_base, textes_calibrage):
         m = min(len(textes_base), len(textes_calibrage))
@@ -143,7 +161,7 @@ class Similarity():
                         verif_calibrage.append(True)
                     else :
                         verif_calibrage.append(False)
-                qualite, fp, fn, q, n, mauvaises_attributions, nb_auteur_different, mauvais_rejets, nb_meme_auteur  = self.qualite(verif_calibrage, vraie_verif_calibrage)
+                qualite, fp, fn, q, n, mauvaises_attributions, nb_auteur_different, mauvais_rejets, nb_meme_auteur  = eval_qualite(verif_calibrage, vraie_verif_calibrage)
                 
                 FP.append(fp)
                 FN.append(fn)
@@ -184,6 +202,8 @@ class Similarity():
             self.a = 0
     
     def verifier(self, textes_base, textes_disputes):
+        w = len(textes_base)
+        w += 1
         self.textes_disputes = textes_disputes
         self.verif = []
         self.vraie_verif = []
@@ -201,22 +221,17 @@ class Similarity():
             else:
                 self.vraie_verif.append(False)
         
-    def evaluer(self, verif, vraie_verif):
-        qualite, fp, fn, q, n, mauvaises_attributions, nb_auteur_different, mauvais_rejets, nb_meme_auteur   = self.qualite(verif, vraie_verif)
-        print("Mauvaises attributions : {} sur {}, soit {} %".format(mauvaises_attributions, nb_auteur_different, int(100*fp)))
-        print("Mauvais rejets : {} sur {}, soit {} %".format(mauvais_rejets, nb_meme_auteur, int(100*fn)))
-        #print("Nombre de vérifications correctes : {} sur {}".format(q,n))
-        print("Efficacité moyenne : {} %".format(int(100*(1-(fp+fn)/2))))
+
     
     def afficher(self):
         print("")
         print("Performance sur le calibrage")
         print("")
-        self.evaluer(self.verif_calibrage, self.vraie_verif_calibrage)
+        evaluer(self.verif_calibrage, self.vraie_verif_calibrage)
         print("")
         print("Performance sur la verification")
         print("")
-        self.evaluer(self.verif, self.vraie_verif)
+        evaluer(self.verif, self.vraie_verif)
         print("")
         aut_base = self.textes_base[0].auteur
         aut = self.textes_disputes[0].auteur

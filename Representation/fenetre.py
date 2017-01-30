@@ -7,26 +7,22 @@ import numpy as np
 from Interpretation.importance_composantes import importance, gain_information
 
 
-def nouvelles_matrices(training_set, p, p_ref, auteurs):
-    auteurs_eval = set(auteurs)
-    auteurs_training = set([t.auteur for t in training_set])
-    auteurs_sup_training = list(auteurs_training - auteurs_eval)
-    auteurs_total = auteurs + auteurs_sup_training
+def nouvelles_matrices(training_set, p, p_ref, categories):
     nt = len(training_set)
     ne = p.shape[0]
-    na = len(auteurs_total)
-    p2 = np.zeros((nt+ne,na))
-    p_ref2 = np.zeros((nt+ne,na))
+    nc = len(categories)
+    p2 = np.zeros((nt+ne,nc))
+    p_ref2 = np.zeros((nt+ne,nc))
     for i in range(nt):
         t = training_set[i]
-        j = auteurs_total.index(t.auteur)
+        j = categories.index(t.categorie)
         p2[i,j] = 1
         p_ref2[i,j] = 1
     for i in range(nt,nt+ne):
-        for j in range(len(auteurs)):
+        for j in range(len(categories)):
             p2[i][j] = p[i-nt,j]
             p_ref2[i][j] = p_ref[i-nt,j]
-    return p2, p_ref2, auteurs_total
+    return p2, p_ref2, categories
 
 class FenetreAffichage:
 
@@ -35,7 +31,7 @@ class FenetreAffichage:
         self.width = 600
         self.liste_textes = classifieur.training_set + classifieur.eval_set
         self.p, self.p_ref, self.noms_auteurs = nouvelles_matrices(classifieur.training_set, classifieur.p,
-                                                                   classifieur.p_ref, classifieur.auteurs)
+                                                                   classifieur.p_ref, classifieur.categories)
         self.n_points = len(self.liste_textes)
 
         self.matrice_proportions = None
@@ -187,7 +183,7 @@ class FenetreAffichage:
 
     # Renvoie le numéro de l'auteur théorique
     def auteur_theorique(self, indice):
-        return self.noms_auteurs_inverses[self.liste_textes[indice].auteur]
+        return self.noms_auteurs_inverses[self.liste_textes[indice].categorie]
 
     # A partir de p_ref
     def auteur_concret(self, indice):

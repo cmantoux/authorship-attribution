@@ -7,10 +7,10 @@ from treetaggerwrapper import TreeTagger, make_tags
 from Evaluation import evaluation_externe as ee
 from Evaluation import evaluation_interne as ei
 from Evaluation import evaluation_relative as er
-from Interpretation.importance_composantes import gain_information,importance, auteurs_majoritaires, nouveaux_clusters
+from Interpretation.importance_composantes import importance, nouveaux_clusters
 from Utilitaires.importation_et_pretraitement import importer, formater
 #from Utilitaires.importation_et_pretraitement_pour_le_chinois import importer
-from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1, equilibrer2
+from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1
 from Utilitaires.defuzze import defuzze
 from Representation.fenetre import FenetreAffichage
 
@@ -62,6 +62,7 @@ class Oeuvre:
         self.auteur = auteur
         self.numero = numero
         self.langue = langue
+        self.categorie = None
         emplacement_textes = emplacement_dossier_groupe + "Corpus/" + dico_langues[langue] + "/Fichiers txt/"
         emplacement_oeuvres = emplacement_dossier_groupe + "Corpus/" + dico_langues[langue] + "/Fichiers oeuvres/"
         #self.infos = Infos(auteur,numero)
@@ -95,6 +96,7 @@ class Oeuvre:
         auteur = self.auteur
         numero = self.numero
         langue = self.langue
+        categorie = self.categorie
         if not full_text:
             L = len(self.tags)
             for k in range(0,L-taille_morceaux,taille_morceaux):
@@ -102,7 +104,7 @@ class Oeuvre:
                 texte_brut = " ".join(mots)
                 racines = self.racines[k:k+taille_morceaux]
                 POS = self.POS[k:k+taille_morceaux]
-                T = Texte(auteur,numero,langue,k//taille_morceaux,texte_brut,mots,racines,POS)
+                T = Texte(auteur,numero,categorie,langue,k//taille_morceaux,texte_brut,mots,racines,POS)
                 tab_texts.append(T)
         elif full_text:
             k = 0
@@ -110,7 +112,7 @@ class Oeuvre:
             texte_brut = " ".join(mots)
             racines = self.racines
             POS = self.POS
-            T = Texte(auteur, numero, langue, k // taille_morceaux, texte_brut, mots, racines, POS)
+            T = Texte(auteur, numero, categorie, langue, k // taille_morceaux, texte_brut, mots, racines, POS)
             tab_texts.append(T)
         return tab_texts
 
@@ -118,11 +120,13 @@ class Texte:
     """Un objet Texte correspondra à un point dans notre analyse et classification. Ses attributs sont les mêmes que pour Oeuvre, avec en plus :
     - vecteur = liste de réels correspondant à des caractéristiques littéraires (initialisée à None, elle sera remplie par l'analyseur)
     - composantes_vecteur = liste de strings expliquant la signification littéraire de chaque coordonnée du vecteur associé (ex : "fréquence du 3e mot le plus courant")
+    - categorie : son rangement dans la classification, soit donné comme hypothèse (pour training_set) soit résultant de l'algorithme (pour eval_set)
     """
 
-    def __init__(self,auteur,numero,langue,numero_morceau,texte_brut,mots,racines,POS):
+    def __init__(self,auteur,numero,categorie,langue,numero_morceau,texte_brut,mots,racines,POS):
         self.auteur = auteur
         self.numero = numero
+        self.categorie = categorie
         self.langue = langue
         self.infos = Infos(auteur,numero)
         self.numero_morceau = numero_morceau
@@ -137,16 +141,15 @@ class Texte:
         return (self.auteur == texte2.auteur) and (self.numero == texte2.numero) and (self.numero_morceau == texte2.numero_morceau)
 
     def copy(self):
-        return Texte(self.auteur, self.numero, self.langue, self.numero_morceau, self.texte_brut, self.mots, self.racines, self.POS)
+        return Texte(self.auteur, self.numero, self.categorie, self.langue, self.numero_morceau, self.texte_brut, self.mots, self.racines, self.POS)
 
 class Analyseur:
-    """Un objet Analyseur représente un ensemble de fonctions d'analyse littéraire, qui extraient des données chiffrées du texte prétraité. Il contient essentiellement une liste de fonctions, chacune des fonctions doit renvoyer, à partir d'un objet Texte, un couple (vecteur, composantes_vecteur). On concatènera ensuite dans l'Analyseur les résultats de ces différentes fonctions."""
+    """Un objet Analyseur représente un ensemble de fonctions d'analyse littéraire, qui extraient des données chiffrées du texte prétraité. Il contient essentiellement une liste de fonctions, chacune des fonctions doit renvoyer, à partir d'un objet Texte, un couple (vecteur, composantes_vecteur). On concatènera ensuite les résultats de ces différentes fonctions."""
 
     def __init__(self, liste_fonctions):
         self.liste_fonctions = liste_fonctions
         self.noms_composantes = []
 
-    # Je n'ai pas encore trouvé le moyen de pondérer les composantes les unes par rapport aux autres mais c'est potentiellement ici que ça se passera.
     def analyser(self, texte):
         """Remplit l'attribut vecteur du Texte avec le résultat concaténé des différentes fonctions de liste_fonctions."""
         V = []
@@ -158,27 +161,20 @@ class Analyseur:
         texte.vecteur = V
         self.noms_composantes = noms_composantes
 
-
 class Classifieur:
-    """Un objet Classifieur correspond à une méthode d'analyse des données pour en extraire des regroupements ou des attributions. Deux fonctions sont nécessaires pour l'instant : une fonction analyser qui renvoie une classification sous une forme quelconque, et une fonction afficher. A terme la fonction afficher sera remplacée par l'interface graphique de Clément, et le résultat devra donc être sous le format défini par Maxime :
-    - liste_textes = liste des textes fournis au classifieur
-    - p = matrice de partition floue résultant de la classification, de taille (nb_textes, nb_classes), où le coefficient m_{i,j} est la probabilité d'appartenance du texte i à la classe j
-    - p_ref = matrice de partition floue connue au préalable avec nos informations sur les auteurs des textes
+    """Un objet Classifieur correspond à une méthode d'analyse des données pour en extraire des regroupements ou des attributions. Deux fonctions sont nécessaires pour l'instant : une fonction analyser qui renvoie une classification sous une forme quelconque, et une fonction classifier. Les attributs qui doivent être remplis sont :
+    - p = matrice de partition (floue) résultant de la classification, de taille (nb_textes, nb_classes), où le coefficient m_{i,j} est la probabilité d'appartenance du texte i à la catégorie j
+    - p_ref = matrice de partition (floue) connue au préalable avec nos informations sur les catégories des textes
     """
 
-    def classifier(self, training_set, eval_set):
-        self.liste_textes = training_set + eval_set
-        self.training_set = training_set
-        self.eval_set = eval_set
-        self.p = None
-        self.p_ref = None
-        self.precision = 0
-        self.classification = None
+    def __init__(self):
         self.clusters = None
+
+    def classifier(self, training_set, eval_set, categories):
+        pass
 
     def poids_composantes(self, clusters=None):
         return importance(self.clusters)
-
 
 class Probleme:
     """Un objet Problème rassemble tous les éléments d'un questionnement d'attribution :
@@ -188,23 +184,29 @@ class Probleme:
     - classifieur = objet Classifieur
     """
 
-    def __init__(self, liste_id_oeuvres_training_set, liste_id_oeuvres_eval_set, taille_morceaux, analyseur, classifieur, langue = "fr", full_text = False):
+    def __init__(self, id_training_set, categories, id_eval_set, categories_supposees, taille_morceaux, analyseur, classifieur, langue = "fr", full_text = False):
         print("Assemblage du problème")
         self.oeuvres_training_set = []
         self.oeuvres_eval_set = []
+        self.categories = categories
+        self.categories_supposees = categories_supposees
         self.taille_morceaux = taille_morceaux
         self.liste_oeuvres = []
         print("Création - importation des oeuvres : ")
-        for id in liste_id_oeuvres_training_set:
-            auteur = id[0]
-            numero = id[1]
-            oeuvre = Oeuvre(auteur,numero,langue)
-            self.oeuvres_training_set.append(oeuvre)
-        for id in liste_id_oeuvres_eval_set:
-            auteur = id[0]
-            numero = id[1]
-            oeuvre = Oeuvre(auteur, numero, langue)
-            self.oeuvres_eval_set.append(oeuvre)
+        for k in range(len(id_training_set)):
+            for ident in id_training_set[k]:
+                auteur = ident[0]
+                numero = ident[1]
+                oeuvre = Oeuvre(auteur,numero,langue)
+                oeuvre.categorie = categories[k]
+                self.oeuvres_training_set.append(oeuvre)
+        for k in range(len(id_eval_set)):
+            for ident in id_eval_set[k]:
+                auteur = ident[0]
+                numero = ident[1]
+                oeuvre = Oeuvre(auteur,numero,langue)
+                oeuvre.categorie = categories_supposees[k]
+                self.oeuvres_eval_set.append(oeuvre)
         print()
         print("Liste_oeuvres remplie")
         self.analyseur = analyseur
@@ -213,7 +215,7 @@ class Probleme:
         print("Classifieur initialisé")
         self.eval_set = []
         self.training_set = []
-        self.liste_texts = []
+        self.liste_textes = []
         self.full_text = full_text
 
     def creer_textes(self, equilibrage = True, equilibrage_eval = False):
@@ -245,8 +247,9 @@ class Probleme:
         self.classifieur.liste_textes = self.liste_textes
         self.classifieur.training_set = self.training_set
         self.classifieur.eval_set = self.eval_set
-        print(len(self.analyseur.noms_composantes))
-        self.classifieur.classifier(training_set=self.training_set, eval_set=self.eval_set)
+        self.classifieur.categories = self.categories
+        self.classifieur.categories_supposees = self.categories_supposees
+        self.classifieur.classifier(training_set=self.training_set, eval_set=self.eval_set, categories = self.categories)
         print("Classification effectuée")
 
     def evaluer(self):
@@ -270,12 +273,11 @@ class Probleme:
         print("Composantes les plus importantes dans la classification :")
         noms_composantes = self.analyseur.noms_composantes
         if utiliser_textes_training:
-            new_clusters = nouveaux_clusters(self.classifieur.training_set, self.classifieur.clusters, self.classifieur.auteurs)
+            new_clusters = nouveaux_clusters(self.classifieur.training_set, self.classifieur.clusters, self.classifieur.categories)
         else:
             new_clusters = self.classifieur.clusters
         A = importance(new_clusters, comp = True)
-        #auteurs = auteurs_majoritaires(self.classifieur.clusters)
-        auteurs = self.classifieur.auteurs
+        categories = self.classifieur.categories
         importance1 = A[0]
         ecarts_inter = A[1]
         ecarts_intra = A[2]
@@ -296,13 +298,13 @@ class Probleme:
             print("   Ecart inter clusters pour cette composante : {:.4f} ".format(ecarts_inter[i]))
             for l in range(len(moyennes_clusters)):
                 m = moyennes_clusters[l]
-                aut = auteurs[l]
-                print("      Moyenne parmi les textes attribués à " + aut + " : {:.4f}".format(m[i]))
+                cat = categories[l]
+                print("      Moyenne parmi les textes de la categorie " + cat + " : {:.4f}".format(m[i]))
         print("")
 
     def afficher_graphique(self, poids_composantes=None):
         print("Affichage graphique des résultats")
-        if poids_composantes == None:
+        if poids_composantes is None:
             poids_composantes = self.classifieur.poids_composantes
         fenetre = FenetreAffichage(self.analyseur, self.classifieur, poids_composantes(self.classifieur.clusters))
         fenetre.build()
@@ -311,7 +313,7 @@ class Probleme:
         print("Affichage des résultats")
         attrib_oeuvres = {}
         for o in self.oeuvres_eval_set:
-            attrib_oeuvres[o.auteur+str(o.numero)] = np.zeros((len(self.classifieur.auteurs)))
+            attrib_oeuvres[o.auteur+str(o.numero)] = np.zeros((len(self.classifieur.categories)))
         for i in range(self.classifieur.p.shape[0]):
             t = self.eval_set[i]
             attrib_oeuvres[t.auteur + str(t.numero)]+= self.classifieur.p[i,:]
@@ -320,7 +322,7 @@ class Probleme:
             if attrib_oeuvres[o.auteur+str(o.numero)][j] == 0:
                 print(o.auteur + str(o.numero) + "n'a pas été attribué.")
             else:
-                print(o.auteur+str(o.numero) + " a eté ecrit par "+ self.classifieur.auteurs[j] +" (" + str(attrib_oeuvres[o.auteur+str(o.numero)][j]*100/np.sum(attrib_oeuvres[o.auteur+str(o.numero)]))+" %).")
+                print(o.auteur+str(o.numero) + " est dans la catégorie "+ self.classifieur.categories[j] +" (" + str(attrib_oeuvres[o.auteur+str(o.numero)][j]*100/np.sum(attrib_oeuvres[o.auteur+str(o.numero)]))+" %).")
 
 
     def resoudre(self):
@@ -342,39 +344,48 @@ class Probleme:
         print("Affichage : ")
         self.afficher()
 
-class Verification():
+class Verification:
     
-    def __init__(self, liste_id_oeuvres_base, liste_id_oeuvres_calibrage, liste_id_oeuvres_disputees, taille_morceaux, analyseur, verificateur, langue = "fr", full_text = False):
+    def __init__(self, id_oeuvres_base, categories_base, id_oeuvres_calibrage, categories_calibrage, id_oeuvres_disputees, categories_disputees, taille_morceaux, analyseur, verificateur, langue = "fr", full_text = False):
         print("Assemblage du problème de vérification")
         self.oeuvres_base = []
         self.oeuvres_calibrage = []
         self.oeuvres_disputees = []
+        self.categories_base = categories_base
+        self.categories_calibrage = categories_calibrage
+        self.categories_disputees = categories_disputees
         self.taille_morceaux = taille_morceaux
         self.liste_oeuvres = []
         print("Création - importation des oeuvres : ")
-        for id in liste_id_oeuvres_base:
-            auteur = id[0]
-            numero = id[1]
-            oeuvre = Oeuvre(auteur,numero,langue)
-            self.oeuvres_base.append(oeuvre)
-        for id in liste_id_oeuvres_calibrage:
-            auteur = id[0]
-            numero = id[1]
-            oeuvre = Oeuvre(auteur, numero, langue)
-            self.oeuvres_calibrage.append(oeuvre)
-        for id in liste_id_oeuvres_disputees:
-            auteur = id[0]
-            numero = id[1]
-            oeuvre = Oeuvre(auteur, numero, langue)
-            self.oeuvres_disputees.append(oeuvre)
+        for k in range(len(id_oeuvres_base)):
+            for ident in id_oeuvres_base[k]:
+                auteur = ident[0]
+                numero = ident[1]
+                oeuvre = Oeuvre(auteur,numero,langue)
+                oeuvre.categorie = categories_base[k]
+                self.oeuvres_base.append(oeuvre)
+        for k in range(len(id_oeuvres_calibrage)):
+            for ident in id_oeuvres_calibrage[k]:
+                auteur = ident[0]
+                numero = ident[1]
+                oeuvre = Oeuvre(auteur,numero,langue)
+                oeuvre.categorie = categories_calibrage[k]
+                self.oeuvres_calibrage.append(oeuvre)
+        for k in range(len(id_oeuvres_disputees)):
+            for ident in id_oeuvres_disputees[k]:
+                auteur = ident[0]
+                numero = ident[1]
+                oeuvre = Oeuvre(auteur,numero,langue)
+                oeuvre.categorie = categories_disputees[k]
+                self.oeuvres_disputees.append(oeuvre)
         print("")
         print("Liste_oeuvres remplie")
         self.analyseur = analyseur
         print("Analyseur basé sur " + " ".join([f.__name__ for f in analyseur.liste_fonctions]) + " initialisé")
         self.verificateur = verificateur
-        self.verificateur.liste_id_oeuvres_base = liste_id_oeuvres_base
-        self.verificateur.liste_id_oeuvres_calibrage = liste_id_oeuvres_calibrage
-        self.verificateur.liste_id_oeuvres_disputees = liste_id_oeuvres_disputees
+        self.verificateur.id_oeuvres_base = id_oeuvres_base
+        self.verificateur.id_oeuvres_calibrage = id_oeuvres_calibrage
+        self.verificateur.id_oeuvres_disputees = id_oeuvres_disputees
         self.verificateur.oeuvres_base = self.oeuvres_base
         self.verificateur.oeuvres_calibrage = self.oeuvres_calibrage
         self.verificateur.oeuvres_disputees = self.oeuvres_disputees
@@ -385,6 +396,7 @@ class Verification():
         self.textes_calibrage = []
         self.textes_disputes = []
         self.full_text = full_text
+        self.liste_textes = []
 
     def creer_textes(self):
         for oeuvre in self.oeuvres_base:

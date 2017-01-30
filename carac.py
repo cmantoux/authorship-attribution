@@ -1,7 +1,6 @@
 import nltk
 import math
-from classes import emplacement_dossier_groupe
-from Utilitaires.stopwords import stopwords_en, stopwords_fr
+from Utilitaires.stopwords import stopwords_en, stopwords_fr, stopwords_zh
 
 
 # Fonctions basées sur les caractères
@@ -25,7 +24,7 @@ def freq_lettres(texte):
         correspondance_lettres_speciales = ["n", "a", "e", "i", "o", "u"]
     l = len(texte1)
     n = len(lettres)
-    frequences = [0 for k in range(n)]
+    frequences = [0]*n
     for k in range(l):
         x = texte1[k]
         if x in lettres:
@@ -54,7 +53,7 @@ def freq_ponct(texte):
     frequences = dico_freq.values()
     S = len(texte.mots)
     if S == 0:
-        A = [0] * len(frequences)
+        A = [0] * len(list(frequences))
     else:
         A = [f / S for f in frequences]
     return A, ["Fréquence relative du signe de ponctuation {}".format(signes[k]) for k in
@@ -78,6 +77,8 @@ def freq_gram(texte):
         natures = ["a", "ad", "ag", "an", "b", "bg", "c", "cg", "d", "dg", "e", "ew", "f", "fg", "g", "h", "i", 
                    "j", "k", "l", "m", "mg", "n", "ng", "nr", "ns", "nt", "nx", "nz", "o", "p", "pg", "q", "qg", 
                    "r", "rg", "s", "t", "tg", "u", "v", "vd", "vg", "vn", "w", "x", "y", "yg", "z", "zg"]
+    else:
+        natures = ["a"]
     dico_freq = {}
     for p in natures:
         dico_freq[p] = 0
@@ -88,8 +89,8 @@ def freq_gram(texte):
     S = len(pos)
     if S == 0:
         raise ValueError("Ca va pas du tout")
-    return [f / S for f in frequences], ["Fréquence relative de la catégorie grammaticale {}".format(natures[k]) for k
-                                         in range(len(frequences))]
+    return [f / S for f in list(frequences)], ["Fréquence relative de la catégorie grammaticale {}".format(natures[k]) for k
+                                         in range(len(list(frequences)))]
 
 
 # Fonctions basées sur les mots
@@ -115,6 +116,8 @@ def freq_stopwords(texte):
         stopwords = stopwords_fr()
     elif texte.langue == "zh":
         stopwords = stopwords_zh()
+    else:
+        stopwords = ["and"]
     fdist = nltk.FreqDist([m.lower() for m in texte.mots])
     frequences = [fdist.freq(sw) for sw in stopwords]
     S = sum(frequences)
@@ -123,17 +126,14 @@ def freq_stopwords(texte):
 # Fonctions naives
 
 def richesse_voc(texte):
-    n = 200
     N = len(texte.racines)
     V = len(set(texte.racines))
-    fdist = nltk.FreqDist(texte.racines)
-    p = [x[1] for x in fdist.most_common(n)]
     A = [V / N, math.sqrt(V) / N, math.log(V) / math.log(N)]
     return A, ["Richesse du vocabulaire (divers indicateurs)"] * len(A)
 
 
 def longueur_mots(texte):
-    longueurs = [0 for k in range(10)]
+    longueurs = [0]*10
     for m in [M for M in texte.mots if M not in [".", ",", ":", "?", "!", "(", ")", "-", "'"]]:
         longueurs[min(len(m), len(longueurs) - 1)] += 1
     if texte.langue == "zh":

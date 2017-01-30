@@ -1,14 +1,5 @@
 import numpy as np
 
-# Commentaire inutile
-
-from numpy.random import randn
-
-k = 5
-N = randn(k)
-M = randn(k)
-vecteurs = np.array([[N[i],2*M[i]] for i in range(k)])
-
 class PCA:
     
     def __init__(self,donnees):
@@ -20,7 +11,7 @@ class PCA:
         self.V = self.X.var(axis = 0)
         self.Xc = self.X - self.G
         self.S = np.cov(np.transpose(self.Xc))
-        e = np.linalg.eig(self.S)
+        #e = np.linalg.eig(self.S)
         e2 = np.linalg.svd(self.S)
         #print(e)
         #print(e2)
