@@ -1,7 +1,23 @@
 # -*- coding: utf-8 -*-
+from time import localtime
 import numpy as np
 import random
 import math
+
+def nb_time():
+    lt = localtime()
+    a = int(str(lt.tm_year) + str(lt.tm_yday) + str(lt.tm_mon) + str(lt.tm_mday) + str(lt.tm_hour))
+    return a
+
+seed = nb_time()
+
+def get_seed():
+    global seed
+    return seed
+
+def change_seed():
+    global seed
+    seed = random.randint(1,2**30-1)
 
 def normaliser1(D):
     """ argument : une matrice D
@@ -41,6 +57,17 @@ def normaliser2(D):
 # print(normaliser1(M))
 # print(normaliser2(M))
 
+def random_sample(seed,l,n):
+    rs = seed
+    l2 = []
+    ind = []
+    while len(l2)<n:
+        x = rs % len(l)
+        if x not in ind:
+            l2.append(l[x])
+            ind.append(x)
+        rs = (1103515245 * rs + 12345) % (2**16)
+    return l2
 
 def equilibrer1(liste_textes):
     textes_par_auteur = {}
@@ -50,10 +77,11 @@ def equilibrer1(liste_textes):
         else:
             textes_par_auteur[t.auteur] = [t]
     n = min([len(l) for l in textes_par_auteur.values()])
+    print("Graine utilisée : {}".format(seed))
     print("Nombre de textes par auteur après équilibrage : " + str(n))
     liste_textes2 = []
     for l in textes_par_auteur.values():
-        liste_textes2.extend(random.sample(l,n))
+        liste_textes2.extend(random_sample(get_seed(),l,n))
     return liste_textes2
 
 def equilibrer2(liste_textes):
