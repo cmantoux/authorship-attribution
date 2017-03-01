@@ -2,13 +2,15 @@
 import sys
 sys.path.append("/Users/Guillaume/Documents/Informatique/Projets-git/psc")
 from time import time
-from carac import *
+from carac_ponct import *
+from carac_complexite import *
+from carac_stopwords import *
 from classes import *
 import numpy as np
 from numpy.linalg import norm
 import numpy.random as rd
 import matplotlib.pyplot as plt
-from classes import Analyseur,Classifieur,Probleme
+from classes import Classifieur,Probleme,Analyseur
 from Interpretation.importance_composantes import importance, gain_information
 from Apprentissage.svm import SVM
 from Clustering.kmeans import Kmeans

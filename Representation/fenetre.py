@@ -108,7 +108,7 @@ class FenetreAffichage:
         self.scales = []
         self.noms_scales = []
         for i in range(min(10, len(self.liste_textes[0].vecteur))):
-            lb = Label(fenetre, text=analyseur.noms_composantes[self.indices_coefficients_separateurs[i]])
+            lb = Label(fenetre, text=analyseur.noms_composantes()[self.indices_coefficients_separateurs[i]])
             self.noms_scales.append(lb)
 
             sc = Scale(fenetre, orient='horizontal', resolution=1, label='X_'+str(i), from_=1, to=100, command=self.change_proportion_builder(i))

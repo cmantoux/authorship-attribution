@@ -20,7 +20,7 @@ emplacement_guillaume = "/Users/Guillaume/Google Drive/Cours X/PSC/Groupe PSC/"
 emplacement_clement = "C:/Users/Clement/Google Drive/Groupe PSC/"
 emplacement_wang = "/home/wang/Documents/PSC/GitDePSC/"
 
-emplacement_dossier_groupe = emplacement_guillaume
+emplacement_dossier_groupe = emplacement_maxime
 
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "zh" : "chinois"}
 
@@ -134,7 +134,7 @@ class Texte:
         self.mots = mots
         self.racines = racines
         self.POS = POS
-        self.vecteur = None
+        self.vecteur = []
         self.vecteur_pca = None
 
     def __equal__(self,texte2):
@@ -144,22 +144,40 @@ class Texte:
         return Texte(self.auteur, self.numero, self.categorie, self.langue, self.numero_morceau, self.texte_brut, self.mots, self.racines, self.POS)
 
 class Analyseur:
-    """Un objet Analyseur représente un ensemble de fonctions d'analyse littéraire, qui extraient des données chiffrées du texte prétraité. Il contient essentiellement une liste de fonctions, chacune des fonctions doit renvoyer, à partir d'un objet Texte, un couple (vecteur, composantes_vecteur). On concatènera ensuite les résultats de ces différentes fonctions."""
+    def __init__(self, liste_fils):
+        self.fils = liste_fils
 
-    def __init__(self, liste_fonctions):
-        self.liste_fonctions = liste_fonctions
-        self.noms_composantes = []
+    def analyser(self, liste_textes):
+        for f in self.fils:
+            f.analyser(liste_textes)
 
-    def analyser(self, texte):
-        """Remplit l'attribut vecteur du Texte avec le résultat concaténé des différentes fonctions de liste_fonctions."""
-        V = []
-        noms_composantes = []
-        for f in self.liste_fonctions:
-            a = f(texte)
-            V.extend(a[0])
-            noms_composantes.extend(a[1])
-        texte.vecteur = V
-        self.noms_composantes = noms_composantes
+    def noms_composantes(self):
+        res = []
+        for f in self.fils:
+            res+= f.noms_composantes()
+        return res
+
+    def noms_fonctions(self):
+        res = []
+        for f in self.fils:
+            res += f.noms_fonctions()
+        return res
+
+class FonctionAnalyse(Analyseur):
+
+    def __init__(self,nom,liste_composantes):
+        super(FonctionAnalyse, self).__init__([])
+        self.liste_composantes = liste_composantes
+        self.nom = nom
+
+    def noms_composantes(self):
+        return self.liste_composantes
+
+    def noms_fonctions(self):
+        return [self.nom]
+
+    def analyser(self, liste_textes):
+        return
 
 class Classifieur:
     """Un objet Classifieur correspond à une méthode d'analyse des données pour en extraire des regroupements ou des attributions. Deux fonctions sont nécessaires pour l'instant : une fonction analyser qui renvoie une classification sous une forme quelconque, et une fonction classifier. Les attributs qui doivent être remplis sont :
@@ -210,7 +228,7 @@ class Probleme:
         print()
         print("Liste_oeuvres remplie")
         self.analyseur = analyseur
-        print("Analyseur basé sur " + " ".join([f.__name__ for f in analyseur.liste_fonctions]) + " initialisé")
+        print("Analyseur basé sur " + " ".join(self.analyseur.noms_fonctions()) + " initialisé")
         self.classifieur = classifieur
         print("Classifieur initialisé")
         self.eval_set = []
@@ -232,8 +250,7 @@ class Probleme:
 
     def analyser(self, normalisation = False):
         """Applique la méthode analyser de l'analyseur : elle remplit les coordonnées du vecteur associé à chaque texte, et calcule le vecteur normalisé."""
-        for texte in self.liste_textes:
-            self.analyseur.analyser(texte)
+        self.analyseur.analyser(self.liste_textes)
         D = np.array([texte.vecteur for texte in self.liste_textes])
         A = D
         if normalisation:
@@ -271,7 +288,7 @@ class Probleme:
 
     def interpreter(self, utiliser_textes_training = True, alpha = 1):
         print("Composantes les plus importantes dans la classification :")
-        noms_composantes = self.analyseur.noms_composantes
+        noms_composantes = self.analyseur.noms_composantes()
         if utiliser_textes_training:
             new_clusters = nouveaux_clusters(self.classifieur.training_set, self.classifieur.clusters, self.classifieur.categories)
         else:
@@ -381,7 +398,7 @@ class Verification:
         print("")
         print("Liste_oeuvres remplie")
         self.analyseur = analyseur
-        print("Analyseur basé sur " + " ".join([f.__name__ for f in analyseur.liste_fonctions]) + " initialisé")
+        print("Analyseur basé sur " + " ".join(analyseur.noms_fonctions()) + " initialisé")
         self.verificateur = verificateur
         self.verificateur.id_oeuvres_base = id_oeuvres_base
         self.verificateur.id_oeuvres_calibrage = id_oeuvres_calibrage
@@ -410,8 +427,7 @@ class Verification:
 
     def analyser(self, normalisation = True):
         """Applique la méthode analyser de l'analyseur : elle remplit les coordonnées du vecteur associé à chaque texte, et calcule le vecteur normalisé."""
-        for texte in self.liste_textes:
-            self.analyseur.analyser(texte)
+        self.analyseur.analyser(self.liste_textes)
         D = np.array([texte.vecteur for texte in self.liste_textes])
         A = D
         if normalisation:

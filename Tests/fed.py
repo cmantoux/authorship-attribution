@@ -4,7 +4,11 @@ from time import time
 d = time()
 
 from classes import *
-from carac import *
+from carac_gramm import *
+from carac_lettres import *
+from carac_ponct import *
+from carac_complexite import *
+from carac_stopwords import *
 from Apprentissage.svm import SVM
 from Apprentissage.reseau_textes import reseau_neurones
 
