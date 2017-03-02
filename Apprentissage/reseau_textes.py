@@ -242,8 +242,7 @@ class reseau_neurones(classes.Classifieur):
         self.clusters = [[] for i in range(len(self.auteurs))]
         for i in range(len(eval_set)):
             s = self.sortie(self.col(eval_set[i].vecteur))
-            self.p[i] = [x[0] for x in s]
-            self.p_ref[i] = [0]*len(self.auteurs)
+            self.p[i] = np.array([x[0] for x in s])
             self.p_ref[i][self.auteurs_inverses[eval_set[i].auteur]] = 1
             comp = self.composante_dominante(s)
             self.clusters[comp].append(eval_set[i])

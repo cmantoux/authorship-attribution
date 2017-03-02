@@ -1,43 +1,41 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 #from scipy.stats import gaussian_kde
 #from statsmodels.nonparametric.kde import KDEUnivariate
 #from sklearn.neighbors import KernelDensity
 #from scipy.integrate import quad
 
-def nouveaux_clusters(training_set, clusters, auteurs):
-    auteurs_eval = set(auteurs)
-    auteurs_training = set([t.auteur for t in training_set])
-    auteurs_sup_training = list(auteurs_training - auteurs_eval)
-    auteurs_total = auteurs + auteurs_sup_training
+def nouveaux_clusters(training_set, clusters, categories):
     nouveaux_clusters_dico= {}
-    for a in auteurs_total:
-        nouveaux_clusters_dico[a] = []
+    for c in categories:
+        nouveaux_clusters_dico[c] = []
     for t in training_set:
-        a = t.auteur
-        nouveaux_clusters_dico[a].append(t)
+        c = t.categorie
+        nouveaux_clusters_dico[c].append(t)
     for i in range(len(clusters)):
-        a = auteurs[i]
+        c = categories[i]
         for t in clusters[i]:
-            nouveaux_clusters_dico[a].append(t)
-    nouveaux_clusters_liste = [[] for a in auteurs_total]
-    for j in range(len(auteurs_total)):
-        a = auteurs_total[j]
-        for t in nouveaux_clusters_dico[a]:
+            nouveaux_clusters_dico[c].append(t)
+    nouveaux_clusters_liste = []
+    for k in range(len(categories)):
+        nouveaux_clusters_liste += [[]]
+    for j in range(len(categories)):
+        c = categories[j]
+        for t in nouveaux_clusters_dico[c]:
             nouveaux_clusters_liste[j].append(t)
     return nouveaux_clusters_liste
 
 def importance(clusters, comp = False):
     """la variable clusters est une liste où l'élément i est la liste des textes classifiés chez l'auteur numero i par l'algorithme}
         cette fonction estime le rôle de chaque composante des vecteurs dans la classification obtenue en comparant la variance moyenne de chaque composante au sein des clusters avec la distance inter-clusters => plus ce quotient est grand, plus la composante en question est pertinente"""
-    nb_clusters = len(clusters)
     i = 0
     while len(clusters[i]) == 0:
         print(type(clusters[i]))
         i += 1
     nb_composantes = len(clusters[i][0].vecteur)
     moyennes_clusters = []
-    ecarts_intra_clusters = [0 for k in range(nb_composantes)]
-    ecarts_inter_clusters = [0 for k in range(nb_composantes)]
+    ecarts_intra_clusters = [0]*nb_composantes
+    ecarts_inter_clusters = [0]*nb_composantes
     nb_clusters = 0
     for c in clusters:
         if len(c) > 0:
@@ -82,8 +80,8 @@ def entropie(vecteurs):
 def gain_information(clusters):
     nb_composantes = len(clusters[0][0].vecteur)
     S = sum(len(c) for c in clusters)
-    gains = np.array([0. for k in range(nb_composantes)])
-    info_intrinseque = np.array([0. for k in range(nb_composantes)])
+    gains = np.array([0.]*nb_composantes)
+    info_intrinseque = np.array([0.]*nb_composantes)
     tous_vecteurs = []
     for c in clusters:
         vecteurs = [t.vecteur for t in c]
@@ -97,13 +95,13 @@ def gain_information(clusters):
 
 def auteurs_majoritaires(clusters):
     auteurs_par_clusters = [[clusters[i][j].auteur for j in range(len(clusters[i]))] for i in range(len(clusters))]
-    auteurs_majoritaires = []
+    auteurs_maj = []
     for i in range(len(clusters)):
         auteurs_de_ce_cluster = list(set(auteurs_par_clusters[i]))
-        nb_textes_par_auteur = [0 for a in auteurs_de_ce_cluster]
+        nb_textes_par_auteur = [0]*len(auteurs_de_ce_cluster)
         for j in range(len(clusters[i])):
             nb_textes_par_auteur[auteurs_de_ce_cluster.index(clusters[i][j].auteur)] += 1
         Nmax = max(nb_textes_par_auteur)
         aut = auteurs_de_ce_cluster[nb_textes_par_auteur.index(Nmax)]
-        auteurs_majoritaires.append(aut)
-    return auteurs_majoritaires
+        auteurs_maj.append(aut)
+    return auteurs_maj
