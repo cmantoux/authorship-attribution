@@ -1,6 +1,6 @@
 from time import time
 import sys
-sys.path.append("/Users/Guillaume/Documents/Informatique/Projets-git/psc")
+sys.path.append("/Users/Guillaume/Documents/Informatique/psc")
 from carac_gramm import *
 from carac_lettres import *
 from carac_ponct import *
@@ -32,20 +32,23 @@ a7 = Complexite_Grammaticale(langue = "fr", saut= 1)
 a8 = Complexite_Vocabulaire()
 a9 = Freq_Stopwords(langue = "fr")
 
-analyseur = Analyseur([a1,a2,a3,a4,a5,a6,a7,a8,a9])
-print(len(analyseur.noms_composantes()))
+#liste_fonctions = [a1,a2,a3,a4,a5,a6,a7,a8,a9]
+liste_fonctions = [a1,a6,a8]
+analyseur = Analyseur(liste_fonctions)
 classifieur = SVM()
 
 P = Probleme(id_training_set, categories, id_eval_set, categories_supposees, taille_morceaux, analyseur, classifieur, langue = "fr")
 
-#P.resoudre() equivalent a
+P.resoudre()
 
-P.creer_textes()
-P.analyser()
-P.appliquer_classifieur()
-P.afficher()
-P.interpreter()
-P.afficher_graphique()
+# equivalent à
+
+#P.creer_textes()
+#P.analyser()
+#P.appliquer_classifieur()
+#P.interpreter()
+#P.afficher()
+#P.afficher_graphique()
 
 f = time()
 print()

@@ -54,8 +54,8 @@ def trace_qual():
 
 def eval_qualite(verif, vraie_verif):
     n = len(verif)
-    nb_meme_auteur = 0
-    nb_auteur_different = 0
+    nb_meme_categorie = 0
+    nb_categorie_different = 0
     mauvaises_attributions = 0
     mauvais_rejets = 0
     q = 0
@@ -63,31 +63,31 @@ def eval_qualite(verif, vraie_verif):
         if verif[i] == vraie_verif[i]:
             q += 1
         if vraie_verif[i]:
-            nb_meme_auteur += 1
+            nb_meme_categorie += 1
             if not verif[i]:
                 mauvais_rejets += 1
         if not vraie_verif[i]:
-            nb_auteur_different += 1
+            nb_categorie_different += 1
             if verif[i]:
                 mauvaises_attributions += 1
-    if nb_auteur_different == 0:
+    if nb_categorie_different == 0:
         fp = 0
     else:
-        fp = mauvaises_attributions / nb_auteur_different
-    if nb_meme_auteur == 0:
+        fp = mauvaises_attributions / nb_categorie_different
+    if nb_meme_categorie == 0:
         fn = 0
     else:
-        fn = mauvais_rejets / nb_meme_auteur
+        fn = mauvais_rejets / nb_meme_categorie
     qualite = qual(fp, fn)
-    return qualite, fp, fn, q, n, mauvaises_attributions, nb_auteur_different, mauvais_rejets, nb_meme_auteur
+    return qualite, fp, fn, q, n, mauvaises_attributions, nb_categorie_different, mauvais_rejets, nb_meme_categorie
 
 
 def evaluer(verif, vraie_verif):
-    qualite, fp, fn, q, n, mauvaises_attributions, nb_auteur_different, mauvais_rejets, nb_meme_auteur = eval_qualite(
+    qualite, fp, fn, q, n, mauvaises_attributions, nb_categorie_different, mauvais_rejets, nb_meme_categorie = eval_qualite(
         verif, vraie_verif)
-    print("Mauvaises attributions : {} sur {}, soit {} %".format(mauvaises_attributions, nb_auteur_different,
+    print("Mauvaises attributions : {} sur {}, soit {} %".format(mauvaises_attributions, nb_categorie_different,
                                                                  int(100 * fp)))
-    print("Mauvais rejets : {} sur {}, soit {} %".format(mauvais_rejets, nb_meme_auteur, int(100 * fn)))
+    print("Mauvais rejets : {} sur {}, soit {} %".format(mauvais_rejets, nb_meme_categorie, int(100 * fn)))
     # print("Nombre de vérifications correctes : {} sur {}".format(q,n))
     print("Efficacité moyenne : {} %".format(int(100 * (1 - (fp + fn) / 2))))
 
@@ -139,10 +139,10 @@ class Similarity:
             print("Largeur du corpus de calibrage : {:3f} +- {:3f}".format(self.ADGS_calibrage, self.marge_calibrage))
             
             vraie_verif_calibrage = []
-            auteur_base = self.textes_base[0].auteur
+            categorie_base = self.textes_base[0].categorie
             for t in self.textes:
-                auteur_theorique = t.auteur
-                if auteur_theorique == auteur_base:
+                categorie_theorique = t.categorie
+                if categorie_theorique == categorie_base:
                     vraie_verif_calibrage.append(True)
                 else:
                     vraie_verif_calibrage.append(False)
@@ -161,7 +161,7 @@ class Similarity:
                         verif_calibrage.append(True)
                     else :
                         verif_calibrage.append(False)
-                qualite, fp, fn, q, n, mauvaises_attributions, nb_auteur_different, mauvais_rejets, nb_meme_auteur  = eval_qualite(verif_calibrage, vraie_verif_calibrage)
+                qualite, fp, fn, q, n, mauvaises_attributions, nb_categorie_different, mauvais_rejets, nb_meme_categorie  = eval_qualite(verif_calibrage, vraie_verif_calibrage)
                 
                 FP.append(fp)
                 FN.append(fn)
@@ -196,9 +196,7 @@ class Similarity:
                 plt.legend(loc = "best")
                 plt.savefig("compromis.png")
                 plt.show()
-        
         else:
-            
             self.a = 0
     
     def verifier(self, textes_base, textes_disputes):
@@ -207,7 +205,7 @@ class Similarity:
         self.textes_disputes = textes_disputes
         self.verif = []
         self.vraie_verif = []
-        auteur_base = self.textes_base[0].auteur
+        categorie_base = self.textes_base[0].categorie
         for t in textes_disputes:
             s = AS(t, self.textes_base)
             if s > self.AGS_base - self.a*self.marge_base:
@@ -215,8 +213,8 @@ class Similarity:
                 self.verif.append(True)
             else :
                 self.verif.append(False)
-            auteur_theorique = t.auteur
-            if auteur_theorique == auteur_base:
+            categorie_theorique = t.categorie
+            if categorie_theorique == categorie_base:
                 self.vraie_verif.append(True)
             else:
                 self.vraie_verif.append(False)
@@ -233,29 +231,29 @@ class Similarity:
         print("")
         evaluer(self.verif, self.vraie_verif)
         print("")
-        aut_base = self.textes_base[0].auteur
-        aut = self.textes_disputes[0].auteur
+        aut_base = self.textes_base[0].categorie
+        aut = self.textes_disputes[0].categorie
         num = self.textes_disputes[0].numero
         nb_vrai = 0
         nb_faux = 0
         i = 0
         while i < len(self.textes_disputes)-1:
-            if self.textes_disputes[i+1].auteur == aut and self.textes_disputes[i+1].numero == num:
+            if self.textes_disputes[i+1].categorie == aut and self.textes_disputes[i+1].numero == num:
                 if self.verif[i]:
                     nb_vrai += 1
                 else :
                     nb_faux += 1
             else:
                 if nb_vrai>nb_faux:
-                    print("L'oeuvre " + aut + str(num) + " a été écrite par " + aut_base + " : " + str(nb_vrai) + " textes contre " + str(nb_faux))
+                    print("L'oeuvre " + aut + str(num) + " est dans la catégorie " + aut_base + " : " + str(nb_vrai) + " textes acceptés contre contre " + str(nb_faux) + " rejetés.")
                 else:
-                    print("L'oeuvre " + aut + str(num) + " n'a pas été écrite par " + aut_base + " : " + str(nb_vrai) + " textes contre " + str(nb_faux))
+                    print("L'oeuvre " + aut + str(num) + " n'est pas dans la catégorie " + aut_base + " : " + str(nb_vrai) + " textes acceptés contre " + str(nb_faux) + " rejetés.")
                 nb_vrai = 0
                 nb_faux = 0
-                aut = self.textes_disputes[i+1].auteur
+                aut = self.textes_disputes[i+1].categorie
                 num = self.textes_disputes[i+1].numero
             i+=1
         if nb_vrai>nb_faux:
-            print("L'oeuvre " + aut + str(num) + " a été écrite par " + aut_base + " : " + str(nb_vrai) + " textes contre " + str(nb_faux))
+            print("L'oeuvre " + aut + str(num) + " est dans la catégorie " + aut_base + " : " + str(nb_vrai) + " textes acceptés contre contre " + str(nb_faux) + " rejetés.")
         else:
-            print("L'oeuvre " + aut + str(num) + " n'a pas été écrite par " + aut_base + " : " + str(nb_vrai) + " textes contre " + str(nb_faux))
+            print("L'oeuvre " + aut + str(num) + " n'est pas dans la catégorie " + aut_base + " : " + str(nb_vrai) + " textes acceptés contre " + str(nb_faux) + " rejetés.")

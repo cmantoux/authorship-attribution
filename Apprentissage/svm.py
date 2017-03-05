@@ -25,7 +25,7 @@ class SVM(Classifieur):
         self.categories = None
         
     def classification_to_clusters(self):
-        clusters = [[]] + [[]]
+        clusters = [[] for k in range(len(self.categories))]
         for c in self.classification:
             t = c[0]
             categorie_supposee = c[2]

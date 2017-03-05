@@ -20,7 +20,7 @@ emplacement_guillaume = "/Users/Guillaume/Google Drive/Cours X/PSC/Groupe PSC/"
 emplacement_clement = "C:/Users/Clement/Google Drive/Groupe PSC/"
 emplacement_wang = "/home/wang/Documents/PSC/GitDePSC/"
 
-emplacement_dossier_groupe = emplacement_maxime
+emplacement_dossier_groupe = emplacement_guillaume
 
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "zh" : "chinois"}
 
@@ -203,7 +203,8 @@ class Probleme:
     """
 
     def __init__(self, id_training_set, categories, id_eval_set, categories_supposees, taille_morceaux, analyseur, classifieur, langue = "fr", full_text = False):
-        print("Assemblage du problème")
+        print("ASSEMBLAGE DU PROBLEME")
+        print("")
         self.oeuvres_training_set = []
         self.oeuvres_eval_set = []
         self.categories = categories
@@ -229,6 +230,7 @@ class Probleme:
         print("Liste_oeuvres remplie")
         self.analyseur = analyseur
         print("Analyseur basé sur " + " ".join(self.analyseur.noms_fonctions()) + " initialisé")
+        print("Nombre de composantes : {}".format(len(analyseur.noms_composantes())))
         self.classifieur = classifieur
         print("Classifieur initialisé")
         self.eval_set = []
@@ -327,7 +329,7 @@ class Probleme:
         fenetre.build()
 
     def afficher(self):
-        print("Affichage des résultats")
+        print("Résultats de la classification :")
         attrib_oeuvres = {}
         for o in self.oeuvres_eval_set:
             attrib_oeuvres[o.auteur+str(o.numero)] = np.zeros((len(self.classifieur.categories)))
@@ -343,23 +345,31 @@ class Probleme:
 
 
     def resoudre(self):
-        print("Création des textes :")
+        print("")
+        print("CREATION DES TEXTES")  
+        print("")
         self.creer_textes()
         print("")
-        print("Analyse :")
+        print("ANALYSE")
+        print("")
         self.analyser()
         print("")
-        print("Classification :")
+        print("CLASSIFICATION")
+        print("")
         self.appliquer_classifieur()
         print("")
-        print("Evaluation :")
+        print("EVALUATION")
+        print("")
         self.evaluer()
         print("")
-        print("Interprétation :")
+        print("INTERPRETATION")
+        print("")
         self.interpreter()
         print("")
-        print("Affichage : ")
+        print("AFFICHAGE")
+        print("")
         self.afficher()
+        self.afficher_graphique()
 
 class Verification:
     
