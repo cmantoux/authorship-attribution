@@ -1,5 +1,5 @@
 import sys
-sys.path.append("/Users/Guillaume/Documents/Informatique/Projets-git/psc")
+sys.path.append("/Users/Guillaume/Documents/Informatique/psc")
 import numpy as np
 import numpy.linalg as alg
 import random as rd

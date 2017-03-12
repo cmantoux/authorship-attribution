@@ -319,7 +319,6 @@ class Probleme:
                 m = moyennes_clusters[l]
                 cat = categories[l]
                 print("      Moyenne parmi les textes de la categorie " + cat + " : {:.4f}".format(m[i]))
-        print("")
 
     def afficher_graphique(self, poids_composantes=None):
         print("Affichage graphique des résultats")
