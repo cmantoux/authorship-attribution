@@ -6,7 +6,7 @@ import math
 
 def nb_time():
     lt = localtime()
-    a = int(str(lt.tm_year) + str(lt.tm_yday) + str(lt.tm_mon) + str(lt.tm_mday) + str(lt.tm_hour))
+    a =  int(str(lt.tm_hour) + str(lt.tm_year) + str(lt.tm_yday) + str(lt.tm_mon) + str(lt.tm_mday) + str(lt.tm_hour))
     return a
 
 seed = nb_time()

@@ -13,6 +13,7 @@ from Utilitaires.importation_et_pretraitement import importer, formater
 from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1
 from Utilitaires.defuzze import defuzze
 from Representation.fenetre import FenetreAffichage
+import random
 
 
 emplacement_maxime = "/Users/maximegodin/Google Drive/Groupe PSC/"
@@ -461,4 +462,101 @@ class Verification:
         print("")
         print("Calibrage, démasquage et affichage :")
         self.appliquer_verificateur()
+        print("")
+
+
+class CrossValidation:
+    def __init__(self, id_oeuvres, categories, taille_morceaux, analyseur, createur_classifieur, pourcentage_eval = 0.1, nombre_essais = 20, langue = "fr", full_text = False, leave_one_out = False):
+        print("ASSEMBLAGE DE LA VALIDATION CROISEE")
+        print("")
+        self.oeuvres = []
+        self.categories = categories
+        self.taille_morceaux = taille_morceaux
+        self.liste_oeuvres = []
+        print("Création - importation des oeuvres : ")
+        for k in range(len(id_oeuvres)):
+            for ident in id_oeuvres[k]:
+                auteur = ident[0]
+                numero = ident[1]
+                oeuvre = Oeuvre(auteur,numero,langue)
+                oeuvre.categorie = categories[k]
+                self.oeuvres.append(oeuvre)
+        print()
+        print("Oeuvres initialisées")
+        self.analyseur = analyseur
+        print("Analyseur basé sur " + " ".join(self.analyseur.noms_fonctions()) + " initialisé")
+        print("Nombre de composantes : {}".format(len(analyseur.noms_composantes())))
+        self.liste_textes = []
+        self.full_text = full_text
+        self.pourcentage_eval = pourcentage_eval
+        self.nombre_essais = nombre_essais
+        self.leave_one_out = leave_one_out
+        self.createur_classifieur = createur_classifieur
+
+    def creer_textes(self, equilibrage = True):
+        for oeuvre in self.oeuvres:
+            self.liste_textes.extend(oeuvre.split(self.taille_morceaux,self.full_text))
+        if equilibrage :
+            self.liste_textes = equilibrer1(self.liste_textes)
+        print("Textes initialisés")
+
+    def analyser(self, normalisation = False):
+        """Applique la méthode analyser de l'analyseur : elle remplit les coordonnées du vecteur associé à chaque texte, et calcule le vecteur normalisé."""
+        self.analyseur.analyser(self.liste_textes)
+        D = np.array([texte.vecteur for texte in self.liste_textes])
+        A = D
+        if normalisation:
+            A = normaliser1(D)
+        for k,texte in enumerate(self.liste_textes):
+            texte.vecteur = A[k]
+        print("Textes analysés et vectorisés")
+
+    def valider(self):
+        """Applique la méthode classifier du classifieur pour obtenir une classification, sous un format a priori inconnu."""
+        if self.leave_one_out:
+            prec = 0
+            for i in range(len(self.liste_textes)):
+                print("Texte {} sur {}".format(i+1,len(self.liste_textes)))
+                classifieur = self.createur_classifieur()
+                indices_eval_set = [i]
+                eval_set = [self.liste_textes[i] for i in indices_eval_set]
+                training_set = equilibrer1([self.liste_textes[j] for j in range(len(self.liste_textes)) if j not in indices_eval_set])
+                classifieur.classifier(training_set, eval_set, self.categories)
+                p = ee.precision(classifieur.eval_set, classifieur.p, classifieur.p_ref)
+                prec += p
+            prec /= len(self.liste_textes)
+        else:
+            prec = 0
+            taille_eval = int(len(self.liste_textes)*self.pourcentage_eval)
+            for e in range(self.nombre_essais):
+                print("Essai n°{}".format(e))
+                classifieur = self.createur_classifieur()
+                indices_eval_set = random.sample(list(range(len(self.liste_textes))), taille_eval)
+                eval_set = [self.liste_textes[i] for i in indices_eval_set]
+                training_set = equilibrer1([self.liste_textes[j] for j in range(len(self.liste_textes)) if j not in indices_eval_set])
+                classifieur.classifier(training_set, eval_set, self.categories)
+                p = ee.precision(classifieur.eval_set, classifieur.p, classifieur.p_ref)
+                
+                prec += p
+            prec/=self.nombre_essais
+        print("")
+        if self.leave_one_out:
+            print("Validation croisée effectuée par méthode du 'leave one out'")
+        else:
+            print("Validation croisée effectuée en {} essais, sur un total de {} textes, dont environ {} % dans eval_set et {} % dans training_set".format(self.nombre_essais, len(self.liste_textes), int(self.pourcentage_eval*100), 100 - int(self.pourcentage_eval*100)))
+        print("Précision de la validation croisée : {}".format(prec))
+        
+    def resoudre(self):
+        print("")
+        print("CREATION DES TEXTES")  
+        print("")
+        self.creer_textes()
+        print("")
+        print("ANALYSE")
+        print("")
+        self.analyser()
+        print("")
+        print("VALIDATION")
+        print("")
+        self.valider()
         print("")
