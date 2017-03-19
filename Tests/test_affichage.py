@@ -1,6 +1,6 @@
 from time import time
 import sys
-sys.path.append("/Users/Guillaume/Documents/Informatique/psc")
+sys.path.append("/Users/Lucile/Documents/PSC/programmes_git/psc")
 from carac_gramm import *
 from carac_lettres import *
 from carac_ponct import *
@@ -11,6 +11,7 @@ from Clustering.kmeans import Kmeans
 from Apprentissage.reseau_textes import reseau_neurones
 from Apprentissage.svm import SVM
 from Interpretation.importance_composantes import importance, gain_information
+from Apprentissage.Bayes import Bayes
 
 
 d = time()
@@ -30,12 +31,12 @@ a5 = Freq_Ponct(langue = "fr")
 a6 = Longueur_Phrases()
 a7 = Complexite_Grammaticale(langue = "fr", saut= 1)
 a8 = Complexite_Vocabulaire()
-a9 = Freq_Stopwords(langue = "fr")
 
-#liste_fonctions = [a1,a2,a3,a4,a5,a6,a7,a8,a9]
-liste_fonctions = [a1,a5,a9]
+
+liste_fonctions = [a1,a2,a3,a4,a5,a6,a7,a8]
+#liste_fonctions = [a1,a5]
 analyseur = Analyseur(liste_fonctions)
-classifieur = SVM()
+classifieur = Bayes()
 
 P = Probleme(id_training_set, categories, id_eval_set, categories_supposees, taille_morceaux, analyseur, classifieur, langue = "fr")
 

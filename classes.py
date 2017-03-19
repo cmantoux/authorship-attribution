@@ -20,8 +20,9 @@ emplacement_maxime = "/Users/maximegodin/Google Drive/Groupe PSC/"
 emplacement_guillaume = "/Users/Guillaume/Google Drive/Cours X/PSC/Groupe PSC/"
 emplacement_clement = "C:/Users/Clement/Google Drive/Groupe PSC/"
 emplacement_wang = "/home/wang/Documents/PSC/GitDePSC/"
+emplacement_lucile = "/Users/Lucile/Google Drive/Groupe PSC/"
 
-emplacement_dossier_groupe = emplacement_guillaume
+emplacement_dossier_groupe = emplacement_lucile
 
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "zh" : "chinois"}
 

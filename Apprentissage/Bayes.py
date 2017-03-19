@@ -10,30 +10,29 @@ import numpy as np
 #exemples est une liste de vecteurs, chaque vecteurs représentant un texte
 #auteurs est une liste de même taille que exemples telle que auteur[i] soit l'auteur de exemples[i]
 
-def f(exemples, auteurs):
-    k = len(exemples) #compte le nombre d'exemples
-    m = len(exemples[0]) #compte le nombre de coordonnées d'un vecteur
-    Noms = [] #Liste destinée à contenir le nom de chaque auteur de manière unique
-    Classes = []
-    for i in range(k):#boucle pour remplir les listes
-        if not(auteurs[i] in Noms):
-            Noms += [auteurs[i]]
-            texte = np.asarray(exemples[i])
-            Classes += [texte]
+def f(vecteur_training, categorie_training, categories):
+    k = len(vecteur_training) #compte le nombre de vecteurs
+    n = len(categories) #compte le nombre de categories
+    m = len(vecteur_training[0]) #compte le nombre de coordonnées d'un vecteur
+    #on veut convertir training_set en un tableau Classes de numpy où les vecteurs sont rassemblés par catégorie
+    Classes = [0]*n #initialisation de Classes
+    Test = [True]*n
+    for j in range(k): #on parcourt les vecteurs
+        texte = np.asarray(vecteur_training[j]) #on convertit le vecteur en numpy
+        c = categories.index(categorie_training[j])
+        if(Test[c]):
+            Classes[c] = [texte]
+            Test[c] = False
         else:
-            l = Noms.index(auteurs[i])
-            texte = np.asarray(exemples[i])
-            Classes[l] = np.concatenate((Classes[l], texte), axis=0)
+            Classes[c] += [texte]
     
-    n = len(Noms) #Nombre de catégories différentes
     moyenne = np.zeros((n,m)) #Tableau destiné à contenir le vecteur moyen de chaque catégorie
     ecart_type = np.zeros((n,m)) #Tableau destiné à contenir le vecteur écart-type de chaque catégorie
     
     for i in range(n):
        moyenne[i] = np.mean(Classes[i], 0)
        ecart_type[i] = np.sqrt(np.var(Classes[i], 0))       
-    
-    return moyenne, ecart_type, Noms
+    return moyenne, ecart_type
 
 
 def g(moyenne, ecart_type, inconnus):
@@ -62,20 +61,26 @@ class Bayes(Classifieur):
         self.precision = None
         pass
     
-    def classifier(self, training_set, eval_set):
+    def classifier(self, training_set, eval_set, categories):
         self.eval_set = eval_set
         self.training_set = training_set
-        vecteurs_training = [t.vecteur for t in training_set]
-        auteurs_training = [t.auteur for t in training_set]
+        self.categories = categories
         vecteurs_eval = [t.vecteur for t in eval_set]
-        auteurs_eval = [t.auteur for t in eval_set]
-        Intermediaires = f(vecteurs_training, auteurs_training)
+        categories_eval = [t.categorie for t in eval_set]
+        vecteur_training = [t.vecteur for t in training_set]
+        categorie_training = [t.categorie for t in training_set]
+        Intermediaires = f(vecteur_training, categorie_training, categories)
         Probabilite = g(Intermediaires[0], Intermediaires[1], vecteurs_eval)
-        self.auteurs = Intermediaires[2]
+        print(Intermediaires[1])
         self.p = Probabilite
         k = np.shape(Probabilite)[1]
         m = np.shape(Probabilite)[0]
         Reference = np.zeros((m,k))
+        vrai = 0
+        faux = 0
+        clusters = []
+        cat = ['none']*len(categories)
+        c = -1
         for i in range(m):
             max = Probabilite[i][0]
             categorie = 0
@@ -83,13 +88,20 @@ class Bayes(Classifieur):
                 if(Probabilite[i][j]>max):
                     max = Probabilite[i][j]
                     categorie = j
-            ref = Intermediaires[2].index(auteurs_eval[i])
+            if(cat[categorie]=='none'):
+                clusters += [[eval_set[i]]]
+                c += 1
+                cat[categorie] = c
+            else:
+                clusters[cat[categorie]] += [eval_set[i]]
+            ref = categories.index(categories_eval[i])
             if(ref==categorie):
                 vrai += 1
             else:
                 faux += 1
             Reference[i][ref] = 1
         self.p_ref = Reference
+        self.clusters = clusters
 
                 
         
