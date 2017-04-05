@@ -23,16 +23,16 @@ categories_supposees = ["categorie1"] + ["categorie2"]
 taille_morceaux = 5000
 
 a1 = Freq_Gram(langue = "fr")
-a2 = Markov_Gram(langue = "fr",saut = 1)
-a3 = Freq_Ngrammes(langue = "fr",n=1)
-a4 = Markov_Lettres(langue = "fr")
+# a2 = Markov_Gram(langue = "fr",saut = 1)
+# a3 = Freq_Ngrammes(langue = "fr",n=1)
+"""a4 = Markov_Lettres(langue = "fr")
 a5 = Freq_Ponct(langue = "fr")
 a6 = Longueur_Phrases()
 a7 = Complexite_Grammaticale(langue = "fr", saut= 1)
 a8 = Complexite_Vocabulaire()
-a9 = Freq_Stopwords(langue = "fr")
+a9 = Freq_Stopwords(langue = "fr")"""
 
-analyseur = Analyseur([a1,a2,a3,a4,a5,a6,a7,a8,a9])
+analyseur = Analyseur([a1])#,a4,a5,a6,a7,a8,a9
 print(len(analyseur.noms_composantes()))
 classifieur = SVM()
 

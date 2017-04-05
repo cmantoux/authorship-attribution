@@ -6,6 +6,7 @@ from Interpretation.importance_composantes import importance, gain_information
 
 class reseau_neurones(classes.Classifieur):
     def __init__(self):
+        super().__init__()
         self.setApprentissage = []  # /!\ différent de training_set (pas le même format)
         self.clusters = []
         self.liste_textes = None
@@ -171,14 +172,14 @@ class reseau_neurones(classes.Classifieur):
                 i = j
         return i
 
-    def classifier(self, training_set, eval_set):
+    def classifier(self, training_set, eval_set, categories):
         #On constitue la liste des auteurs
         self.auteurs = []
         self.auteurs_inverses = {}
         for texte in training_set:
-            if texte.auteur not in self.auteurs:
-                self.auteurs.append(texte.auteur)
-                self.auteurs_inverses[texte.auteur] = len(self.auteurs)-1
+            if texte.categorie not in self.auteurs:
+                self.auteurs.append(texte.categorie)
+                self.auteurs_inverses[texte.categorie] = len(self.auteurs)-1
 
 
         # [nombre_entrees, taille des couches]
@@ -205,7 +206,7 @@ class reseau_neurones(classes.Classifieur):
         self.setApprentissage = []
         for i in range(len(training_set)):
             vecteur_sortie = [0]*len(self.auteurs)
-            vecteur_sortie[self.auteurs_inverses[training_set[i].auteur]] = 1
+            vecteur_sortie[self.auteurs_inverses[training_set[i].categorie]] = 1
             self.setApprentissage.append([self.col(training_set[i].vecteur), self.col(vecteur_sortie)])
 
         print("Classification par réseau de neurones")
@@ -243,7 +244,7 @@ class reseau_neurones(classes.Classifieur):
         for i in range(len(eval_set)):
             s = self.sortie(self.col(eval_set[i].vecteur))
             self.p[i] = np.array([x[0] for x in s])
-            self.p_ref[i][self.auteurs_inverses[eval_set[i].auteur]] = 1
+            self.p_ref[i][self.auteurs_inverses[eval_set[i].categorie]] = 1
             comp = self.composante_dominante(s)
             self.clusters[comp].append(eval_set[i])
 
@@ -252,7 +253,7 @@ class reseau_neurones(classes.Classifieur):
         for i in range(len(training_set)):
             s = self.sortie(self.col(training_set[i].vecteur))
             comp = self.composante_dominante(s)
-            if(comp == self.auteurs_inverses[training_set[i].auteur]):
+            if(comp == self.auteurs_inverses[training_set[i].categorie]):
                 self.precision += 1.
         self.precision /= len(training_set)
 

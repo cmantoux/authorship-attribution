@@ -1,41 +1,42 @@
 # -*- coding: utf-8 -*-
 from tkinter import *
 from scipy.spatial import ConvexHull
-from Utilitaires.pca import pca, pca_matrice
-import numpy.linalg
+from Utilitaires.pca import pca_matrice
 import numpy as np
-from Interpretation.importance_composantes import importance, gain_information
 
 
 def nouvelles_matrices(training_set, p, p_ref, categories):
     nt = len(training_set)
     ne = p.shape[0]
     nc = len(categories)
-    p2 = np.zeros((nt+ne,nc))
-    p_ref2 = np.zeros((nt+ne,nc))
+    p2 = np.zeros((nt + ne, nc))
+    p_ref2 = np.zeros((nt + ne, nc))
     for i in range(nt):
         t = training_set[i]
         j = categories.index(t.categorie)
-        p2[i,j] = 1
-        p_ref2[i,j] = 1
-    for i in range(nt,nt+ne):
+        p2[i, j] = 1
+        p_ref2[i, j] = 1
+    for i in range(nt, nt + ne):
         for j in range(len(categories)):
-            p2[i][j] = p[i-nt,j]
-            p_ref2[i][j] = p_ref[i-nt,j]
+            p2[i][j] = p[i - nt, j]
+            p_ref2[i][j] = p_ref[i - nt, j]
     return p2, p_ref2, categories
+
 
 class FenetreAffichage:
 
     def __init__(self, analyseur, classifieur, poids_composantes):
+        self.poids_composantes = poids_composantes
         self.height = 600
         self.width = 600
         self.liste_textes = classifieur.training_set + classifieur.eval_set
         self.p, self.p_ref, self.noms_auteurs = nouvelles_matrices(classifieur.training_set, classifieur.p,
                                                                    classifieur.p_ref, classifieur.categories)
+        # Nombre de points à afficher
         self.n_points = len(self.liste_textes)
+        self.dimension = len(self.liste_textes[0].vecteur)
 
         self.matrice_proportions = None
-        self.indices_coefficients_separateurs = []  # Les indices des 10 coordonnées les plus importantes
         self.coefficients_coordonnees = None  # Pondère les coordonnées les plus séparatrices
         self.vecteurs_originaux = []  # Contient les vecteurs des textes avant PCA
 
@@ -56,23 +57,8 @@ class FenetreAffichage:
             vecteurs.append(texte.vecteur)
             self.vecteurs_originaux.append(texte.vecteur)
         vecteurs, self.matrice_proportions = pca_matrice(vecteurs)
-        # for i in range(self.n):
-        #    self.liste_textes[i].vecteur = vecteurs[i]
 
         # Création des variables du système de réévaluation des composantes
-
-        """
-        # Méthode basée sur le tri en norme 2 des colonnes de la matrice de PCA
-        norme_colonnes = []
-        for i in range(len(self.matrice_proportions)):
-            norme_colonnes.append(numpy.linalg.norm(self.matrice_proportions[i]))
-        self.indices_coefficients_separateurs = sorted(range(1, len(self.matrice_proportions)),
-                key=(lambda k: norme_colonnes[k]))[:min(10, len(self.matrice_proportions))]
-        self.coefficients_coordonnees = [1 for i in range(len(self.indices_coefficients_separateurs))]
-
-        self.points = self.normaliser_points(vecteurs)
-
-        """
 
         # Méthode basée sur la fonction importance_composantes
         clusters_concrets_textes = []
@@ -81,12 +67,15 @@ class FenetreAffichage:
             for indice in cluster_indice:
                 cluster.append(self.liste_textes[indice])
             clusters_concrets_textes.append(cluster)
-        importance_composantes = poids_composantes
-        # importance_composantes = importance(clusters_concrets_textes)
-        self.indices_coefficients_separateurs = sorted(range(0, len(self.matrice_proportions)),
-                                                key=(lambda k: importance_composantes[k]))[::-1][
-                                                :min(10, len(self.liste_textes[0].vecteur)+1)]
-        self.coefficients_coordonnees = [1 for i in range(len(self.indices_coefficients_separateurs))]
+
+        # Tableau des indices des composantes vectorielles, triées par importance
+        indices_coefficients_separateurs = self.tri_par_importance(range(0, self.dimension))
+        nb_minimal_curseurs = 20 # nombre minimal de curseurs à afficher
+        # Nombres de composantes dont le curseur s'affiche à l'écran
+        self.n_composantes_ajustables = min(nb_minimal_curseurs, len(self.liste_textes[0].vecteur))
+        self.liste_composantes_ajustables = indices_coefficients_separateurs[:self.n_composantes_ajustables]
+
+        self.coefficients_coordonnees = [1]*self.dimension
 
         self.points = self.normaliser_points(vecteurs)
 
@@ -97,6 +86,7 @@ class FenetreAffichage:
         self.objets_dessines = []
         self.fenetre = fenetre = Tk()
         self.canvas = Canvas(fenetre, width=self.width, height=self.height, background="white")
+        self.canvas.bind("<Motion>", self.mouse_motion_canvas)
         self.couleurs = ["yellow", "red", "green", "blue", "black", "purple",
                          "brown1", "gray", "cyan", "white", "royal blue", "dark violet"]
 
@@ -104,16 +94,50 @@ class FenetreAffichage:
                                                command=self.switch_theorique_concret)
         self.enveloppe_switch = Checkbutton(self.fenetre, text="Afficher les enveloppes convexes",
                                             command=self.switch_points_enveloppe)
+        self.texte_courant = Label(self.fenetre, text="Texte courant le plus proche : ")
+
+        self.noms_composantes = analyseur.noms_composantes()
+
+        # Sera redéfini au premier appel de build_fenetre, sert
+        # à définir temporairement scales et noms_scales
+        self.curseur_canvas = Canvas(fenetre)
+        self.curseur_frame = None
 
         self.scales = []
         self.noms_scales = []
-        for i in range(min(10, len(self.liste_textes[0].vecteur))):
-            lb = Label(fenetre, text=analyseur.noms_composantes()[self.indices_coefficients_separateurs[i]])
-            self.noms_scales.append(lb)
 
-            sc = Scale(fenetre, orient='horizontal', resolution=1, label='X_'+str(i), from_=1, to=100, command=self.change_proportion_builder(i))
+        for i in range(self.dimension):
+            lb = Label(self.curseur_canvas, text=self.noms_composantes[i])
+            self.noms_scales.append(lb)
+            sc = Scale(self.curseur_canvas, orient='horizontal', resolution=1, from_=1, to=100,
+                       command=self.change_proportion_builder(i))
             sc.set(1)
             self.scales.append(sc)
+
+    def mouse_motion_canvas(self, arg):
+        tab = [(point[0]-arg.x)**2+(point[1]-arg.y)**2 for point in self.points]
+        m = min(tab)
+        indice = tab.index(m)
+        s = "Texte le plus proche : {0}{1}".format(self.liste_textes[indice].auteur, self.liste_textes[indice].numero)
+        self.texte_courant['text'] = s
+
+    def tri_par_importance(self, liste_indices_composantes):
+        importance_composantes = self.poids_composantes
+        return sorted(liste_indices_composantes, key=(lambda k: importance_composantes[k]))[::-1]
+
+    def switch_composante_builder(self, i):
+        return lambda: self.switch_composante(i)
+
+    # Ajoute ou supprime un curseur
+    def switch_composante(self, i):
+        if i in self.liste_composantes_ajustables:
+            print("suppression")
+            self.liste_composantes_ajustables.remove(i)
+        else:
+            print("ajout")
+            self.liste_composantes_ajustables.append(i)
+            self.liste_composantes_ajustables = self.tri_par_importance(self.liste_composantes_ajustables)
+        self.build_curseurs()
 
     def change_proportion_builder(self, i):
         return lambda arg: self.change_proportion(i, arg)
@@ -123,17 +147,18 @@ class FenetreAffichage:
             arg = 1
         else:
             arg = arg2
-        # on multiplie la matrice de proportion à droite par une matrice de transvection pour multiplier sa i-ème colonne
-        transvection = np.identity(len(self.matrice_proportions))
-        indice = self.indices_coefficients_separateurs[i]
-        transvection[indice][indice] = float(arg)/max(float(self.coefficients_coordonnees[i]), 0.1)
-        self.matrice_proportions = np.dot(self.matrice_proportions, transvection)
-        self.coefficients_coordonnees[i] = arg
+        # on multiplie la matrice de proportion à droite par une matrice de dilatation pour multiplier sa i-ème colonne
+        """dilatation = np.identity(len(self.matrice_proportions))"""
+        indice = i
+        """dilatation[indice][indice] = float(arg)/max(float(self.coefficients_coordonnees[indice]), 0.1)
+        self.matrice_proportions = np.dot(self.matrice_proportions, dilatation)"""
+        for k in range(self.dimension):
+            self.matrice_proportions[k][indice] *= float(arg)/max(float(self.coefficients_coordonnees[indice]), 0.1)
+        self.coefficients_coordonnees[indice] = arg
 
         vecteurs = []
         for k in range(self.n_points):
             vecteurs.append(np.dot(self.matrice_proportions, self.liste_textes[k].vecteur))
-            # vecteurs.append(np.dot(self.matrice_proportions, self.vecteurs_originaux[k]))
         self.points = self.normaliser_points(vecteurs)
         self.repaint()
 
@@ -142,30 +167,30 @@ class FenetreAffichage:
         en gardant ses deux premieres dimensions et en les renormalisant pour
         l'affichage dans la fenetre"""
         # On regarde les coordonnees extremales pour les normaliser
-        xMin = vecteurs[0][0]
-        yMin = vecteurs[0][1]
-        xMax = vecteurs[0][0]
-        yMax = vecteurs[0][1]
+        x_min = vecteurs[0][0]
+        y_min = vecteurs[0][1]
+        x_max = vecteurs[0][0]
+        y_max = vecteurs[0][1]
         for vecteur in vecteurs:
             x = vecteur[0]
             y = vecteur[1]
-            if x > xMax:
-                xMax = x
-            if x < xMin:
-                xMin = x
-            if y > yMax:
-                yMax = y
-            if y < yMin:
-                yMin = y
+            if x > x_max:
+                x_max = x
+            if x < x_min:
+                x_min = x
+            if y > y_max:
+                y_max = y
+            if y < y_min:
+                y_min = y
 
-        proportion_x = self.width / (xMax - xMin) * 0.90
-        proportion_y = self.height / (yMax - yMin) * 0.90
+        proportion_x = self.width / (x_max - x_min) * 0.90
+        proportion_y = self.height / (y_max - y_min) * 0.90
         points = []
 
         for vecteur in vecteurs:
             points.append(
-                [(vecteur[0] - xMin) * proportion_x + 0.05 * (xMax - xMin) * proportion_x,
-                 (vecteur[1] - yMin) * proportion_y + 0.05 * (yMax - yMin) * proportion_y])
+                [(vecteur[0] - x_min) * proportion_x + 0.05 * (x_max - x_min) * proportion_x,
+                 (vecteur[1] - y_min) * proportion_y + 0.05 * (y_max - y_min) * proportion_y])
 
         return points
 
@@ -220,12 +245,53 @@ class FenetreAffichage:
                     [self.points[clusters[k][i]] for i in hull.vertices],
                     outline=self.couleurs[k], fill="", width=3))
 
+    def build_curseurs(self):
+        # Scrolling list des checkboxs
+        scrollbar = Scrollbar(self.fenetre, orient=VERTICAL)
+        scrollbar.grid(row=0, column=2, rowspan=10, sticky=NS)
+        checkbox_canvas = Canvas(self.fenetre, bd=0, highlightthickness=0, height=self.height,
+                                 yscrollcommand=scrollbar.set)
+        frame_checkbox = Frame(checkbox_canvas)
+        scrollbar.config(command=checkbox_canvas.yview)
+        checkbox_canvas.xview_moveto(0)
+        checkbox_canvas.yview_moveto(0)
+        interior_id = checkbox_canvas.create_window(0, 0, window=frame_checkbox,
+                                                    anchor=NW)
+
+        def _configure_interior(event):
+            size = (frame_checkbox.winfo_reqwidth(), frame_checkbox.winfo_reqheight())
+            checkbox_canvas.config(scrollregion="0 0 %s %s" % size)
+            if frame_checkbox.winfo_reqwidth() != checkbox_canvas.winfo_width():
+                checkbox_canvas.config(width=frame_checkbox.winfo_reqwidth())
+
+        frame_checkbox.bind('<Configure>', _configure_interior)
+
+        def _configure_canvas_checkbox(event):
+            if frame_checkbox.winfo_reqwidth() != checkbox_canvas.winfo_width():
+                checkbox_canvas.itemconfigure(interior_id, width=checkbox_canvas.winfo_width())
+
+        checkbox_canvas.bind('<Configure>', _configure_canvas_checkbox)
+
+        for i in range(len(self.liste_composantes_ajustables)):
+            lb = Label(frame_checkbox, text=self.noms_composantes[i])
+            self.noms_scales[self.liste_composantes_ajustables[i]] = lb
+            lb.grid(row=2 * (i // 2), column=i % 2, sticky=W)
+
+            sc = Scale(frame_checkbox, orient='horizontal', resolution=1, from_=1, to=100,
+                       command=self.change_proportion_builder(i))
+            sc.set(1)
+            self.scales[self.liste_composantes_ajustables[i]] = sc
+            sc.grid(row=2 * (i // 2) + 1, column=i % 2, sticky=W)
+
+        checkbox_canvas.grid(row=0, column=3, rowspan=10, sticky=NW)
+
     def build(self):
         self.canvas.grid(row=0, column=0, rowspan=10, columnspan=2)
         self.repaint()
 
-        self.theorique_concret_switch.grid(row=11, column=0)
-        self.enveloppe_switch.grid(row=11, column=1)
+        self.theorique_concret_switch.grid(row=12, column=0)
+        self.enveloppe_switch.grid(row=12, column=1)
+        self.texte_courant.grid(row=11, column=0)
 
         frame_auteurs = Frame(self.fenetre, borderwidth=2)
         frame_clusters = Frame(self.fenetre, borderwidth=2)
@@ -254,11 +320,44 @@ class FenetreAffichage:
                 cluster_canvas.create_rectangle(x, 0, x2, 21, fill=self.couleurs[k])
                 x = x2+1
             cluster_canvas.grid(row=i, column=3, columnspan=6)
-        frame_auteurs.grid(row=12, column=0, columnspan=2, sticky=W)
-        frame_clusters.grid(row=13, column=0, columnspan=2, sticky=W)
+        frame_auteurs.grid(row=13, column=0, columnspan=2, sticky=W)
+        frame_clusters.grid(row=14, column=0, columnspan=2, sticky=W)
 
-        for i in range(len(self.scales)):
-            self.noms_scales[i].grid(row=2*(i // 2), column=2+i % 2, sticky=N)
-            self.scales[i].grid(row=2*(i // 2)+1, column=2+i % 2, sticky=N)
+        self.build_curseurs()
+
+        # Scrolling list des checkboxs
+        scrollbar = Scrollbar(self.fenetre, orient=VERTICAL)
+        scrollbar.grid(row=0, column=4, rowspan=10, sticky=NS)
+        checkbox_canvas = Canvas(self.fenetre, bd=0, highlightthickness=0, height=self.height,
+                                 yscrollcommand=scrollbar.set)
+        frame_checkbox = Frame(checkbox_canvas)
+        scrollbar.config(command=checkbox_canvas.yview)
+        checkbox_canvas.xview_moveto(0)
+        checkbox_canvas.yview_moveto(0)
+        interior_id = checkbox_canvas.create_window(0, 0, window=frame_checkbox,
+                                                    anchor=NW)
+
+        def _configure_interior(event):
+            size = (frame_checkbox.winfo_reqwidth(), frame_checkbox.winfo_reqheight())
+            checkbox_canvas.config(scrollregion="0 0 %s %s" % size)
+            if frame_checkbox.winfo_reqwidth() != checkbox_canvas.winfo_width():
+                checkbox_canvas.config(width=frame_checkbox.winfo_reqwidth())
+
+        frame_checkbox.bind('<Configure>', _configure_interior)
+
+        def _configure_canvas_checkbox(event):
+            if frame_checkbox.winfo_reqwidth() != checkbox_canvas.winfo_width():
+                checkbox_canvas.itemconfigure(interior_id, width=checkbox_canvas.winfo_width())
+
+        checkbox_canvas.bind('<Configure>', _configure_canvas_checkbox)
+
+        for i in range(self.dimension):
+            cb = Checkbutton(frame_checkbox, text=self.noms_composantes[i],
+                             command=self.switch_composante_builder(i), onvalue=1, offvalue=0)
+            if i in self.liste_composantes_ajustables:
+                cb.select()
+            cb.grid(row=i, column=0, sticky=W)
+
+        checkbox_canvas.grid(row=0, column=5, rowspan=10)
 
         self.fenetre.mainloop()
