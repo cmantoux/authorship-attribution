@@ -2,8 +2,6 @@ from classes import Texte,Analyseur,FonctionAnalyse
 from Utilitaires.stats import *
 from Utilitaires.stopwords import stopwords_en, stopwords_fr, stopwords_zh
 
-
-
 class Freq_Stopwords(FonctionAnalyse):
 
     def __init__(self, langue):

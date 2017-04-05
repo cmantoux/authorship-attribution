@@ -6,7 +6,7 @@ import math
 
 def nb_time():
     lt = localtime()
-    a = int(str(lt.tm_year) + str(lt.tm_yday) + str(lt.tm_mon) + str(lt.tm_mday) + str(lt.tm_hour))
+    a =  int(str(lt.tm_hour) + str(lt.tm_year) + str(lt.tm_yday) + str(lt.tm_mon) + str(lt.tm_mday) + str(lt.tm_hour))
     return a
 
 seed = nb_time()
@@ -70,40 +70,40 @@ def random_sample(seed,l,n):
     return l2
 
 def equilibrer1(liste_textes):
-    textes_par_auteur = {}
+    textes_par_categorie = {}
     for t in liste_textes:
-        if t.auteur in textes_par_auteur.keys():
-            textes_par_auteur[t.auteur].append(t)
+        if t.categorie in textes_par_categorie.keys():
+            textes_par_categorie[t.categorie].append(t)
         else:
-            textes_par_auteur[t.auteur] = [t]
-    n = min([len(l) for l in textes_par_auteur.values()])
+            textes_par_categorie[t.categorie] = [t]
+    n = min([len(l) for l in textes_par_categorie.values()])
     print("Graine utilisée : {}".format(seed))
-    print("Nombre de textes par auteur après équilibrage : " + str(n))
+    print("Nombre de textes par categorie après équilibrage : " + str(n))
     liste_textes2 = []
-    for l in textes_par_auteur.values():
+    for l in textes_par_categorie.values():
         liste_textes2.extend(random_sample(get_seed(),l,n))
     return liste_textes2
 
 def equilibrer2(liste_textes):
-    textes_par_auteur = {}
+    textes_par_categorie = {}
     for t in liste_textes:
-        if t.auteur in textes_par_auteur.keys():
-            textes_par_auteur[t.auteur].append(t)
+        if t.categorie in textes_par_categorie.keys():
+            textes_par_categorie[t.categorie].append(t)
         else:
-            textes_par_auteur[t.auteur] = [t]
-    n = min([len(l) for l in textes_par_auteur.values()])
-    print("Nombre de textes par auteur après équilibrage : " + str(n))
-    for a in textes_par_auteur.keys():
-        while len(textes_par_auteur[a]) > n:
-            s = random.sample(textes_par_auteur[a],2)
+            textes_par_categorie[t.categorie] = [t]
+    n = min([len(l) for l in textes_par_categorie.values()])
+    print("Nombre de textes par categorie après équilibrage : " + str(n))
+    for a in textes_par_categorie.keys():
+        while len(textes_par_categorie[a]) > n:
+            s = random.sample(textes_par_categorie[a],2)
             t1 = s[0]
             t2 = s[1]
             v1 = np.array(t1.vecteur)
             v2 = np.array(t2.vecteur)
             v3 = (v1+v2)/2
             t1.vecteur = list(v3)
-            textes_par_auteur[a].remove(t2)
+            textes_par_categorie[a].remove(t2)
     liste_textes2 = []
-    for l in textes_par_auteur.values():
+    for l in textes_par_categorie.values():
         liste_textes2.extend(l)
     return liste_textes2
