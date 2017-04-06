@@ -6,10 +6,12 @@ from carac_lettres import *
 from carac_ponct import *
 from carac_complexite import *
 from carac_stopwords import *
-from classes import Analyseur, Probleme
+from classes import *
 from Apprentissage.svm import SVM
+from Apprentissage.reseau_textes import reseau_neurones
+from Apprentissage.Bayes import Bayes
 from Interpretation.importance_composantes import importance, gain_information
-from Evaluation import evaluation_externe as ee
+from Verification.similarite import Similarity
 import random
 
 a1 = Freq_Gram(langue = "fr")
@@ -35,16 +37,22 @@ a8 = Complexite_Vocabulaire()
 a9 = Longueur_Phrases()
 
 liste_fonctions_entiere = [a1,a2,a3,a4,a5,a6,a7,a8]
-liste_fonctions = [a3]
+liste_fonctions = [a1,a3,a5]
 
-id_oeuvres =[ [("veriteX",0)], [("mensongeX",0)] ]
-categories = ["verite"] + ["mensonge"]
+#verificateur = Unmasking()
+verificateur = Similarity()
 
 taille_morceaux = 1000
 analyseur = Analyseur(liste_fonctions)
 
-def createur_classifieur():
-    return SVM()
+id_oeuvres_base =[[("veriteXshake_morceau",1)]]
+categories_base = ["X"]
 
-C = CrossValidation(id_oeuvres, categories, taille_morceaux, analyseur, createur_classifieur, pourcentage_eval = 0.1, nombre_essais = 20, leave_one_out = True)
-C.resoudre()
+id_oeuvres_calibrage = [[("veriteYshake_morceau",1)]]
+categories_calibrage = ["Y"]
+
+id_oeuvres_disputees = [[("veriteXshake_morceau",2)], [("veriteYshake_morceau",2)]]
+categories_disputees = ["X"] + ["Y"]
+
+V = Verification(id_oeuvres_base, categories_base, id_oeuvres_calibrage, categories_calibrage, id_oeuvres_disputees, categories_disputees, taille_morceaux, analyseur, verificateur)
+V.resoudre()

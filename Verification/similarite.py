@@ -4,6 +4,7 @@ import numpy as np
 import numpy.linalg as alg
 import random as rd
 import matplotlib.pyplot as plt
+from time import time
 
 def norm(v):
     n = len(v)
@@ -291,4 +292,4 @@ class Similarity:
         plt.xticks(index + bar_width / 2, noms_oeuvres)
         plt.legend(loc="best")
         plt.tight_layout()
-        plt.show()
+        plt.savefig("similarity_graph"+ str(int(time())) + ".png")

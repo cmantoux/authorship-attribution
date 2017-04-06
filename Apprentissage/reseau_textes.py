@@ -173,6 +173,8 @@ class reseau_neurones(classes.Classifieur):
         return i
 
     def classifier(self, training_set, eval_set, categories):
+        self.eval_set = eval_set
+        self.training_set = training_set
         #On constitue la liste des auteurs
         self.auteurs = []
         self.auteurs_inverses = {}

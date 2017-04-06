@@ -8,10 +8,8 @@ from carac_complexite import *
 from carac_stopwords import *
 from classes import *
 from Apprentissage.svm import SVM
-from Apprentissage.reseau_textes import reseau_neurones
-from Apprentissage.Bayes import Bayes
 from Interpretation.importance_composantes import importance, gain_information
-from Verification.similarite import Similarity
+from Evaluation import evaluation_externe as ee
 import random
 
 a1 = Freq_Gram(langue = "fr")
@@ -37,22 +35,16 @@ a8 = Complexite_Vocabulaire()
 a9 = Longueur_Phrases()
 
 liste_fonctions_entiere = [a1,a2,a3,a4,a5,a6,a7,a8]
-liste_fonctions = [a1,a3,a5]
+liste_fonctions = [a2]
 
-#verificateur = Unmasking()
-verificateur = Similarity()
+id_oeuvres =[ [("veriteX",0), ("mensongeX",0)], [("veriteY",0),("mensongeY",0)] ]
+categories = ["X"] + ["Y"]
 
-taille_morceaux = 1000
+taille_morceaux = 700
 analyseur = Analyseur(liste_fonctions)
 
-id_oeuvres_base =[[("zola",k) for k in range(1,11)]]
-categories_base = ["zola"]
+def createur_classifieur():
+    return SVM()
 
-id_oeuvres_calibrage = [[("dumas",k) for k in range(1,11)]]
-categories_calibrage = ["dumas"]
-
-id_oeuvres_disputees = [[("zola",k) for k in range(11,14)] ,[("dumas",k) for k in range(11,14)]]
-categories_disputees = ["zola"] + ["dumas"]
-
-V = Verification(id_oeuvres_base, categories_base, id_oeuvres_calibrage, categories_calibrage, id_oeuvres_disputees, categories_disputees, taille_morceaux, analyseur, verificateur)
-V.resoudre()
+C = CrossValidation(id_oeuvres, categories, taille_morceaux, analyseur, createur_classifieur, pourcentage_eval = 0.1, nombre_essais = 20, leave_one_out = True)
+C.resoudre()

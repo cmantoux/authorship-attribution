@@ -309,7 +309,7 @@ class Probleme:
         indices_tries = sorted(list(range(len(importance1))), key = lambda k : importance1[k], reverse = True)
         noms_et_importance1 = [(noms_composantes[k],importance1[k]) for k in indices_tries]
         n=0
-        while noms_et_importance1[n][1]>alpha and n<30:
+        while n<len(noms_et_importance1) and noms_et_importance1[n][1]>alpha and n<30:
             n+=1
         if n>=len(noms_et_importance1):
             n=len(noms_et_importance1)
@@ -515,7 +515,7 @@ class CrossValidation:
         if equilibrage :
             self.liste_textes = equilibrer1(self.liste_textes)
         print("Textes initialisés")
-        print("Nombre de textes par catégorie après équilibrage : {}".format(len(self.liste_textes)/len(self.categories)))
+        print("Nombre de textes par catégorie après équilibrage : {}".format(len(self.liste_textes)//len(self.categories)))
 
     def analyser(self, normalisation = False):
         """Applique la méthode analyser de l'analyseur : elle remplit les coordonnées du vecteur associé à chaque texte, et calcule le vecteur normalisé."""
@@ -529,7 +529,6 @@ class CrossValidation:
         print("Textes analysés et vectorisés")
 
     def valider(self):
-        """Applique la méthode classifier du classifieur pour obtenir une classification, sous un format a priori inconnu."""
         if self.leave_one_out:
             prec = 0
             for i in range(len(self.liste_textes)):
@@ -546,14 +545,13 @@ class CrossValidation:
             prec = 0
             taille_eval = int(len(self.liste_textes)*self.pourcentage_eval)
             for e in range(self.nombre_essais):
-                print("Essai n°{}".format(e))
+                print("Essai n°{}".format(e+1))
                 classifieur = self.createur_classifieur()
                 indices_eval_set = random.sample(list(range(len(self.liste_textes))), taille_eval)
                 eval_set = [self.liste_textes[i] for i in indices_eval_set]
                 training_set = equilibrer1([self.liste_textes[j] for j in range(len(self.liste_textes)) if j not in indices_eval_set])
                 classifieur.classifier(training_set, eval_set, self.categories)
                 p = ee.precision(classifieur.eval_set, classifieur.p, classifieur.p_ref)
-                
                 prec += p
             prec/=self.nombre_essais
         print("")
@@ -562,6 +560,7 @@ class CrossValidation:
         else:
             print("Validation croisée effectuée en {} essais, sur un total de {} textes, dont environ {} % dans eval_set et {} % dans training_set".format(self.nombre_essais, len(self.liste_textes), int(self.pourcentage_eval*100), 100 - int(self.pourcentage_eval*100)))
         print("Précision de la validation croisée : {}".format(prec))
+        self.prec = prec
         
     def resoudre(self):
         print("")
