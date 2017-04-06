@@ -24,29 +24,15 @@ emplacement_lucile = "/Users/Lucile/Google Drive/Groupe PSC/"
 
 emplacement_dossier_groupe = emplacement_maxime
 
+
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "zh" : "chinois"}
 
 class Infos:
-    """Contient les méta-données concernant notre oeuvre : nom complet de l'auteur, titre de l'oeuvre, année, genre. Ces infos sont extraites du fichier csv (tableur) infos_corpus situé à la racine du dossier Corpus."""
-    emplacement_infos = emplacement_dossier_groupe + "Corpus/infos_corpus.csv"
+    """Contient les méta-données concernant notre oeuvre"""
+    # A compléter avec la base de données
 
     def __init__(self,auteur,numero):
-        """Va chercher dans le tableur infos_corpus les données associées à (auteur,numero)"""
-        with codecs.open(self.emplacement_infos, 'r', encoding = 'utf-8') as csvfile:
-            spamreader = csv.reader(csvfile, delimiter=';')
-            n = 0
-            for row in spamreader:
-                n+=1
-                aut = row[0]
-                num = int(row[1])
-                if aut == auteur and num == numero:
-                    self.nom_auteur = row[2]
-                    self.titre = row[3]
-                    self.annee = row[4]
-                    self.genre = row[5]
-                    break
-                if n>1000:
-                    break
+        pass
 
 
 class Oeuvre:
@@ -263,6 +249,7 @@ class Probleme:
              self.eval_set.extend(oeuvre.split(self.taille_morceaux, self.full_text))
         if equilibrage :
             self.training_set = equilibrer1(self.training_set)
+            print("Nombre de textes par catégorie après équilibrage : {}".format(len(self.training_set)/len(self.categories)))
         if equilibrage_eval :
             self.eval_set = equilibrer1(self.eval_set)
         self.liste_textes = self.training_set + self.eval_set
@@ -392,6 +379,12 @@ class Verification:
     
     def __init__(self, id_oeuvres_base, categories_base, id_oeuvres_calibrage, categories_calibrage, id_oeuvres_disputees, categories_disputees, taille_morceaux, analyseur, verificateur, langue = "fr", full_text = False):
         print("Assemblage du problème de vérification")
+        self.id_oeuvres_base = id_oeuvres_base
+        self.id_oeuvres_calibrage = id_oeuvres_calibrage
+        self.id_oeuvres_disputees = id_oeuvres_disputees
+        self.liste_id_oeuvres_base = []
+        self.liste_id_oeuvres_calibrage = []
+        self.liste_id_oeuvres_disputees = []
         self.oeuvres_base = []
         self.oeuvres_calibrage = []
         self.oeuvres_disputees = []
@@ -408,6 +401,7 @@ class Verification:
                 oeuvre = Oeuvre(auteur,numero,langue)
                 oeuvre.categorie = categories_base[k]
                 self.oeuvres_base.append(oeuvre)
+                self.liste_id_oeuvres_base.append((auteur,numero))
         for k in range(len(id_oeuvres_calibrage)):
             for ident in id_oeuvres_calibrage[k]:
                 auteur = ident[0]
@@ -415,6 +409,7 @@ class Verification:
                 oeuvre = Oeuvre(auteur,numero,langue)
                 oeuvre.categorie = categories_calibrage[k]
                 self.oeuvres_calibrage.append(oeuvre)
+                self.liste_id_oeuvres_calibrage.append((auteur,numero))
         for k in range(len(id_oeuvres_disputees)):
             for ident in id_oeuvres_disputees[k]:
                 auteur = ident[0]
@@ -422,17 +417,21 @@ class Verification:
                 oeuvre = Oeuvre(auteur,numero,langue)
                 oeuvre.categorie = categories_disputees[k]
                 self.oeuvres_disputees.append(oeuvre)
+                self.liste_id_oeuvres_disputees.append((auteur,numero))
         print("")
         print("Liste_oeuvres remplie")
         self.analyseur = analyseur
         print("Analyseur basé sur " + " ".join(analyseur.noms_fonctions()) + " initialisé")
         self.verificateur = verificateur
-        self.verificateur.id_oeuvres_base = id_oeuvres_base
-        self.verificateur.id_oeuvres_calibrage = id_oeuvres_calibrage
-        self.verificateur.id_oeuvres_disputees = id_oeuvres_disputees
+        self.verificateur.liste_id_oeuvres_base = self.liste_id_oeuvres_base
+        self.verificateur.liste_id_oeuvres_calibrage = self.liste_id_oeuvres_calibrage
+        self.verificateur.liste_id_oeuvres_disputees = self.liste_id_oeuvres_disputees
         self.verificateur.oeuvres_base = self.oeuvres_base
         self.verificateur.oeuvres_calibrage = self.oeuvres_calibrage
         self.verificateur.oeuvres_disputees = self.oeuvres_disputees
+        self.verificateur.categories_base = categories_base
+        self.verificateur.categories_calibrage = categories_calibrage
+        self.verificateur.categories_disputees = categories_disputees
         self.verificateur.analyseur = analyseur
         self.verificateur.taille_morceaux = taille_morceaux
         print("Vérificateur initialisé")
@@ -516,6 +515,7 @@ class CrossValidation:
         if equilibrage :
             self.liste_textes = equilibrer1(self.liste_textes)
         print("Textes initialisés")
+        print("Nombre de textes par catégorie après équilibrage : {}".format(len(self.liste_textes)/len(self.categories)))
 
     def analyser(self, normalisation = False):
         """Applique la méthode analyser de l'analyseur : elle remplit les coordonnées du vecteur associé à chaque texte, et calcule le vecteur normalisé."""

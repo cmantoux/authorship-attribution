@@ -28,17 +28,17 @@ a9 = Freq_Stopwords(langue = "fr")
 liste_fonctions = [a1,a6,a8]
 analyseur = Analyseur(liste_fonctions)
 
-# verificateur = Unmasking()
-verificateur = Similarity()
+verificateur = Unmasking()
+#verificateur = Similarity()
 
-id_oeuvres_base =[[("proust",k) for k in range(1,3)], [("balzac",k) for k in range(1,3)]]
-categories_base = ["categorie1"] + ["categorie2"]
+id_oeuvres_base =[[("dumas",k) for k in range(1,3)], [("balzac",k) for k in range(1,3)]]
+categories_base = ["dumas"] + ["balzac"]
 
-id_oeuvres_calibrage = [[("proust",k) for k in range(3,5)] ,[("balzac",k) for k in range(3,5)]]
-categories_calibrage = ["categorie1"] + ["categorie2"]
+id_oeuvres_calibrage = [[("dumas",k) for k in range(3,5)] ,[("balzac",k) for k in range(3,5)]]
+categories_calibrage = ["dumas"] + ["balzac"]
 
-id_oeuvres_disputees = [[("proust",k) for k in range(5,7)] ,[("balzac",k) for k in range(5,7)]]
-categories_disputees = ["categorie1"] + ["categorie2"]
+id_oeuvres_disputees = [[("dumas",k) for k in range(5,7)] ,[("balzac",k) for k in range(5,7)]]
+categories_disputees = ["dumas"] + ["balzac"]
 
 V = Verification(id_oeuvres_base, categories_base, id_oeuvres_calibrage, categories_calibrage, id_oeuvres_disputees, categories_disputees, taille_morceaux, analyseur, verificateur)
 V.resoudre()

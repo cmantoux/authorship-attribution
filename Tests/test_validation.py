@@ -36,7 +36,7 @@ analyseur = Analyseur(liste_fonctions)
 def createur_classifieur():
     return SVM()
 
-C = CrossValidation(id_oeuvres, categories, taille_morceaux, analyseur, createur_classifieur, pourcentage_eval = 0.1, nombre_essais = 20, leave_one_out = False)
+C = CrossValidation(id_oeuvres, categories, taille_morceaux, analyseur, createur_classifieur, pourcentage_eval = 0.1, nombre_essais = 20, leave_one_out = True)
 
 C.resoudre()
 

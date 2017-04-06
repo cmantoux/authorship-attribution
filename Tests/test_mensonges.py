@@ -35,56 +35,16 @@ a8 = Complexite_Vocabulaire()
 a9 = Longueur_Phrases()
 
 liste_fonctions_entiere = [a1,a2,a3,a4,a5,a6,a7,a8]
+liste_fonctions = [a3]
 
-def tester_analyseur(nombres,precisions,liste_fonctions_entiere,fonctions_testees):
-    liste_fonctions = [liste_fonctions_entiere[i-1] for i in nombres]
-    K=5
-    prec = 0
-    for k in range(K):
-        d = time()
-        B = list(range(1,61))
-        A = random.sample(B,50)
-        for a in A:
-            B.remove(a)
-        id_training_set =[[("verite",k) for k in A], [("mensonge",k) for k in A]]
-        categories = ["verite"] + ["mensonge"]
-        id_eval_set = [[("verite",k) for k in B] ,[("mensonge",k) for k in B]]
-        categories_supposees = ["verite"] + ["mensonge"]
-        taille_morceaux = 5000
-        analyseur = Analyseur(liste_fonctions)
-        classifieur = SVM()
-        P = Probleme(id_training_set, categories, id_eval_set, categories_supposees, taille_morceaux, analyseur, classifieur, langue = "fr", full_text = True)
-        P.creer_textes()
-        P.analyser()
-        P.appliquer_classifieur()
-        #P.interpreter()
-        #P.afficher()
-        #P.evaluer()
-        #P.afficher_graphique()
-        prec += ee.precision(P.eval_set, P.classifieur.p, P.classifieur.p_ref)/K
-        f = time()
-        print("Temps d'exécution : " + str(f-d) + "s")
-        print("")
-    precisions.append(prec)
-    fonctions_testees.append(nombres)
+id_oeuvres =[ [("veriteX",0)], [("mensongeX",0)] ]
+categories = ["verite"] + ["mensonge"]
 
-precisions = []
-fonctions_testees = []
+taille_morceaux = 1000
+analyseur = Analyseur(liste_fonctions)
 
-combinaisons_possibles = [[k] for k in range(1,7)] + [[1,2], [3,4], [5,6], [7,8], [1,2,3,4], [1,2,5,6], [1,2,7,8], [3,4,5,6], [3,4,7,8], [5,6,7,8], [1,2,3,4,5,6], [1,2,3,4,7,8], [1,2,5,6,7,8], [3,4,5,6,7,8]]
+def createur_classifieur():
+    return SVM()
 
-ajouts = []
-
-def supprimer_doublons(l):
-    l2 = []
-    for a in l:
-        if not a in l2:
-            l2.append(a)
-    return l2
-
-for nombres in combinaisons_possibles:
-    nombres_ameliores = supprimer_doublons(nombres+ajouts)
-    tester_analyseur(nombres_ameliores,precisions,liste_fonctions_entiere,fonctions_testees)
-
-for i in range(len(precisions)):
-    print(str(fonctions_testees[i]) + " : precision " + str(precisions[i]))
+C = CrossValidation(id_oeuvres, categories, taille_morceaux, analyseur, createur_classifieur, pourcentage_eval = 0.1, nombre_essais = 20, leave_one_out = True)
+C.resoudre()

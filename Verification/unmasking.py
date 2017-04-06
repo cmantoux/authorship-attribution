@@ -43,9 +43,10 @@ class UnmaskingCourbes(Classifieur):
         self.facteur = facteur
         self.equi = False
 
-    def classifier(self, training_set, eval_set):
+    def classifier(self, training_set, eval_set, categories):
         self.training_set = training_set
         self.eval_set = eval_set
+        self.categories = categories
 
         # Calcul de l'importance et réordonnement des composantes
         
@@ -61,13 +62,16 @@ class UnmaskingCourbes(Classifieur):
         
         ordre = sorted(list(range(nb_composantes)), key = lambda x : importances[x])
         importances.sort()
+        nouvelles_categories = ["categorie 1", "categorie 2"]
         for t in training_set:
             t.auteur = t.auteur + "1" 
+            t.categorie = "categorie 1" 
             v = t.vecteur.copy()
             for i in range(nb_composantes):
                 t.vecteur[ordre[i]] = v[i]
         for t in eval_set: 
             t.auteur = t.auteur + "2"
+            t.categorie = "categorie 2" 
             v = t.vecteur.copy()
             for i in range(nb_composantes):
                 t.vecteur[ordre[i]] = v[i]
@@ -102,7 +106,7 @@ class UnmaskingCourbes(Classifieur):
                 if len(list(set([t.auteur for t in training_set_bis])))<=1 or len(training_set)<4 or len(eval_set_bis)<4:
                     nb_loupes += 1
                 else:
-                    classifieur.classifier(training_set_bis, eval_set_bis)
+                    classifieur.classifier(training_set_bis, eval_set_bis, nouvelles_categories)
                     precision_moyenne+= ee.precision(classifieur.eval_set,defuzze(classifieur.p),classifieur.p_ref)
             if nb_loupes >= self.nb_essais - 4 :
                 raise ValueError("Les corpus sont trop petits")
@@ -115,14 +119,12 @@ class UnmaskingCourbes(Classifieur):
 
 class Unmasking:
     
-    def __init__(self, nb_selections = 10, nb_oeuvres = 2, taille_echantillon = 10, facteur = 3, lissage = 0, nb_essais = 10, pas = 3,langue = "fr"):
-        self.liste_id_oeuvres_calibrage = None
-        self.liste_id_oeuvres_base = None
-        self.liste_id_oeuvres_disputees = None
+    def __init__(self, nb_selections = 1, nb_oeuvres = 2, taille_echantillon = 10, facteur = 3, lissage = 0, nb_essais = 10, pas = 3,langue = "fr"):
         self.taille_morceaux = 1000
         self.analyseur = None
         self.J = None
         self.auteur_base = "?"
+        self.cat_base = "?"
         self.nb_selections = nb_selections
         self.nb_oeuvres = nb_oeuvres
         self.taille_echantillon = taille_echantillon
@@ -139,6 +141,7 @@ class Unmasking:
     
     def calibrer(self, textes_base, textes_calibrage):
         self.auteur_base = textes_base[0].auteur
+        self.cat_base = textes_base[0].categorie
         for k in range(self.nb_selections):
             print("")
             print("Paire de courbes de calibrage n°{}".format(k+1))
@@ -148,14 +151,15 @@ class Unmasking:
             ob1_ind = np.random.choice(len(self.liste_id_oeuvres_base), lb)
             ob2_ind = np.random.choice(len(self.liste_id_oeuvres_base), lb)
             oc1_ind = np.random.choice(len(self.liste_id_oeuvres_calibrage), lc)
-            while len(set(ob2_ind).intersection(set(ob1_ind))) > 0:
-                ob2_ind = np.random.choice(len(self.liste_id_oeuvres_base), lb)
-            ob1 = [self.liste_id_oeuvres_base[i] for i in ob1_ind]
-            ob2 = [self.liste_id_oeuvres_base[i] for i in ob2_ind]
-            oc1 = [self.liste_id_oeuvres_calibrage[i] for i in oc1_ind]
+            #while len(set(ob2_ind).intersection(set(ob1_ind))) > 0:
+                #print("blabla")
+                #ob2_ind = np.random.choice(len(self.liste_id_oeuvres_base), lb)
+            ob1 = [[self.liste_id_oeuvres_base[i] for i in ob1_ind]]
+            ob2 = [[self.liste_id_oeuvres_base[i] for i in ob2_ind]]
+            oc1 = [[self.liste_id_oeuvres_calibrage[i] for i in oc1_ind]]
             
             classifieur_id = UnmaskingCourbes(self.nb_essais, self.pas, self.taille_echantillon, self.facteur)
-            P_id = Probleme(ob1, ob2, self.taille_morceaux, self.analyseur, classifieur_id, self.langue)
+            P_id = Probleme(ob1, self.categories_base, ob2, self.categories_base, self.taille_morceaux, self.analyseur, classifieur_id, self.langue)
             P_id.creer_textes(equilibrage = True, equilibrage_eval = False)
             P_id.analyser(normalisation = True)
             P_id.appliquer_classifieur()
@@ -166,7 +170,7 @@ class Unmasking:
             #plt.plot(J,precision1, linestyle = "--", color = "b")
 
             classifieur_dif = UnmaskingCourbes(self.nb_essais, self.pas, self.taille_echantillon, self.facteur)
-            P_dif = Probleme(ob1, oc1, self.taille_morceaux, self.analyseur, classifieur_dif, self.langue)
+            P_dif = Probleme(ob1, self.categories_base, oc1, self.categories_calibrage, self.taille_morceaux, self.analyseur, classifieur_dif, self.langue)
             P_dif.creer_textes(equilibrage = True, equilibrage_eval = False)
             P_dif.analyser(normalisation = True)
             P_dif.appliquer_classifieur()
@@ -197,11 +201,11 @@ class Unmasking:
                 print("")
                 lb = min(self.nb_oeuvres, len(self.liste_id_oeuvres_base))
                 ob1_ind = np.random.choice(len(self.liste_id_oeuvres_base), lb)
-                ob1 = [self.liste_id_oeuvres_base[i] for i in ob1_ind]
-                od1 = [self.liste_id_oeuvres_disputees[i]]
+                ob1 = [[self.liste_id_oeuvres_base[i] for i in ob1_ind]]
+                od1 = [[self.liste_id_oeuvres_disputees[i]]]
  
                 classifieur_verif = UnmaskingCourbes(self.nb_essais, self.pas, self.taille_echantillon, self.facteur)
-                P_verif = Probleme(ob1, od1, self.taille_morceaux, self.analyseur, classifieur_verif, self.langue)
+                P_verif = Probleme(ob1, self.categories_base, od1, self.categories_disputees, self.taille_morceaux, self.analyseur, classifieur_verif, self.langue)
                 P_verif.creer_textes(equilibrage = True, equilibrage_eval = False)
                 P_verif.analyser(normalisation = True)
                 P_verif.classifieur.equi = True
@@ -224,7 +228,7 @@ class Unmasking:
                 self.verif.append(True)
             else:
                 self.verif.append(False)
-            self.taux.append((d_id,d_dif))
+            self.taux.append([d_id,d_dif])
     
     def afficher(self):
         print("")
@@ -233,9 +237,9 @@ class Unmasking:
             num = self.liste_id_oeuvres_disputees[i][1]
             t = self.taux[i]
             if self.verif[i]:
-                print("L'oeuvre disputée " + aut + str(num) + " est attribuée à l'auteur de base " + self.auteur_base + ". \nDistances aux courbes de référence : id {:f} / dif {:f}".format(t[0],t[1]))  
+                print("L'oeuvre disputée " + aut + str(num) + " est attribuée à la categorie de base " + self.cat_base + ". \nDistances aux courbes de référence : id {:f} / dif {:f}".format(t[0],t[1]))  
             else:
-                print("L'oeuvre disputée " + aut + str(num) + " n'est pas attribuée à l'auteur de base " + self.auteur_base + ". \nDistances aux courbes de référence : id {:f} / dif {:f}".format(t[0],t[1])) 
+                print("L'oeuvre disputée " + aut + str(num) + " n'est pas attribuée à la categorie de base " + self.cat_base + ". \nDistances aux courbes de référence : id {:f} / dif {:f}".format(t[0],t[1])) 
             print("")
             plt.figure()
             plt.plot(self.J,self.PM_id, linewidth = 2, color = "g", label = self.auteur_base + " / " + self.auteur_base)
