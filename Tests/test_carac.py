@@ -5,18 +5,21 @@ from carac_complexite import *
 from carac_stopwords import *
 from classes import Oeuvre,Texte
 
-# a = Freq_Gram(langue = "fr")
-# a = Markov_Gram(langue = "fr",saut = 1)
-# a = Freq_Ngrammes(langue = "fr",n=2)
-# a = Markov_Lettres(langue = "fr")
-# a = Freq_Ponct(langue = "fr")
-a1 = Longueur_Phrases()
-a2 = Complexite_Grammaticale(langue = "fr", saut= 1)
-a3 = Freq_Stopwords(langue = "fr")
+a1 = Freq_Gram(langue = "fr")
+a2= Markov_Gram(langue = "fr",saut = 1)
+a3 = Freq_Ngrammes(langue = "fr",n=2)
+a4 = Markov_Lettres(langue = "fr")
+a5 = Freq_Ponct(langue = "fr")
 
-a = Analyseur([a1,a2,a3])
 
-a.analyser(liste_textes)
-print(a.noms_composantes())
+aGram = Analyseur("Grammaire",[a1,a2])
+aLettres= Analyseur("Lettres",[a3,a4])
+aPonct = Analyseur("Ponctuation",[a5])
+
+A = Analyseur("Tout",[aGram,aLettres,aPonct])
+A.numeroter()
+
+A.analyser(liste_textes)
+print(A.noms_composantes())
 for t in liste_textes:
     print(t.vecteur)

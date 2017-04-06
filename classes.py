@@ -22,7 +22,7 @@ emplacement_clement = "C:/Users/Clement/Google Drive/Groupe PSC/"
 emplacement_wang = "/home/wang/Documents/PSC/GitDePSC/"
 emplacement_lucile = "/Users/Lucile/Google Drive/Groupe PSC/"
 
-emplacement_dossier_groupe = emplacement_clement
+emplacement_dossier_groupe = emplacement_maxime
 
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "zh" : "chinois"}
 
@@ -146,7 +146,8 @@ class Texte:
         return Texte(self.auteur, self.numero, self.categorie, self.langue, self.numero_morceau, self.texte_brut, self.mots, self.racines, self.POS)
 
 class Analyseur:
-    def __init__(self, liste_fils):
+    def __init__(self, nom, liste_fils):
+        self.nom = nom
         self.fils = liste_fils
 
     def analyser(self, liste_textes):
@@ -165,10 +166,20 @@ class Analyseur:
             res += f.noms_fonctions()
         return res
 
+    def aux_numeroter(self,n):
+        self.init = n
+        for f in self.fils:
+            n = f.aux_numeroter(n)
+        self.end = n
+        return self.end
+
+    def numeroter(self):
+        self.aux_numeroter(0)
+
 class FonctionAnalyse(Analyseur):
 
     def __init__(self,nom,liste_composantes):
-        super(FonctionAnalyse, self).__init__([])
+        super(FonctionAnalyse, self).__init__("",[])
         self.liste_composantes = liste_composantes
         self.nom = nom
 
@@ -180,6 +191,11 @@ class FonctionAnalyse(Analyseur):
 
     def analyser(self, liste_textes):
         return
+
+    def aux_numeroter(self, n):
+        self.init = n
+        self.end = n + len(self.liste_composantes)
+        return self.end
 
 class Classifieur:
     """Un objet Classifieur correspond à une méthode d'analyse des données pour en extraire des regroupements ou des attributions. Deux fonctions sont nécessaires pour l'instant : une fonction analyser qui renvoie une classification sous une forme quelconque, et une fonction classifier. Les attributs qui doivent être remplis sont :

@@ -33,9 +33,9 @@ a7 = Complexite_Grammaticale(langue = "fr", saut= 1)
 a8 = Complexite_Vocabulaire()
 a9 = Freq_Stopwords(langue = "fr")
 
-liste_fonctions = [a1,a2,a3,a4,a5,a6,a7,a8]
+liste_fonctions = [a1,a2,a3,a4]
 analyseur = Analyseur(liste_fonctions)
-classifieur = Bayes()
+classifieur = SVM()
 
 P = Probleme(id_training_set, categories, id_eval_set, categories_supposees, taille_morceaux, analyseur, classifieur, langue = "fr")
 
@@ -48,8 +48,8 @@ P.analyser()
 P.appliquer_classifieur()
 P.interpreter()
 P.afficher()
-P.evaluer()
-#P.afficher_graphique()
+#P.evaluer()
+P.afficher_graphique()
 
 f = time()
 print()
