@@ -26,6 +26,7 @@ def nouvelles_matrices(training_set, p, p_ref, categories):
 class FenetreAffichage:
 
     def __init__(self, analyseur, classifieur, poids_composantes):
+        self.analyseur = analyseur
         self.poids_composantes = poids_composantes
         self.height = 600
         self.width = 600
@@ -70,7 +71,7 @@ class FenetreAffichage:
 
         # Tableau des indices des composantes vectorielles, triées par importance
         indices_coefficients_separateurs = self.tri_par_importance(range(0, self.dimension))
-        nb_minimal_curseurs = 20 # nombre minimal de curseurs à afficher
+        nb_minimal_curseurs = 12 # nombre minimal de curseurs à afficher
         # Nombres de composantes dont le curseur s'affiche à l'écran
         self.n_composantes_ajustables = min(nb_minimal_curseurs, len(self.liste_textes[0].vecteur))
         self.liste_composantes_ajustables = indices_coefficients_separateurs[:self.n_composantes_ajustables]
@@ -94,7 +95,6 @@ class FenetreAffichage:
                                                command=self.switch_theorique_concret)
         self.enveloppe_switch = Checkbutton(self.fenetre, text="Afficher les enveloppes convexes",
                                             command=self.switch_points_enveloppe)
-        self.texte_courant = Label(self.fenetre, text="Texte courant le plus proche : ")
 
         self.noms_composantes = analyseur.noms_composantes()
 
@@ -114,11 +114,30 @@ class FenetreAffichage:
             sc.set(1)
             self.scales.append(sc)
 
+        self.intVars = [] # stocke les valeurs des boutons du menu
+        for i in range(self.dimension):
+            iv = IntVar()
+            if i in self.liste_composantes_ajustables:
+                iv.set(1)
+            else:
+                iv.set(0)
+            self.intVars.append(iv)
+
+        # Variables d'informations sur l'oeuvre courante
+        self.frame_courant = Frame(self.fenetre, borderwidth=2, relief=SUNKEN)
+        self.texte_courant = Label(self.frame_courant, text="Texte courant le plus proche : ",
+                                   justify=LEFT)
+
     def mouse_motion_canvas(self, arg):
         tab = [(point[0]-arg.x)**2+(point[1]-arg.y)**2 for point in self.points]
         m = min(tab)
         indice = tab.index(m)
-        s = "Texte le plus proche : {0}{1}".format(self.liste_textes[indice].auteur, self.liste_textes[indice].numero)
+        s = "Texte le plus proche : \n" \
+            "Auteur : {0} \n" \
+            "Numéro oeuvre : {1} \n" \
+            "Identifiant chunk : {2}".format(self.liste_textes[indice].auteur,
+                                             self.liste_textes[indice].numero,
+                                             self.liste_textes[indice].numero_morceau)
         self.texte_courant['text'] = s
 
     def tri_par_importance(self, liste_indices_composantes):
@@ -131,10 +150,8 @@ class FenetreAffichage:
     # Ajoute ou supprime un curseur
     def switch_composante(self, i):
         if i in self.liste_composantes_ajustables:
-            print("suppression")
             self.liste_composantes_ajustables.remove(i)
         else:
-            print("ajout")
             self.liste_composantes_ajustables.append(i)
             self.liste_composantes_ajustables = self.tri_par_importance(self.liste_composantes_ajustables)
         self.build_curseurs()
@@ -245,53 +262,87 @@ class FenetreAffichage:
                     [self.points[clusters[k][i]] for i in hull.vertices],
                     outline=self.couleurs[k], fill="", width=3))
 
+    def _on_mousewheel(self, canvas):
+        return (
+            lambda event:
+            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        )
+
     def build_curseurs(self):
-        # Scrolling list des checkboxs
+        # Scrolling list des CURSEURS
         scrollbar = Scrollbar(self.fenetre, orient=VERTICAL)
         scrollbar.grid(row=0, column=2, rowspan=10, sticky=NS)
-        checkbox_canvas = Canvas(self.fenetre, bd=0, highlightthickness=0, height=self.height,
+        canvas = Canvas(self.fenetre, bd=0, highlightthickness=0, height=self.height,
                                  yscrollcommand=scrollbar.set)
-        frame_checkbox = Frame(checkbox_canvas)
-        scrollbar.config(command=checkbox_canvas.yview)
-        checkbox_canvas.xview_moveto(0)
-        checkbox_canvas.yview_moveto(0)
-        interior_id = checkbox_canvas.create_window(0, 0, window=frame_checkbox,
-                                                    anchor=NW)
+        frame = Frame(canvas)
+        scrollbar.config(command=canvas.yview)
+        canvas.xview_moveto(0)
+        canvas.yview_moveto(0)
+        interior_id = canvas.create_window(0, 0, window=frame,
+                                           anchor=NW)
 
         def _configure_interior(event):
-            size = (frame_checkbox.winfo_reqwidth(), frame_checkbox.winfo_reqheight())
-            checkbox_canvas.config(scrollregion="0 0 %s %s" % size)
-            if frame_checkbox.winfo_reqwidth() != checkbox_canvas.winfo_width():
-                checkbox_canvas.config(width=frame_checkbox.winfo_reqwidth())
+            size = (frame.winfo_reqwidth(), frame.winfo_reqheight())
+            canvas.config(scrollregion="0 0 %s %s" % size)
+            if frame.winfo_reqwidth() != canvas.winfo_width():
+                canvas.config(width=frame.winfo_reqwidth())
 
-        frame_checkbox.bind('<Configure>', _configure_interior)
+        frame.bind('<Configure>', _configure_interior)
 
-        def _configure_canvas_checkbox(event):
-            if frame_checkbox.winfo_reqwidth() != checkbox_canvas.winfo_width():
-                checkbox_canvas.itemconfigure(interior_id, width=checkbox_canvas.winfo_width())
+        def _configure_canvas(event):
+            if frame.winfo_reqwidth() != canvas.winfo_width():
+                canvas.itemconfigure(interior_id, width=canvas.winfo_width())
 
-        checkbox_canvas.bind('<Configure>', _configure_canvas_checkbox)
+        canvas.bind('<Configure>', _configure_canvas)
+        canvas.bind_all("<MouseWheel>", self._on_mousewheel(canvas))
 
         for i in range(len(self.liste_composantes_ajustables)):
-            lb = Label(frame_checkbox, text=self.noms_composantes[i])
+            lb = Label(frame, text=self.noms_composantes[i])
             self.noms_scales[self.liste_composantes_ajustables[i]] = lb
-            lb.grid(row=2 * (i // 2), column=i % 2, sticky=W)
+            lb.grid(row=2*i, column=0, rowspan=1, columnspan=1, sticky=W)
 
-            sc = Scale(frame_checkbox, orient='horizontal', resolution=1, from_=1, to=100,
+            sc = Scale(frame, orient='horizontal', resolution=1, from_=1, to=100,
                        command=self.change_proportion_builder(i))
             sc.set(1)
             self.scales[self.liste_composantes_ajustables[i]] = sc
-            sc.grid(row=2 * (i // 2) + 1, column=i % 2, sticky=W)
+            sc.grid(row=2*i+1, column=0, rowspan=1, columnspan=1, sticky=W)
 
-        checkbox_canvas.grid(row=0, column=3, rowspan=10, sticky=NW)
+
+        canvas.grid(row=0, column=3, columnspan=1, rowspan=10, sticky=NW)
+
+    def build_menu(self, analyseur, pere):
+        # Impossible d'utiliser instanceof, car il faudrait importer classes.py,
+        # or c'est classes.py qui nous importe, donc on créerait une boucle
+        # d'importations.
+        # La ligne suivante est donc équivalente à
+        # if instanceof(analyseur, FonctionAnalyse):
+        localmenu = Menu(pere, tearoff=0)
+        if analyseur.__class__.__name__ != "Analyseur":
+            numeros = range(analyseur.init, analyseur.end)
+            noms = analyseur.noms_composantes()
+            for i in range(len(numeros)):
+                localmenu.add_checkbutton(label=noms[i],
+                                              command=self.switch_composante_builder(numeros[i]),
+                                              variable=self.intVars[numeros[i]],
+                                              onvalue=1,
+                                              offvalue=0)
+        else:
+            for fils in analyseur.fils:
+                self.build_menu(fils, localmenu)
+        pere.add_cascade(label=analyseur.nom, menu=localmenu)
 
     def build(self):
+        menu = Menu(self.fenetre)
+        self.analyseur.numeroter()
+        for fils in self.analyseur.fils:
+            self.build_menu(fils, menu)
+        self.fenetre.config(menu=menu)
+
         self.canvas.grid(row=0, column=0, rowspan=10, columnspan=2)
         self.repaint()
 
-        self.theorique_concret_switch.grid(row=12, column=0)
-        self.enveloppe_switch.grid(row=12, column=1)
-        self.texte_courant.grid(row=11, column=0)
+        self.theorique_concret_switch.grid(row=11, column=0)
+        self.enveloppe_switch.grid(row=11, column=1)
 
         frame_auteurs = Frame(self.fenetre, borderwidth=2)
         frame_clusters = Frame(self.fenetre, borderwidth=2)
@@ -320,44 +371,13 @@ class FenetreAffichage:
                 cluster_canvas.create_rectangle(x, 0, x2, 21, fill=self.couleurs[k])
                 x = x2+1
             cluster_canvas.grid(row=i, column=3, columnspan=6)
-        frame_auteurs.grid(row=13, column=0, columnspan=2, sticky=W)
-        frame_clusters.grid(row=14, column=0, columnspan=2, sticky=W)
+        frame_auteurs.grid(row=12, column=0, columnspan=2, sticky=W)
+        frame_clusters.grid(row=13, column=0, columnspan=2, sticky=W)
 
         self.build_curseurs()
 
-        # Scrolling list des checkboxs
-        scrollbar = Scrollbar(self.fenetre, orient=VERTICAL)
-        scrollbar.grid(row=0, column=4, rowspan=10, sticky=NS)
-        checkbox_canvas = Canvas(self.fenetre, bd=0, highlightthickness=0, height=self.height,
-                                 yscrollcommand=scrollbar.set)
-        frame_checkbox = Frame(checkbox_canvas)
-        scrollbar.config(command=checkbox_canvas.yview)
-        checkbox_canvas.xview_moveto(0)
-        checkbox_canvas.yview_moveto(0)
-        interior_id = checkbox_canvas.create_window(0, 0, window=frame_checkbox,
-                                                    anchor=NW)
-
-        def _configure_interior(event):
-            size = (frame_checkbox.winfo_reqwidth(), frame_checkbox.winfo_reqheight())
-            checkbox_canvas.config(scrollregion="0 0 %s %s" % size)
-            if frame_checkbox.winfo_reqwidth() != checkbox_canvas.winfo_width():
-                checkbox_canvas.config(width=frame_checkbox.winfo_reqwidth())
-
-        frame_checkbox.bind('<Configure>', _configure_interior)
-
-        def _configure_canvas_checkbox(event):
-            if frame_checkbox.winfo_reqwidth() != checkbox_canvas.winfo_width():
-                checkbox_canvas.itemconfigure(interior_id, width=checkbox_canvas.winfo_width())
-
-        checkbox_canvas.bind('<Configure>', _configure_canvas_checkbox)
-
-        for i in range(self.dimension):
-            cb = Checkbutton(frame_checkbox, text=self.noms_composantes[i],
-                             command=self.switch_composante_builder(i), onvalue=1, offvalue=0)
-            if i in self.liste_composantes_ajustables:
-                cb.select()
-            cb.grid(row=i, column=0, sticky=W)
-
-        checkbox_canvas.grid(row=0, column=5, rowspan=10)
+        # Zone d'informations sur le point pointé
+        self.frame_courant.grid(row=11, column=2, rowspan=3, columnspan=2, sticky=NSEW, padx=10, pady=10)
+        self.texte_courant.grid(row=0, column=0, sticky=NW)
 
         self.fenetre.mainloop()
