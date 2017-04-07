@@ -269,6 +269,8 @@ class Similarity:
         self.vrais.append(nb_vrai)
         self.faux.append(nb_faux)
         self.tracer()
+        print("")
+        print("Graphique enregistré dans le dossier source")
         
     def tracer(self):
         n_groups = len(self.oeuvres)

@@ -56,7 +56,7 @@ def test_tailles():
     
     plt.close()
 
-    liste_tailles = list(range(300,1400,150))
+    liste_tailles = list(range(300,1400,500))
     fonctions_possibles = [[a2], [a6], [a7], [a9]]
     noms = ["Markov_Gram", "Freq_Stopwords", "Complexite_Grammaticale", "Longueur_Phrases"]
     precisions = [ [], [], [], [], [] ]

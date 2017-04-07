@@ -22,7 +22,7 @@ emplacement_clement = "C:/Users/Clement/Google Drive/Groupe PSC/"
 emplacement_wang = "/home/wang/Documents/PSC/GitDePSC/"
 emplacement_lucile = "/Users/Lucile/Google Drive/Groupe PSC/"
 
-emplacement_dossier_groupe = emplacement_maxime
+emplacement_dossier_groupe = emplacement_guillaume
 
 
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "zh" : "chinois"}
@@ -249,7 +249,7 @@ class Probleme:
              self.eval_set.extend(oeuvre.split(self.taille_morceaux, self.full_text))
         if equilibrage :
             self.training_set = equilibrer1(self.training_set)
-            print("Nombre de textes par catégorie après équilibrage : {}".format(len(self.training_set)/len(self.categories)))
+            print("Nombre de textes par catégorie après équilibrage : {}".format(len(self.training_set)//len(self.categories)))
         if equilibrage_eval :
             self.eval_set = equilibrer1(self.eval_set)
         self.liste_textes = self.training_set + self.eval_set
@@ -450,6 +450,9 @@ class Verification:
             self.textes_disputes.extend(oeuvre.split(self.taille_morceaux,self.full_text))
         self.liste_textes = self.textes_base + self.textes_calibrage + self.textes_disputes
         print("Textes initialisés")
+        print("Ensemble de base : {} textes".format(len(self.textes_base)))
+        print("Ensemble de calibrage : {} textes".format(len(self.textes_calibrage)))
+        print("Ensemble de verif : {} textes".format(len(self.textes_disputes)))
 
     def analyser(self, normalisation = True):
         """Applique la méthode analyser de l'analyseur : elle remplit les coordonnées du vecteur associé à chaque texte, et calcule le vecteur normalisé."""

@@ -14,14 +14,17 @@ from tkinter import messagebox
 
 from time import time
 
-from carac_gramm import *
-from carac_lettres import *
-from carac_ponct import *
-from carac_complexite import *
-from carac_stopwords import *
+from Carac.carac_gramm import *
+from Carac.carac_lettres import *
+from Carac.carac_ponct import *
+from Carac.carac_complexite import *
+from Carac.carac_stopwords import *
 from classes import Analyseur, Probleme, Verification
 from Clustering.kmeans import Kmeans
+from Clustering.kmedoids import Kmedoids
 from Apprentissage.reseau_textes import reseau_neurones
+from Apprentissage.Bayes import Bayes
+from Apprentissage.Apriori import Apriori
 from Apprentissage.svm import SVM
 from Interpretation.importance_composantes import importance, gain_information
 from Verification.similarite import Similarity
