@@ -48,10 +48,12 @@ def test_probleme():
     P.creer_textes()
     P.analyser()
     P.appliquer_classifieur()
-    P.interpreter()
-    P.afficher()
+    #P.interpreter()
+    #P.afficher()
     #P.evaluer()
-    #P.afficher_graphique()
+    P.afficher_graphique()
+
+test_probleme()
     
 ## Cross-validation
 

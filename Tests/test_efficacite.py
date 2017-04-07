@@ -1,11 +1,11 @@
 from time import time
 import sys
 sys.path.append("/Users/Guillaume/Documents/Informatique/psc")
-from carac_gramm import *
-from carac_lettres import *
-from carac_ponct import *
-from carac_complexite import *
-from carac_stopwords import *
+from Carac.carac_gramm import *
+from Carac.carac_lettres import *
+from Carac.carac_ponct import *
+from Carac.carac_complexite import *
+from Carac.carac_stopwords import *
 from classes import *
 from Apprentissage.svm import SVM
 from Apprentissage.Bayes import Bayes
