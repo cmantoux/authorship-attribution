@@ -22,31 +22,17 @@ emplacement_clement = "C:/Users/Clement/Google Drive/Groupe PSC/"
 emplacement_wang = "/home/wang/Documents/PSC/GitDePSC/"
 emplacement_lucile = "/Users/Lucile/Google Drive/Groupe PSC/"
 
-emplacement_dossier_groupe = emplacement_wang
+emplacement_dossier_groupe = emplacement_clement
+
 
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "zh" : "chinois"}
 
 class Infos:
-    """Contient les méta-données concernant notre oeuvre : nom complet de l'auteur, titre de l'oeuvre, année, genre. Ces infos sont extraites du fichier csv (tableur) infos_corpus situé à la racine du dossier Corpus."""
-    emplacement_infos = emplacement_dossier_groupe + "Corpus/infos_corpus.csv"
+    """Contient les méta-données concernant notre oeuvre"""
+    # A compléter avec la base de données
 
     def __init__(self,auteur,numero):
-        """Va chercher dans le tableur infos_corpus les données associées à (auteur,numero)"""
-        with codecs.open(self.emplacement_infos, 'r', encoding = 'utf-8') as csvfile:
-            spamreader = csv.reader(csvfile, delimiter=';')
-            n = 0
-            for row in spamreader:
-                n+=1
-                aut = row[0]
-                num = int(row[1])
-                if aut == auteur and num == numero:
-                    self.nom_auteur = row[2]
-                    self.titre = row[3]
-                    self.annee = row[4]
-                    self.genre = row[5]
-                    break
-                if n>1000:
-                    break
+        pass
 
 
 class Oeuvre:
@@ -146,7 +132,8 @@ class Texte:
         return Texte(self.auteur, self.numero, self.categorie, self.langue, self.numero_morceau, self.texte_brut, self.mots, self.racines, self.POS)
 
 class Analyseur:
-    def __init__(self, liste_fils):
+    def __init__(self, nom, liste_fils):
+        self.nom = nom
         self.fils = liste_fils
 
     def analyser(self, liste_textes):
@@ -165,10 +152,20 @@ class Analyseur:
             res += f.noms_fonctions()
         return res
 
+    def aux_numeroter(self,n):
+        self.init = n
+        for f in self.fils:
+            n = f.aux_numeroter(n)
+        self.end = n
+        return self.end
+
+    def numeroter(self):
+        self.aux_numeroter(0)
+
 class FonctionAnalyse(Analyseur):
 
     def __init__(self,nom,liste_composantes):
-        super(FonctionAnalyse, self).__init__([])
+        super(FonctionAnalyse, self).__init__("",[])
         self.liste_composantes = liste_composantes
         self.nom = nom
 
@@ -180,6 +177,11 @@ class FonctionAnalyse(Analyseur):
 
     def analyser(self, liste_textes):
         return
+
+    def aux_numeroter(self, n):
+        self.init = n
+        self.end = n + len(self.liste_composantes)
+        return self.end
 
 class Classifieur:
     """Un objet Classifieur correspond à une méthode d'analyse des données pour en extraire des regroupements ou des attributions. Deux fonctions sont nécessaires pour l'instant : une fonction analyser qui renvoie une classification sous une forme quelconque, et une fonction classifier. Les attributs qui doivent être remplis sont :
@@ -247,6 +249,7 @@ class Probleme:
              self.eval_set.extend(oeuvre.split(self.taille_morceaux, self.full_text))
         if equilibrage :
             self.training_set = equilibrer1(self.training_set)
+            print("Nombre de textes par catégorie après équilibrage : {}".format(len(self.training_set)//len(self.categories)))
         if equilibrage_eval :
             self.eval_set = equilibrer1(self.eval_set)
         self.liste_textes = self.training_set + self.eval_set
@@ -306,7 +309,7 @@ class Probleme:
         indices_tries = sorted(list(range(len(importance1))), key = lambda k : importance1[k], reverse = True)
         noms_et_importance1 = [(noms_composantes[k],importance1[k]) for k in indices_tries]
         n=0
-        while noms_et_importance1[n][1]>alpha and n<30:
+        while n<len(noms_et_importance1) and noms_et_importance1[n][1]>alpha and n<30:
             n+=1
         if n>=len(noms_et_importance1):
             n=len(noms_et_importance1)
@@ -376,6 +379,12 @@ class Verification:
     
     def __init__(self, id_oeuvres_base, categories_base, id_oeuvres_calibrage, categories_calibrage, id_oeuvres_disputees, categories_disputees, taille_morceaux, analyseur, verificateur, langue = "fr", full_text = False):
         print("Assemblage du problème de vérification")
+        self.id_oeuvres_base = id_oeuvres_base
+        self.id_oeuvres_calibrage = id_oeuvres_calibrage
+        self.id_oeuvres_disputees = id_oeuvres_disputees
+        self.liste_id_oeuvres_base = []
+        self.liste_id_oeuvres_calibrage = []
+        self.liste_id_oeuvres_disputees = []
         self.oeuvres_base = []
         self.oeuvres_calibrage = []
         self.oeuvres_disputees = []
@@ -392,6 +401,7 @@ class Verification:
                 oeuvre = Oeuvre(auteur,numero,langue)
                 oeuvre.categorie = categories_base[k]
                 self.oeuvres_base.append(oeuvre)
+                self.liste_id_oeuvres_base.append((auteur,numero))
         for k in range(len(id_oeuvres_calibrage)):
             for ident in id_oeuvres_calibrage[k]:
                 auteur = ident[0]
@@ -399,6 +409,7 @@ class Verification:
                 oeuvre = Oeuvre(auteur,numero,langue)
                 oeuvre.categorie = categories_calibrage[k]
                 self.oeuvres_calibrage.append(oeuvre)
+                self.liste_id_oeuvres_calibrage.append((auteur,numero))
         for k in range(len(id_oeuvres_disputees)):
             for ident in id_oeuvres_disputees[k]:
                 auteur = ident[0]
@@ -406,17 +417,21 @@ class Verification:
                 oeuvre = Oeuvre(auteur,numero,langue)
                 oeuvre.categorie = categories_disputees[k]
                 self.oeuvres_disputees.append(oeuvre)
+                self.liste_id_oeuvres_disputees.append((auteur,numero))
         print("")
         print("Liste_oeuvres remplie")
         self.analyseur = analyseur
         print("Analyseur basé sur " + " ".join(analyseur.noms_fonctions()) + " initialisé")
         self.verificateur = verificateur
-        self.verificateur.id_oeuvres_base = id_oeuvres_base
-        self.verificateur.id_oeuvres_calibrage = id_oeuvres_calibrage
-        self.verificateur.id_oeuvres_disputees = id_oeuvres_disputees
+        self.verificateur.liste_id_oeuvres_base = self.liste_id_oeuvres_base
+        self.verificateur.liste_id_oeuvres_calibrage = self.liste_id_oeuvres_calibrage
+        self.verificateur.liste_id_oeuvres_disputees = self.liste_id_oeuvres_disputees
         self.verificateur.oeuvres_base = self.oeuvres_base
         self.verificateur.oeuvres_calibrage = self.oeuvres_calibrage
         self.verificateur.oeuvres_disputees = self.oeuvres_disputees
+        self.verificateur.categories_base = categories_base
+        self.verificateur.categories_calibrage = categories_calibrage
+        self.verificateur.categories_disputees = categories_disputees
         self.verificateur.analyseur = analyseur
         self.verificateur.taille_morceaux = taille_morceaux
         print("Vérificateur initialisé")
@@ -435,6 +450,9 @@ class Verification:
             self.textes_disputes.extend(oeuvre.split(self.taille_morceaux,self.full_text))
         self.liste_textes = self.textes_base + self.textes_calibrage + self.textes_disputes
         print("Textes initialisés")
+        print("Ensemble de base : {} textes".format(len(self.textes_base)))
+        print("Ensemble de calibrage : {} textes".format(len(self.textes_calibrage)))
+        print("Ensemble de verif : {} textes".format(len(self.textes_disputes)))
 
     def analyser(self, normalisation = True):
         """Applique la méthode analyser de l'analyseur : elle remplit les coordonnées du vecteur associé à chaque texte, et calcule le vecteur normalisé."""
@@ -500,6 +518,7 @@ class CrossValidation:
         if equilibrage :
             self.liste_textes = equilibrer1(self.liste_textes)
         print("Textes initialisés")
+        print("Nombre de textes par catégorie après équilibrage : {}".format(len(self.liste_textes)//len(self.categories)))
 
     def analyser(self, normalisation = False):
         """Applique la méthode analyser de l'analyseur : elle remplit les coordonnées du vecteur associé à chaque texte, et calcule le vecteur normalisé."""
@@ -513,7 +532,6 @@ class CrossValidation:
         print("Textes analysés et vectorisés")
 
     def valider(self):
-        """Applique la méthode classifier du classifieur pour obtenir une classification, sous un format a priori inconnu."""
         if self.leave_one_out:
             prec = 0
             for i in range(len(self.liste_textes)):
@@ -530,14 +548,13 @@ class CrossValidation:
             prec = 0
             taille_eval = int(len(self.liste_textes)*self.pourcentage_eval)
             for e in range(self.nombre_essais):
-                print("Essai n°{}".format(e))
+                print("Essai n°{}".format(e+1))
                 classifieur = self.createur_classifieur()
                 indices_eval_set = random.sample(list(range(len(self.liste_textes))), taille_eval)
                 eval_set = [self.liste_textes[i] for i in indices_eval_set]
                 training_set = equilibrer1([self.liste_textes[j] for j in range(len(self.liste_textes)) if j not in indices_eval_set])
                 classifieur.classifier(training_set, eval_set, self.categories)
                 p = ee.precision(classifieur.eval_set, classifieur.p, classifieur.p_ref)
-                
                 prec += p
             prec/=self.nombre_essais
         print("")
@@ -546,6 +563,7 @@ class CrossValidation:
         else:
             print("Validation croisée effectuée en {} essais, sur un total de {} textes, dont environ {} % dans eval_set et {} % dans training_set".format(self.nombre_essais, len(self.liste_textes), int(self.pourcentage_eval*100), 100 - int(self.pourcentage_eval*100)))
         print("Précision de la validation croisée : {}".format(prec))
+        self.prec = prec
         
     def resoudre(self):
         print("")

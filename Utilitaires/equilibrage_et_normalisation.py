@@ -77,8 +77,8 @@ def equilibrer1(liste_textes):
         else:
             textes_par_categorie[t.categorie] = [t]
     n = min([len(l) for l in textes_par_categorie.values()])
-    print("Graine utilisée : {}".format(seed))
-    print("Nombre de textes par categorie après équilibrage : " + str(n))
+    #print("Graine utilisée : {}".format(seed))
+    #print("Nombre de textes par categorie après équilibrage : " + str(n))
     liste_textes2 = []
     for l in textes_par_categorie.values():
         liste_textes2.extend(random_sample(get_seed(),l,n))

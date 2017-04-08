@@ -1,5 +1,5 @@
 from classes import Texte,Analyseur,FonctionAnalyse
-from carac_gramm import Markov_Gram
+from Carac.carac_gramm import Markov_Gram
 from Utilitaires.stats import *
 from Utilitaires.lettres import *
 from Utilitaires.product import *

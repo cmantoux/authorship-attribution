@@ -40,10 +40,11 @@ class Freq_Gram(FonctionAnalyse):
 
 class Markov_Gram(FonctionAnalyse):
 
-    def __init__(self, langue, saut):
+    def __init__(self, langue, saut, emondage):
         self.natures = []
         self.langue = langue
         self.saut = saut
+        self.emondage = emondage
         if self.langue == "fr":
             self.natures = ["ABR", "ADJ", "ADV", "DET:ART", "DET:POS", "INT", "KON", "NAM", "NOM", "NUM", "PRO", "PRO:DEM",
                        "PRO:IND",
@@ -72,9 +73,32 @@ class Markov_Gram(FonctionAnalyse):
 
     def analyser(self, liste_textes):
 
-        for t in liste_textes:
-            v = markov(self.saut,t.POS, self.natures)
-            t.vecteur += v
+        if self.emondage:
+            res = np.zeros((len(liste_textes),len(self.natures)**2))
+
+            for k in range(len(liste_textes)):
+                res[k,:] = markov(self.saut,liste_textes[k].POS, self.natures)
+
+
+            N = len(self.natures)
+
+
+            self.liste_composantes = []
+
+            for i in range(N):
+                for j in range(N):
+                    if np.sum(abs(res[:,i*N+j]))!=0:
+                        self.liste_composantes.append("Fréquence {}-transition {} -> {}".format(self.saut,self.natures[i],self.natures[j]))
+                        for k in range(len(liste_textes)):
+                            liste_textes[k].vecteur.append(res[k,i*N+j])
+        else:
+            for t in liste_textes:
+                t.vecteur += markov(self.saut, t.POS, self.natures)
+
+
+
+
+
 
     def estimer(self,texte):
         v =  markov(self.saut,texte.POS, self.natures)

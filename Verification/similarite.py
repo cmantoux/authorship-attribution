@@ -4,6 +4,7 @@ import numpy as np
 import numpy.linalg as alg
 import random as rd
 import matplotlib.pyplot as plt
+from time import time
 
 def norm(v):
     n = len(v)
@@ -222,6 +223,9 @@ class Similarity:
 
     
     def afficher(self):
+        self.oeuvres = []
+        self.vrais = []
+        self.faux = []
         print("")
         print("Performance sur le calibrage")
         print("")
@@ -232,13 +236,14 @@ class Similarity:
         evaluer(self.verif, self.vraie_verif)
         print("")
         aut_base = self.textes_base[0].categorie
-        aut = self.textes_disputes[0].categorie
+        self.cat_base = aut_base
+        aut = self.textes_disputes[0].auteur
         num = self.textes_disputes[0].numero
         nb_vrai = 0
         nb_faux = 0
         i = 0
         while i < len(self.textes_disputes)-1:
-            if self.textes_disputes[i+1].categorie == aut and self.textes_disputes[i+1].numero == num:
+            if self.textes_disputes[i+1].auteur == aut and self.textes_disputes[i+1].numero == num:
                 if self.verif[i]:
                     nb_vrai += 1
                 else :
@@ -248,12 +253,45 @@ class Similarity:
                     print("L'oeuvre " + aut + str(num) + " est dans la catégorie " + aut_base + " : " + str(nb_vrai) + " textes acceptés contre contre " + str(nb_faux) + " rejetés.")
                 else:
                     print("L'oeuvre " + aut + str(num) + " n'est pas dans la catégorie " + aut_base + " : " + str(nb_vrai) + " textes acceptés contre " + str(nb_faux) + " rejetés.")
+                self.oeuvres.append((aut,num))
+                self.vrais.append(nb_vrai)
+                self.faux.append(nb_faux)
                 nb_vrai = 0
                 nb_faux = 0
-                aut = self.textes_disputes[i+1].categorie
+                aut = self.textes_disputes[i+1].auteur
                 num = self.textes_disputes[i+1].numero
             i+=1
         if nb_vrai>nb_faux:
             print("L'oeuvre " + aut + str(num) + " est dans la catégorie " + aut_base + " : " + str(nb_vrai) + " textes acceptés contre contre " + str(nb_faux) + " rejetés.")
         else:
             print("L'oeuvre " + aut + str(num) + " n'est pas dans la catégorie " + aut_base + " : " + str(nb_vrai) + " textes acceptés contre " + str(nb_faux) + " rejetés.")
+        self.oeuvres.append((aut,num))
+        self.vrais.append(nb_vrai)
+        self.faux.append(nb_faux)
+        self.tracer()
+        print("")
+        print("Graphique enregistré dans le dossier source")
+        
+    def tracer(self):
+        n_groups = len(self.oeuvres)
+        fig, ax = plt.subplots()
+        index = np.arange(n_groups)
+        bar_width = 0.35
+        opacity = 0.4
+        error_config = {'ecolor': '0.3'}
+        rects1 = plt.bar(index, self.vrais, bar_width,
+                        alpha=opacity,
+                        color='g',
+                        label='Attributions dans {}'.format(self.cat_base))
+        rects2 = plt.bar(index + bar_width, self.faux, bar_width,
+                        alpha=opacity,
+                        color='r',
+                        label='Rejets')
+        plt.xlabel('Oeuvres')
+        plt.ylabel('Nombre de textes')
+        plt.title('Vérification par Average Similarity')
+        noms_oeuvres = [self.oeuvres[i][0] + str(self.oeuvres[i][1]) for i in range(len(self.oeuvres))]
+        plt.xticks(index + bar_width / 2, noms_oeuvres)
+        plt.legend(loc="best")
+        plt.tight_layout()
+        plt.savefig("similarity_graph"+ str(int(time())) + ".png")
