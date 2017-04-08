@@ -303,7 +303,7 @@ class FenetreAffichage:
 
             sc = Scale(frame, orient='horizontal', resolution=1, from_=1, to=100,
                        command=self.change_proportion_builder(i))
-            sc.set(1)
+            sc.set(self.scales[self.liste_composantes_ajustables[i]].get())
             self.scales[self.liste_composantes_ajustables[i]] = sc
             sc.grid(row=2*i+1, column=0, rowspan=1, columnspan=1, sticky=W)
 
