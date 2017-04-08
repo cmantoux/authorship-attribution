@@ -297,7 +297,7 @@ class FenetreAffichage:
         canvas.bind_all("<MouseWheel>", self._on_mousewheel(canvas))
 
         for i in range(len(self.liste_composantes_ajustables)):
-            lb = Label(frame, text=self.noms_composantes[i])
+            lb = Label(frame, text=self.noms_composantes[self.liste_composantes_ajustables[i]])
             self.noms_scales[self.liste_composantes_ajustables[i]] = lb
             lb.grid(row=2*i, column=0, rowspan=1, columnspan=1, sticky=W)
 
@@ -322,10 +322,10 @@ class FenetreAffichage:
             noms = analyseur.noms_composantes()
             for i in range(len(numeros)):
                 localmenu.add_checkbutton(label=noms[i],
-                                              command=self.switch_composante_builder(numeros[i]),
-                                              variable=self.intVars[numeros[i]],
-                                              onvalue=1,
-                                              offvalue=0)
+                                          command=self.switch_composante_builder(numeros[i]),
+                                          variable=self.intVars[numeros[i]],
+                                          onvalue=1,
+                                          offvalue=0)
         else:
             for fils in analyseur.fils:
                 self.build_menu(fils, localmenu)
