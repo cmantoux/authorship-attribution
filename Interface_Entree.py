@@ -46,7 +46,7 @@ class FenetreEntree:
         mainframe.rowconfigure(0, weight=1)
 
         # notebook
-        notebook = ttk.Notebook(mainframe, width=1500, height=950)
+        notebook = ttk.Notebook(mainframe, width=1450, height=950)
         frame1 = ttk.Frame(notebook, padding='40 40 40 40')
         frame2 = ttk.Frame(notebook, padding='40 20 40 40')
         frame3 = ttk.Frame(notebook, padding='40 40 40 40')
@@ -61,20 +61,19 @@ class FenetreEntree:
         ttk.Separator(frame1, orient=VERTICAL).grid(column=3, rowspan=7, sticky="sn", padx=0, pady=10)
         ttk.Separator(frame1, orient=HORIZONTAL).grid(columnspan=7, row=7, sticky="ew", padx=20, pady=20)
 
-        langue = "fr"
+        self.langue = ''
 
-        def setLangue(self):
-            global langue
+        def setLangue(event):
             if forLangue.get() == 'Anglais':
-                langue = "en"
+                self.langue = "en"
             elif forLangue.get() == 'Francais':
-                langue = "fr"
+                self.langue = "fr"
             elif forLangue.get() == 'Allemand':
-                langue = "de"
+                self.langue = "de"
             elif forLangue.get() == 'Espagnol':
-                langue = "es"
+                self.langue = "es"
             elif forLangue.get() == 'Chinois':
-                langue = "zh"
+                self.langue = "zh"
 
         ttk.Label(frame1, text="Langue").grid(column=0, row=0, padx=10, pady=10)
         Languevar = StringVar()
@@ -83,26 +82,25 @@ class FenetreEntree:
         forLangue.bind('<<ComboboxSelected>>', setLangue)
         forLangue.grid(column=1, row=0)
 
-        classifieur = reseau_neurones()
+        self.classifieur = ''
 
-        def setClassifieur(self):
-            global classifieur
+        def setClassifieur(event):
             if forClassifieur.get() == 'SVM':
-                classifieur = SVM()
+                self.classifieur = SVM()
             elif forClassifieur.get() == 'reseau_neurones':
-                classifieur = reseau_neurones()
+                self.classifieur = reseau_neurones()
             elif forClassifieur.get() == 'Bayes':
-                classifieur = Bayes()
+                self.classifieur = Bayes()
             elif forClassifieur.get() == 'Apriori':
-                classifieur = Apriori()
+                self.classifieur = Apriori()
             elif forClassifieur.get() == 'Kmeans':
-                classifieur = Kmeans()
+                self.classifieur = Kmeans()
             elif forClassifieur.get() == 'KMedoids':
-                classifieur = KMedoids()
+                self.classifieur = KMedoids()
             elif forClassifieur.get() == 'kPPV':
-                classifieur = kPPV()
+                self.classifieur = kPPV()
             elif forClassifieur.get() == 'OPTICS':
-                classifieur = OPTICS()
+                self.classifieur = OPTICS()
 
         ttk.Label(frame1, text="Classifieur").grid(column=0, row=1, padx=10, pady=10)
         Classifieurvar = StringVar()
@@ -158,28 +156,27 @@ class FenetreEntree:
 
         ttk.Label(frame1, text='Analyseur').grid(column=4, row=1, padx=10, pady=10)
 
-        A = []
-        Freq_Gramvar = StringVar()
+        self.A = []
 
         def callFreq_Gram():
             if Freq_Gramvar.get() == 'oui':
-                if A.count(Freq_Gram) == 0:
-                    A.append(Freq_Gram)
+                if self.A.count(Freq_Gram) == 0:
+                    self.A.append(Freq_Gram)
                     print('add Freq_Gram')
             else:
-                A.remove(Freq_Gram)
+                self.A.remove(Freq_Gram)
                 print('remove Freq_Gram')
 
+        Freq_Gramvar = StringVar()
         Checkbutton(frame1, text='Freq_Gram', variable=Freq_Gramvar, command=callFreq_Gram, onvalue='oui',
                     offvalue='non').grid(column=5, row=2, padx=10, pady=10)
 
-        Markov_Gram_saut = 0
-        Markov_Gram_emondage = ''
-        Markov_Gramvar = StringVar()
+        self.Markov_Gram_saut = 0
+        self.Markov_Gram_emondage = ''
 
         def callMarkov_Gram():
             if Markov_Gramvar.get() == 'oui':
-                if A.count(Markov_Gram) == 0:
+                if self.A.count(Markov_Gram) == 0:
                     Markov_Gram_root = Tk()
                     Markov_Gram_root.title('choose the saut and emondage of Markov_Gram')
                     Markov_Gram_frame = ttk.Frame(Markov_Gram_root, padding='10 10 10 10', borderwidth='3',
@@ -200,13 +197,11 @@ class FenetreEntree:
                     false.grid(column=1, row=2)
 
                     def Markov_Gram_Okay():
-                        global Markov_Gram_saut
-                        global Markov_Gram_emondage
-                        Markov_Gram_saut = Markov_Gram_sautvar.get()
+                        self.Markov_Gram_saut = Markov_Gram_sautvar.get()
                         if Markov_Gram_emondagevar.get() == 'True':
-                            Markov_Gram_emondage = True
+                            self.Markov_Gram_emondage = True
                         else:
-                            Markov_Gram_emondage = False
+                            self.Markov_Gram_emondage = False
                         Markov_Gram_root.destroy()
 
                     ttk.Button(Markov_Gram_frame, text='Okay', command=Markov_Gram_Okay).grid(column=2, row=3, padx=5)
@@ -216,24 +211,24 @@ class FenetreEntree:
 
                     ttk.Button(Markov_Gram_frame, text='Cancel', command=Markov_Gram_Cancel).grid(column=3, row=3,
                                                                                                  padx=5)
-                    A.append(Markov_Gram)
+                    self.A.append(Markov_Gram)
                     print('add Markov_Gram')
                     Markov_Gram_root.mainloop()
             else:
-                Markov_Gram_saut = 0
-                Markov_Gram_emondage = ''
-                A.remove(Markov_Gram)
+                self.Markov_Gram_saut = 0
+                self.Markov_Gram_emondage = ''
+                self.A.remove(Markov_Gram)
                 print('remove Markov_Gram')
 
+        Markov_Gramvar = StringVar()
         Checkbutton(frame1, text='Markov_Gram', variable=Markov_Gramvar, command=callMarkov_Gram, onvalue='oui',
                     offvalue='non').grid(column=5, row=3, padx=10, pady=10)
 
-        Freq_Ngrammes_n = 0
-        Freq_Ngrammesvar = StringVar()
+        self.Freq_Ngrammes_n = 0
 
         def callFreq_Ngrammes():
             if Freq_Ngrammesvar.get() == 'oui':
-                if A.count(Freq_Ngrammes) == 0:
+                if self.A.count(Freq_Ngrammes) == 0:
                     Freq_Ngrammes_root = Tk()
                     Freq_Ngrammes_root.title('choose the n of Freq_Ngrammes')
                     Freq_Ngrammes_frame = ttk.Frame(Freq_Ngrammes_root, padding='10 10 10 10', borderwidth='3',
@@ -246,8 +241,7 @@ class FenetreEntree:
                     ttk.Entry(Freq_Ngrammes_root, textvariable=Freq_Ngrammes_nvar).grid(column=1, row=0, padx=5)
 
                     def Freq_Ngrammes_Okay():
-                        global Freq_Ngrammes_n
-                        Freq_Ngrammes_n = Freq_Ngrammes_nvar.get()
+                        self.Freq_Ngrammes_n = Freq_Ngrammes_nvar.get()
                         Freq_Ngrammes_root.destroy()
 
                     ttk.Button(Freq_Ngrammes_root, text='Okay', command=Freq_Ngrammes_Okay).grid(column=2, row=0,
@@ -258,65 +252,65 @@ class FenetreEntree:
 
                     ttk.Button(Freq_Ngrammes_root, text='Cancel', command=Freq_Ngrammes_Cancel).grid(column=3, row=0,
                                                                                                      padx=5)
-                    A.append(Freq_Ngrammes)
+                    self.A.append(Freq_Ngrammes)
                     print('add Freq_Ngrammes')
                     Freq_Ngrammes_root.mainloop()
             else:
-                Freq_Ngrammes_n = 0
-                A.remove(Freq_Ngrammes)
+                self.Freq_Ngrammes_n = 0
+                self.A.remove(Freq_Ngrammes)
                 print('remove Freq_Ngrammes')
 
+        Freq_Ngrammesvar = StringVar()
         Checkbutton(frame1, text='Freq_Ngrammes', variable=Freq_Ngrammesvar, command=callFreq_Ngrammes, onvalue='oui',
                     offvalue='non').grid(column=5, row=4, padx=10, pady=10)
 
-        Markov_Lettresvar = StringVar()
 
         def callMarkov_Lettres():
             if Markov_Lettresvar.get() == 'oui':
-                if A.count(Markov_Lettres) == 0:
-                    A.append(Markov_Lettres)
+                if self.A.count(Markov_Lettres) == 0:
+                    self.A.append(Markov_Lettres)
                     print('add Markov_Lettres')
             else:
-                A.remove(Markov_Lettres)
+                self.A.remove(Markov_Lettres)
                 print('remove Markov_Lettres')
 
+        Markov_Lettresvar = StringVar()
         Checkbutton(frame1, text='Markov_Lettres', variable=Markov_Lettresvar, command=callMarkov_Lettres,
                     onvalue='oui', offvalue='non').grid(column=5, row=5, padx=10, pady=10)
 
-        Freq_Ponctvar = StringVar()
 
         def callFreq_Ponct():
             if Freq_Ponctvar.get() == 'oui':
-                if A.count(Freq_Ponct) == 0:
-                    A.append(Freq_Ponct)
+                if self.A.count(Freq_Ponct) == 0:
+                    self.A.append(Freq_Ponct)
                     print('add Freq_Ponct')
             else:
-                A.remove(Freq_Ponct)
+                self.A.remove(Freq_Ponct)
                 print('remove Freq_Ponct')
 
+        Freq_Ponctvar = StringVar()
         Checkbutton(frame1, text='Freq_Ponct', variable=Freq_Ponctvar, command=callFreq_Ponct, onvalue='oui',
                     offvalue='non').grid(column=5, row=6, padx=10, pady=10)
 
-        Longueur_Phrasesvar = StringVar()
 
         def callLongueur_Phrases():
             if Longueur_Phrasesvar.get() == 'oui':
-                if A.count(Longueur_Phrases) == 0:
-                    A.append(Longueur_Phrases)
+                if self.A.count(Longueur_Phrases) == 0:
+                    self.A.append(Longueur_Phrases)
                     print('add Longueur_Phrases')
             else:
-                A.remove(Longueur_Phrases)
+                self.A.remove(Longueur_Phrases)
                 print('remove Longueur_Phrases')
 
+        Longueur_Phrasesvar = StringVar()
         Checkbutton(frame1, text='Longueur_Phrases', variable=Longueur_Phrasesvar, command=callLongueur_Phrases,
                     onvalue='oui', offvalue='non').grid(column=6, row=2, padx=10, pady=10)
 
-        Complexite_Grammaticale_saut = 0
-        Complexite_Grammaticalevar = StringVar()
+        self.Complexite_Grammaticale_saut = 0
 
         def callComplexite_Grammaticale():
             if Complexite_Grammaticalevar.get() == 'oui':
-                if A.count(Complexite_Grammaticale) == 0:
+                if self.A.count(Complexite_Grammaticale) == 0:
                     Complexite_Grammaticale_root = Tk()
                     Complexite_Grammaticale_root.title('choose the saut of Complexite_Grammaticale')
                     Complexite_Grammaticale_frame = ttk.Frame(Complexite_Grammaticale_root, padding='10 10 10 10',
@@ -331,8 +325,7 @@ class FenetreEntree:
                                                                                                                padx=5)
 
                     def Complexite_Grammaticale_Okay():
-                        global Complexite_Grammaticale_saut
-                        Complexite_Grammaticale_saut = Complexite_Grammaticale_sautvar.get()
+                        self.Complexite_Grammaticale_saut = Complexite_Grammaticale_sautvar.get()
                         Complexite_Grammaticale_root.destroy()
 
                     ttk.Button(Complexite_Grammaticale_root, text='Okay', command=Complexite_Grammaticale_Okay).grid(
@@ -343,44 +336,44 @@ class FenetreEntree:
 
                     ttk.Button(Complexite_Grammaticale_root, text='Cancel',
                                command=Complexite_Grammaticale_Cancel).grid(column=3, row=0, padx=5)
-                    A.append(Complexite_Grammaticale)
+                    self.A.append(Complexite_Grammaticale)
                     print('add Complexite_Grammaticale')
                     Complexite_Grammaticale_root.mainloop()
             else:
-                Complexite_Grammaticale_saut = 0
-                A.remove(Complexite_Grammaticale)
+                self.Complexite_Grammaticale_saut = 0
+                self.A.remove(Complexite_Grammaticale)
                 print('remove Complexite_Grammaticale')
 
+        Complexite_Grammaticalevar = StringVar()
         Checkbutton(frame1, text='Complexite_Grammaticale', variable=Complexite_Grammaticalevar,
                     command=callComplexite_Grammaticale, onvalue='oui', offvalue='non').grid(column=6, row=3, padx=10,
                                                                                              pady=10)
 
-        Complexite_Vocabulairevar = StringVar()
 
         def callComplexite_Vocabulaire():
             if Complexite_Vocabulairevar.get() == 'oui':
-                if A.count(Complexite_Vocabulaire) == 0:
-                    A.append(Complexite_Vocabulaire)
+                if self.A.count(Complexite_Vocabulaire) == 0:
+                    self.A.append(Complexite_Vocabulaire)
                     print('add Complexite_Vocabulaire')
             else:
-                A.remove(Complexite_Vocabulaire)
+                self.A.remove(Complexite_Vocabulaire)
                 print('remove Complexite_Vocabulaire')
 
+        Complexite_Vocabulairevar = StringVar()
         Checkbutton(frame1, text='Complexite_Vocabulaire', variable=Complexite_Vocabulairevar,
                     command=callComplexite_Vocabulaire, onvalue='oui', offvalue='non').grid(column=6, row=4, padx=10,
                                                                                             pady=10)
 
-        Freq_Stopwordsvar = StringVar()
-
         def callFreq_Stopwords():
             if Freq_Stopwordsvar.get() == 'oui':
-                if A.count(Freq_Stopwords) == 0:
-                    A.append(Freq_Stopwords)
+                if self.A.count(Freq_Stopwords) == 0:
+                    self.A.append(Freq_Stopwords)
                     print('add Freq_Stopwords')
             else:
-                A.remove(Freq_Stopwords)
+                self.A.remove(Freq_Stopwords)
                 print('remove Freq_Stopwords')
 
+        Freq_Stopwordsvar = StringVar()
         Checkbutton(frame1, text='Freq_Stopwords', variable=Freq_Stopwordsvar, command=callFreq_Stopwords,
                     onvalue='oui', offvalue='non').grid(column=6, row=5, padx=10, pady=10)
 
@@ -437,50 +430,40 @@ class FenetreEntree:
         to2var = IntVar()
         ttk.Entry(frame1, textvariable=to2var).grid(column=6, row=9)
 
-        a1 = 0
-        auteurvar1 = ['']
-        fromvar1 = [0]
-        tovar1 = [0]
-        categoriesvar = ['']
+        self.a1 = 0
+        self.auteurvar1 = ['']
+        self.fromvar1 = [0]
+        self.tovar1 = [0]
+        self.categoriesvar = ['']
 
         def Ajouter1():
-            global a1
-            global auteurvar1
-            global fromvar1
-            global tovar1
-            global categoriesvar
-            if a1 < 2:
-                temp1 = a1 + 1
-                a1 = temp1
+            if self.a1 < 2:
+                temp1 = self.a1 + 1
+                self.a1 = temp1
                 labelauteur = ttk.Label(frame1, text='Auteur')
-                labelauteur.grid(column=1, row=9 + a1, padx=10, pady=10)
-                auteurvar1.append('')
-                auteurvar1[a1] = StringVar()
-                entryauteur = ttk.Entry(frame1, textvariable=auteurvar1[a1])
-                entryauteur.grid(column=2, row=9 + a1)
+                labelauteur.grid(column=1, row=9 + self.a1, padx=10, pady=10)
+                self.auteurvar1.append('')
+                self.auteurvar1[self.a1] = StringVar()
+                entryauteur = ttk.Entry(frame1, textvariable=self.auteurvar1[self.a1])
+                entryauteur.grid(column=2, row=9 + self.a1)
                 labelfrom = ttk.Label(frame1, text='from')
-                labelfrom.grid(column=3, row=9 + a1, padx=10, pady=10)
-                fromvar1.append(0)
-                fromvar1[a1] = IntVar()
-                entryfrom = ttk.Entry(frame1, textvariable=fromvar1[a1])
-                entryfrom.grid(column=4, row=9 + a1)
+                labelfrom.grid(column=3, row=9 + self.a1, padx=10, pady=10)
+                self.fromvar1.append(0)
+                self.fromvar1[self.a1] = IntVar()
+                entryfrom = ttk.Entry(frame1, textvariable=self.fromvar1[self.a1])
+                entryfrom.grid(column=4, row=9 + self.a1)
                 labelto = ttk.Label(frame1, text='to')
-                labelto.grid(column=5, row=9 + a1, padx=10, pady=10)
-                tovar1.append(0)
-                tovar1[a1] = IntVar()
-                entryto = ttk.Entry(frame1, textvariable=tovar1[a1])
-                entryto.grid(column=6, row=9 + a1)
-                categoriesvar.append('')
-                categoriesvar[a1] = StringVar()
-                auteurofcategories = ttk.Entry(frame1, textvariable=categoriesvar[a1])
-                auteurofcategories.grid(column=3 + a1, row=14)
+                labelto.grid(column=5, row=9 + self.a1, padx=10, pady=10)
+                self.tovar1.append(0)
+                self.tovar1[self.a1] = IntVar()
+                entryto = ttk.Entry(frame1, textvariable=self.tovar1[self.a1])
+                entryto.grid(column=6, row=9 + self.a1)
+                self.categoriesvar.append('')
+                self.categoriesvar[self.a1] = StringVar()
+                auteurofcategories = ttk.Entry(frame1, textvariable=self.categoriesvar[self.a1])
+                auteurofcategories.grid(column=3 + self.a1, row=14)
 
                 def Supprimer1():
-                    global a1
-                    global auteurvar1
-                    global fromvar1
-                    global tovar1
-                    global categoriesvar
                     labelauteur.destroy()
                     entryauteur.destroy()
                     labelfrom.destroy()
@@ -489,15 +472,15 @@ class FenetreEntree:
                     entryto.destroy()
                     auteurofcategories.destroy()
                     buttonsupprimer1.destroy()
-                    del auteurvar1[a1]
-                    del fromvar1[a1]
-                    del tovar1[a1]
-                    del categoriesvar[a1]
-                    temp1 = a1 - 1
-                    a1 = temp1
+                    del self.auteurvar1[self.a1]
+                    del self.fromvar1[self.a1]
+                    del self.tovar1[self.a1]
+                    del self.categoriesvar[self.a1]
+                    temp1 = self.a1 - 1
+                    self.a1 = temp1
 
                 buttonsupprimer1 = ttk.Button(frame1, text='Supprimer', command=Supprimer1)
-                buttonsupprimer1.grid(column=0, row=9 + a1)
+                buttonsupprimer1.grid(column=0, row=9 + self.a1)
             else:
                 messagebox.showerror('ERROR!', 'Trop d\'auteurs à training!')
 
@@ -529,50 +512,40 @@ class FenetreEntree:
         evalto2var = IntVar()
         ttk.Entry(frame1, textvariable=evalto2var).grid(column=6, row=16)
 
-        a2 = 0
-        auteurvar2 = ['']
-        fromvar2 = [0]
-        tovar2 = [0]
-        supposees = ['']
+        self.a2 = 0
+        self.auteurvar2 = ['']
+        self.fromvar2 = [0]
+        self.tovar2 = [0]
+        self.supposees = ['']
 
         def Ajouter2():
-            global a2
-            global auteurvar2
-            global fromvar2
-            global tovar2
-            global supposees
-            if a2 < 2:
-                temp2 = a2 + 1
-                a2 = temp2
+            if self.a2 < 2:
+                temp2 = self.a2 + 1
+                self.a2 = temp2
                 labelauteur = ttk.Label(frame1, text='Auteur')
-                labelauteur.grid(column=1, row=16 + a2, padx=10, pady=10)
-                auteurvar2.append('')
-                auteurvar2[a2] = StringVar()
-                entryauteur = ttk.Entry(frame1, textvariable=auteurvar2[a2])
-                entryauteur.grid(column=2, row=16 + a2)
+                labelauteur.grid(column=1, row=16 + self.a2, padx=10, pady=10)
+                self.auteurvar2.append('')
+                self.auteurvar2[self.a2] = StringVar()
+                entryauteur = ttk.Entry(frame1, textvariable=self.auteurvar2[self.a2])
+                entryauteur.grid(column=2, row=16 + self.a2)
                 labelfrom = ttk.Label(frame1, text='from')
-                labelfrom.grid(column=3, row=16 + a2, padx=10, pady=10)
-                fromvar2.append(0)
-                fromvar2[a2] = IntVar()
-                entryfrom = ttk.Entry(frame1, textvariable=fromvar2[a2])
-                entryfrom.grid(column=4, row=16 + a2)
+                labelfrom.grid(column=3, row=16 + self.a2, padx=10, pady=10)
+                self.fromvar2.append(0)
+                self.fromvar2[self.a2] = IntVar()
+                entryfrom = ttk.Entry(frame1, textvariable=self.fromvar2[self.a2])
+                entryfrom.grid(column=4, row=16 + self.a2)
                 labelto = ttk.Label(frame1, text='to')
-                labelto.grid(column=5, row=16 + a2, padx=10, pady=10)
-                tovar2.append(0)
-                tovar2[a2] = IntVar()
-                entryto = ttk.Entry(frame1, textvariable=tovar2[a2])
-                entryto.grid(column=6, row=16 + a2)
-                supposees.append('')
-                supposees[a2] = StringVar()
-                auteurofcategories = ttk.Entry(frame1, textvariable=supposees[a2])
-                auteurofcategories.grid(column=3 + a2, row=21)
+                labelto.grid(column=5, row=16 + self.a2, padx=10, pady=10)
+                self.tovar2.append(0)
+                self.tovar2[self.a2] = IntVar()
+                entryto = ttk.Entry(frame1, textvariable=self.tovar2[self.a2])
+                entryto.grid(column=6, row=16 + self.a2)
+                self.supposees.append('')
+                self.supposees[self.a2] = StringVar()
+                auteurofcategories = ttk.Entry(frame1, textvariable=self.supposees[self.a2])
+                auteurofcategories.grid(column=3 + self.a2, row=21)
 
                 def Supprimer2():
-                    global a2
-                    global auteurvar2
-                    global fromvar2
-                    global tovar2
-                    global supposees
                     labelauteur.destroy()
                     entryauteur.destroy()
                     labelfrom.destroy()
@@ -581,15 +554,15 @@ class FenetreEntree:
                     entryto.destroy()
                     auteurofcategories.destroy()
                     buttonsupprimer2.destroy()
-                    del auteurvar2[a2]
-                    del fromvar2[a2]
-                    del tovar2[a2]
-                    del supposees[a2]
-                    temp2 = a2 - 1
-                    a2 = temp2
+                    del self.auteurvar2[self.a2]
+                    del self.fromvar2[self.a2]
+                    del self.tovar2[self.a2]
+                    del self.supposees[self.a2]
+                    temp2 = self.a2 - 1
+                    self.a2 = temp2
 
                 buttonsupprimer2 = ttk.Button(frame1, text='Supprimer', command=Supprimer2)
-                buttonsupprimer2.grid(column=0, row=16 + a2)
+                buttonsupprimer2.grid(column=0, row=16 + self.a2)
             else:
                 messagebox.showerror('ERROR!', 'Trop d\'auteurs à evaluer!')
 
@@ -605,18 +578,10 @@ class FenetreEntree:
 
         def reset_classification():
             if messagebox.askyesno('Confirmation!', 'Are you sure to reset all? You will lose all your choices.'):
-                global langue
-                global classifieur
-                global Markov_Gram_saut
-                global Markov_Gram_emondage
-                global Freq_Ngrammes_n
-                global Complexite_Grammaticale_saut
-                global id_training_set
-                global id_eval_set
                 Languevar.set('')
-                langue = ''
+                self.langue = ''
                 Classifieurvar.set('')
-                classifieur = ''
+                self.classifieur = ''
                 taillevar.set(0)
                 full_textvar.set('')
                 equilibragevar.set('')
@@ -625,18 +590,18 @@ class FenetreEntree:
                 utiliser_textes_trainingvar.set('')
                 Freq_Gramvar.set('')
                 Markov_Gramvar.set('')
-                Markov_Gram_saut = 0
-                Markov_Gram_emondage = ''
+                self.Markov_Gram_saut = 0
+                self.Markov_Gram_emondage = ''
                 Freq_Ngrammesvar.set('')
-                Freq_Ngrammes_n = 0
+                self.Freq_Ngrammes_n = 0
                 Markov_Lettresvar.set('')
                 Freq_Ponctvar.set('')
                 Longueur_Phrasesvar.set('')
                 Complexite_Grammaticalevar.set('')
-                Complexite_Grammaticale_saut = 0
+                self.Complexite_Grammaticale_saut = 0
                 Complexite_Vocabulairevar.set('')
                 Freq_Stopwordsvar.set('')
-                A.clear()
+                self.A.clear()
                 auteur1var.set('')
                 from1var.set(0)
                 to1var.set(0)
@@ -653,70 +618,106 @@ class FenetreEntree:
                 evalto2var.set(0)
                 supposee1.set('')
                 supposee2.set('')
-                id_training_set = []
-                id_eval_set = []
+                self.id_training_set = []
+                self.id_eval_set = []
 
         ttk.Button(frame1, text='Reset', command=reset_classification).grid(column=6, row=30, sticky=(E, S), padx=5,
                                                                             pady=30)
 
-        id_training_set = []
-        id_eval_set = []
+        self.id_training_set = []
+        self.id_eval_set = []
 
         def run_classification():
-            global id_training_set
-            global id_eval_set
             if messagebox.askyesno('Confirmation!', 'Are you sure to run it?'):
                 d = time()
                 liste_fonctions = []
-                if A.count(Freq_Gram):
-                    liste_fonctions.append(Freq_Gram(langue))
-                if A.count(Markov_Gram):
-                    liste_fonctions.append(Markov_Gram(langue, saut=Markov_Gram_saut))
-                if A.count(Freq_Ngrammes):
-                    liste_fonctions.append(Freq_Ngrammes(langue, n=Freq_Ngrammes_n))
-                if A.count(Markov_Lettres):
-                    liste_fonctions.append(Markov_Lettres(langue))
-                if A.count(Freq_Ponct):
-                    liste_fonctions.append(Freq_Ponct(langue))
-                if A.count(Longueur_Phrases):
+                nom_analyseurs = None
+                if self.A.count(Freq_Gram) != 0:
+                    liste_fonctions.append(Freq_Gram(self.langue))
+                    if nom_analyseurs == None or nom_analyseurs == 'Grammaire':
+                        nom_analyseurs = 'Grammaire'
+                    else:
+                        nom_analyseurs = 'Tout'
+                if self.A.count(Markov_Gram) != 0:
+                    liste_fonctions.append(Markov_Gram(self.langue, saut=self.Markov_Gram_saut, emondage=self.Markov_Gram_emondage))
+                    if nom_analyseurs == None or nom_analyseurs == 'Grammaire':
+                        nom_analyseurs = 'Grammaire'
+                    else:
+                        nom_analyseurs = 'Tout'
+                if self.A.count(Freq_Ngrammes) != 0:
+                    liste_fonctions.append(Freq_Ngrammes(self.langue, n=self.Freq_Ngrammes_n))
+                    if nom_analyseurs == None or nom_analyseurs == 'Lettres':
+                        nom_analyseurs = 'Lettres'
+                    else:
+                        nom_analyseurs = 'Tout'
+                if self.A.count(Markov_Lettres) != 0:
+                    liste_fonctions.append(Markov_Lettres(self.langue))
+                    if nom_analyseurs == None or nom_analyseurs == 'Lettres':
+                        nom_analyseurs = 'Lettres'
+                    else:
+                        nom_analyseurs = 'Tout'
+                if self.A.count(Freq_Ponct) != 0:
+                    liste_fonctions.append(Freq_Ponct(self.langue))
+                    if nom_analyseurs == None or nom_analyseurs == 'Ponctuation':
+                        nom_analyseurs = 'Ponctuation'
+                    else:
+                        nom_analyseurs = 'Tout'
+                if self.A.count(Longueur_Phrases) != 0:
                     liste_fonctions.append(Longueur_Phrases())
-                if A.count(Complexite_Grammaticale):
-                    liste_fonctions.append(Complexite_Grammaticale(langue, saut=Complexite_Grammaticale_saut))
-                if A.count(Complexite_Vocabulaire):
+                    if nom_analyseurs == None or nom_analyseurs == 'Ponctuation':
+                        nom_analyseurs = 'Ponctuation'
+                    else:
+                        nom_analyseurs = 'Tout'
+                if self.A.count(Complexite_Grammaticale) != 0:
+                    liste_fonctions.append(Complexite_Grammaticale(self.langue, saut=self.Complexite_Grammaticale_saut))
+                    if nom_analyseurs == None or nom_analyseurs == 'Complexite':
+                        nom_analyseurs = 'Complexite'
+                    else:
+                        nom_analyseurs = 'Tout'
+                if self.A.count(Complexite_Vocabulaire) != 0:
                     liste_fonctions.append(Complexite_Vocabulaire())
-                if A.count(Freq_Stopwords):
-                    liste_fonctions.append(Freq_Stopwords(langue))
-                analyseur = Analyseur(liste_fonctions)
+                    if nom_analyseurs == None or nom_analyseurs == 'Complexite':
+                        nom_analyseurs = 'Complexite'
+                    else:
+                        nom_analyseurs = 'Tout'
+                if self.A.count(Freq_Stopwords) != 0:
+                    liste_fonctions.append(Freq_Stopwords(self.langue))
+                    if nom_analyseurs == None or nom_analyseurs == 'Stopwords':
+                        nom_analyseurs = 'Stopwords'
+                    else:
+                        nom_analyseurs = 'Tout'
+                analyseur = Analyseur(nom_analyseurs, liste_fonctions)
+                analyseur.numeroter()
 
                 categories = [categorie1var.get()] + [categorie2var.get()]
-                id_training_set = [[(auteur1var.get(), k) for k in range(from1var.get(), to1var.get())],
+                self.id_training_set = [[(auteur1var.get(), k) for k in range(from1var.get(), to1var.get())],
                                    [(auteur2var.get(), k) for k in range(from2var.get(), to2var.get())]]
-                for i in range(1, len(auteurvar1)):
-                    print(auteurvar1[i].get())
-                    print(fromvar1[i].get())
-                    print(tovar1[i].get())
-                    print(categoriesvar[i].get())
-                    categories.append(categoriesvar[i].get())
-                    id_training_set.append(
-                        [(auteurvar1[i].get(), k) for k in range(fromvar1[i].get(), tovar1[i].get())])
+                for i in range(1, len(self.auteurvar1)):
+                    print(self.auteurvar1[i].get())
+                    print(self.fromvar1[i].get())
+                    print(self.tovar1[i].get())
+                    print(self.categoriesvar[i].get())
+                    categories.append(self.categoriesvar[i].get())
+                    self.id_training_set.append(
+                        [(self.auteurvar1[i].get(), k) for k in range(self.fromvar1[i].get(), self.tovar1[i].get())])
 
                 categories_supposees = [supposee1.get()] + [supposee2.get()]
-                id_eval_set = [[(evalauteur1var.get(), k) for k in range(evalfrom1var.get(), evalto1var.get())],
+                self.id_eval_set = [[(evalauteur1var.get(), k) for k in range(evalfrom1var.get(), evalto1var.get())],
                                [(evalauteur2var.get(), k) for k in range(evalfrom2var.get(), evalto2var.get())]]
-                for i in range(1, len(auteurvar2)):
-                    print(auteurvar2[i].get())
-                    print(fromvar2[i].get())
-                    print(tovar2[i].get())
-                    print(supposees[i].get())
-                    categories_supposees.append(supposees[i].get())
-                    id_eval_set.append([(auteurvar2[i].get(), k) for k in range(fromvar2[i].get(), tovar2[i].get())])
+                for i in range(1, len(self.auteurvar2)):
+                    print(self.auteurvar2[i].get())
+                    print(self.fromvar2[i].get())
+                    print(self.tovar2[i].get())
+                    print(self.supposees[i].get())
+                    categories_supposees.append(self.supposees[i].get())
+                    self.id_eval_set.append([(self.auteurvar2[i].get(), k) for k in range(self.fromvar2[i].get(), self.tovar2[i].get())])
 
                 if full_textvar.get() == 'True':
-                    P = Probleme(id_training_set, categories, id_eval_set, categories_supposees, taillevar.get(),
-                                 analyseur, classifieur, langue, full_text=True)
+                    P = Probleme(self.id_training_set, categories, self.id_eval_set, categories_supposees, taillevar.get(),
+                                 analyseur, self.classifieur, self.langue, full_text=True)
                 else:
-                    P = Probleme(id_training_set, categories, id_eval_set, categories_supposees, taillevar.get(),
-                                 analyseur, classifieur, langue, full_text=False)
+                    P = Probleme(self.id_training_set, categories, self.id_eval_set, categories_supposees, taillevar.get(),
+                                 analyseur, self.classifieur, self.langue, full_text=False)
 
                 if equilibragevar.get() == 'True':
                     if equilibrage_evalvar.get() == 'True':
@@ -756,26 +757,37 @@ class FenetreEntree:
         ttk.Button(frame1, text='Cancel', command=close_classification).grid(column=8, row=30, sticky=(E, S), padx=5,
                                                                              pady=30)
 
+
+
+
+
+
+
+
+
+
+
+
+
         """notebook Verification"""
 
         """vertical before horizontal, otherwise false, I don't know why"""
         ttk.Separator(frame2, orient=VERTICAL).grid(column=3, rowspan=6, sticky="sn", padx=0, pady=10)
         ttk.Separator(frame2, orient=HORIZONTAL).grid(columnspan=7, row=6, sticky="ew", padx=20, pady=20)
 
-        Vlangue = "fr"
+        self.Vlangue = "fr"
 
-        def VsetLangue(self):
-            global Vlangue
+        def VsetLangue(event):
             if VforLangue.get() == 'Anglais':
-                Vlangue = "en"
+                self.Vlangue = "en"
             elif VforLangue.get() == 'Francais':
-                Vlangue = "fr"
+                self.Vlangue = "fr"
             elif VforLangue.get() == 'Allemand':
-                Vlangue = "de"
+                self.Vlangue = "de"
             elif VforLangue.get() == 'Espagnol':
-                Vlangue = "es"
+                self.Vlangue = "es"
             elif VforLangue.get() == 'Chinois':
-                Vlangue = "zh"
+                self.Vlangue = "zh"
 
         ttk.Label(frame2, text="Langue").grid(column=0, row=0, padx=10, pady=10)
         VLanguevar = StringVar()
@@ -784,14 +796,13 @@ class FenetreEntree:
         VforLangue.bind('<<ComboboxSelected>>', VsetLangue)
         VforLangue.grid(column=1, row=0)
 
-        verificateur = Similarity()
+        self.verificateur = ''
 
-        def setVerificateur(self):
-            global verificateur
+        def setVerificateur(event):
             if forVerificateur.get() == 'Unmasking':
-                verificateur = Unmasking()
+                self.verificateur = Unmasking()
             elif forVerificateur.get() == 'Similarity':
-                verificateur = Similarity()
+                self.verificateur = Similarity()
 
         ttk.Label(frame2, text="Verificateur").grid(column=0, row=1, padx=10, pady=10)
         Verificateurvar = StringVar()
@@ -822,28 +833,27 @@ class FenetreEntree:
 
         ttk.Label(frame2, text='Analyseur').grid(column=4, row=0, padx=10, pady=10)
 
-        VA = []
-        VFreq_Gramvar = StringVar()
+        self.VA = []
 
         def VcallFreq_Gram():
             if VFreq_Gramvar.get() == 'oui':
-                if VA.count(Freq_Gram) == 0:
-                    VA.append(Freq_Gram)
+                if self.VA.count(Freq_Gram) == 0:
+                    self.VA.append(Freq_Gram)
                     print('add Freq_Gram')
             else:
-                VA.remove(Freq_Gram)
+                self.VA.remove(Freq_Gram)
                 print('remove Freq_Gram')
 
+        VFreq_Gramvar = StringVar()
         Checkbutton(frame2, text='Freq_Gram', variable=VFreq_Gramvar, command=VcallFreq_Gram, onvalue='oui',
                     offvalue='non').grid(column=5, row=1, padx=10, pady=10)
 
-        VMarkov_Gram_saut = 0
-        VMarkov_Gram_emondage = ''
-        VMarkov_Gramvar = StringVar()
+        self.VMarkov_Gram_saut = 0
+        self.VMarkov_Gram_emondage = ''
 
         def VcallMarkov_Gram():
             if VMarkov_Gramvar.get() == 'oui':
-                if VA.count(Markov_Gram) == 0:
+                if self.VA.count(Markov_Gram) == 0:
                     VMarkov_Gram_root = Tk()
                     VMarkov_Gram_root.title('choose the saut of Markov_Gram')
                     VMarkov_Gram_frame = ttk.Frame(VMarkov_Gram_root, padding='10 10 10 10', borderwidth='3',
@@ -865,13 +875,11 @@ class FenetreEntree:
                     false.grid(column=1, row=2)
 
                     def VMarkov_Gram_Okay():
-                        global VMarkov_Gram_saut
-                        global VMarkov_Gram_emondage
-                        VMarkov_Gram_saut = VMarkov_Gram_sautvar.get()
+                        self.VMarkov_Gram_saut = VMarkov_Gram_sautvar.get()
                         if VMarkov_Gram_emondagevar.get() == 'True':
-                            VMarkov_Gram_emondage = True
+                            self.VMarkov_Gram_emondage = True
                         else:
-                            VMarkov_Gram_emondage = False
+                            self.VMarkov_Gram_emondage = False
                         VMarkov_Gram_root.destroy()
 
                     ttk.Button(VMarkov_Gram_frame, text='Okay', command=VMarkov_Gram_Okay).grid(column=2, row=0, padx=5)
@@ -881,24 +889,24 @@ class FenetreEntree:
 
                     ttk.Button(VMarkov_Gram_frame, text='Cancel', command=VMarkov_Gram_Cancel).grid(column=3, row=0,
                                                                                                    padx=5)
-                    VA.append(Markov_Gram)
+                    self.VA.append(Markov_Gram)
                     print('add Markov_Gram')
                     VMarkov_Gram_root.mainloop()
             else:
-                VMarkov_Gram_saut = 0
-                VMarkov_Gram_emondage = ''
-                VA.remove(Markov_Gram)
+                self.VMarkov_Gram_saut = 0
+                self.VMarkov_Gram_emondage = ''
+                self.VA.remove(Markov_Gram)
                 print('remove Markov_Gram')
 
+        VMarkov_Gramvar = StringVar()
         Checkbutton(frame2, text='Markov_Gram', variable=VMarkov_Gramvar, command=VcallMarkov_Gram, onvalue='oui',
                     offvalue='non').grid(column=5, row=2, padx=10, pady=10)
 
-        VFreq_Ngrammes_n = 0
-        VFreq_Ngrammesvar = StringVar()
+        self.VFreq_Ngrammes_n = 0
 
         def VcallFreq_Ngrammes():
             if VFreq_Ngrammesvar.get() == 'oui':
-                if VA.count(Freq_Ngrammes) == 0:
+                if self.VA.count(Freq_Ngrammes) == 0:
                     VFreq_Ngrammes_root = Tk()
                     VFreq_Ngrammes_root.title('choose the n of Freq_Ngrammes')
                     VFreq_Ngrammes_frame = ttk.Frame(VFreq_Ngrammes_root, padding='10 10 10 10', borderwidth='3',
@@ -911,8 +919,7 @@ class FenetreEntree:
                     ttk.Entry(VFreq_Ngrammes_root, textvariable=VFreq_Ngrammes_nvar).grid(column=1, row=0, padx=5)
 
                     def VFreq_Ngrammes_Okay():
-                        global VFreq_Ngrammes_n
-                        VFreq_Ngrammes_n = VFreq_Ngrammes_nvar.get()
+                        self.VFreq_Ngrammes_n = VFreq_Ngrammes_nvar.get()
                         VFreq_Ngrammes_root.destroy()
 
                     ttk.Button(VFreq_Ngrammes_root, text='Okay', command=VFreq_Ngrammes_Okay).grid(column=2, row=0,
@@ -923,65 +930,65 @@ class FenetreEntree:
 
                     ttk.Button(VFreq_Ngrammes_root, text='Cancel', command=VFreq_Ngrammes_Cancel).grid(column=3, row=0,
                                                                                                        padx=5)
-                    VA.append(Freq_Ngrammes)
+                    self.VA.append(Freq_Ngrammes)
                     print('add Freq_Ngrammes')
                     VFreq_Ngrammes_root.mainloop()
             else:
-                VFreq_Ngrammes_n = 0
-                VA.remove(Freq_Ngrammes)
+                self.VFreq_Ngrammes_n = 0
+                self.VA.remove(Freq_Ngrammes)
                 print('remove Freq_Ngrammes')
 
+        VFreq_Ngrammesvar = StringVar()
         Checkbutton(frame2, text='Freq_Ngrammes', variable=VFreq_Ngrammesvar, command=VcallFreq_Ngrammes, onvalue='oui',
                     offvalue='non').grid(column=5, row=3, padx=10, pady=10)
 
-        VMarkov_Lettresvar = StringVar()
 
         def VcallMarkov_Lettres():
             if VMarkov_Lettresvar.get() == 'oui':
-                if VA.count(Markov_Lettres) == 0:
-                    VA.append(Markov_Lettres)
+                if self.VA.count(Markov_Lettres) == 0:
+                    self.VA.append(Markov_Lettres)
                     print('add Markov_Lettres')
             else:
-                VA.remove(Markov_Lettres)
+                self.VA.remove(Markov_Lettres)
                 print('remove Markov_Lettres')
 
+        VMarkov_Lettresvar = StringVar()
         Checkbutton(frame2, text='Markov_Lettres', variable=VMarkov_Lettresvar, command=VcallMarkov_Lettres,
                     onvalue='oui', offvalue='non').grid(column=5, row=4, padx=10, pady=10)
 
-        VFreq_Ponctvar = StringVar()
 
         def VcallFreq_Ponct():
             if VFreq_Ponctvar.get() == 'oui':
-                if VA.count(Freq_Ponct) == 0:
-                    VA.append(Freq_Ponct)
+                if self.VA.count(Freq_Ponct) == 0:
+                    self.VA.append(Freq_Ponct)
                     print('add Freq_Ponct')
             else:
-                VA.remove(Freq_Ponct)
+                self.VA.remove(Freq_Ponct)
                 print('remove Freq_Ponct')
 
+        VFreq_Ponctvar = StringVar()
         Checkbutton(frame2, text='Freq_Ponct', variable=VFreq_Ponctvar, command=VcallFreq_Ponct, onvalue='oui',
                     offvalue='non').grid(column=5, row=5, padx=10, pady=10)
 
-        VLongueur_Phrasesvar = StringVar()
 
         def VcallLongueur_Phrases():
             if VLongueur_Phrasesvar.get() == 'oui':
-                if VA.count(Longueur_Phrases) == 0:
-                    VA.append(Longueur_Phrases)
+                if self.VA.count(Longueur_Phrases) == 0:
+                    self.VA.append(Longueur_Phrases)
                     print('add Longueur_Phrases')
             else:
-                VA.remove(Longueur_Phrases)
+                self.VA.remove(Longueur_Phrases)
                 print('remove Longueur_Phrases')
 
+        VLongueur_Phrasesvar = StringVar()
         Checkbutton(frame2, text='Longueur_Phrases', variable=VLongueur_Phrasesvar, command=VcallLongueur_Phrases,
                     onvalue='oui', offvalue='non').grid(column=6, row=1, padx=10, pady=10)
 
-        VComplexite_Grammaticale_saut = 0
-        VComplexite_Grammaticalevar = StringVar()
+        self.VComplexite_Grammaticale_saut = 0
 
         def VcallComplexite_Grammaticale():
             if VComplexite_Grammaticalevar.get() == 'oui':
-                if VA.count(Complexite_Grammaticale) == 0:
+                if self.VA.count(Complexite_Grammaticale) == 0:
                     VComplexite_Grammaticale_root = Tk()
                     VComplexite_Grammaticale_root.title('choose the saut of Complexite_Grammaticale')
                     VComplexite_Grammaticale_frame = ttk.Frame(VComplexite_Grammaticale_root, padding='10 10 10 10',
@@ -995,8 +1002,7 @@ class FenetreEntree:
                         column=1, row=0, padx=5)
 
                     def VComplexite_Grammaticale_Okay():
-                        global VComplexite_Grammaticale_saut
-                        VComplexite_Grammaticale_saut = VComplexite_Grammaticale_sautvar.get()
+                        self.VComplexite_Grammaticale_saut = VComplexite_Grammaticale_sautvar.get()
                         VComplexite_Grammaticale_root.destroy()
 
                     ttk.Button(VComplexite_Grammaticale_root, text='Okay', command=VComplexite_Grammaticale_Okay).grid(
@@ -1007,44 +1013,45 @@ class FenetreEntree:
 
                     ttk.Button(VComplexite_Grammaticale_root, text='Cancel',
                                command=VComplexite_Grammaticale_Cancel).grid(column=3, row=0, padx=5)
-                    VA.append(Complexite_Grammaticale)
+                    self.VA.append(Complexite_Grammaticale)
                     print('add Complexite_Grammaticale')
                     VComplexite_Grammaticale_root.mainloop()
             else:
-                VComplexite_Grammaticale_saut = 0
-                VA.remove(Complexite_Grammaticale)
+                self.VComplexite_Grammaticale_saut = 0
+                self.VA.remove(Complexite_Grammaticale)
                 print('remove Complexite_Grammaticale')
 
+        VComplexite_Grammaticalevar = StringVar()
         Checkbutton(frame2, text='Complexite_Grammaticale', variable=VComplexite_Grammaticalevar,
                     command=VcallComplexite_Grammaticale, onvalue='oui', offvalue='non').grid(column=6, row=2, padx=10,
                                                                                               pady=10)
 
-        VComplexite_Vocabulairevar = StringVar()
 
         def VcallComplexite_Vocabulaire():
             if VComplexite_Vocabulairevar.get() == 'oui':
-                if VA.count(Complexite_Vocabulaire) == 0:
-                    VA.append(Complexite_Vocabulaire)
+                if self.VA.count(Complexite_Vocabulaire) == 0:
+                    self.VA.append(Complexite_Vocabulaire)
                     print('add Complexite_Vocabulaire')
             else:
-                VA.remove(Complexite_Vocabulaire)
+                self.VA.remove(Complexite_Vocabulaire)
                 print('remove Complexite_Vocabulaire')
 
+        VComplexite_Vocabulairevar = StringVar()
         Checkbutton(frame2, text='Complexite_Vocabulaire', variable=VComplexite_Vocabulairevar,
                     command=VcallComplexite_Vocabulaire, onvalue='oui', offvalue='non').grid(column=6, row=3, padx=10,
                                                                                              pady=10)
 
-        VFreq_Stopwordsvar = StringVar()
 
         def VcallFreq_Stopwords():
             if VFreq_Stopwordsvar.get() == 'oui':
-                if VA.count(Freq_Stopwords) == 0:
-                    VA.append(Freq_Stopwords)
+                if self.VA.count(Freq_Stopwords) == 0:
+                    self.VA.append(Freq_Stopwords)
                     print('add Freq_Stopwords')
             else:
-                VA.remove(Freq_Stopwords)
+                self.VA.remove(Freq_Stopwords)
                 print('remove Freq_Stopwords')
 
+        VFreq_Stopwordsvar = StringVar()
         Checkbutton(frame2, text='Freq_Stopwords', variable=VFreq_Stopwordsvar, command=VcallFreq_Stopwords,
                     onvalue='oui', offvalue='non').grid(column=6, row=4, padx=10, pady=10)
 
@@ -1068,50 +1075,40 @@ class FenetreEntree:
         Vbase_to2var = IntVar()
         ttk.Entry(frame2, textvariable=Vbase_to2var).grid(column=6, row=9)
 
-        Va1 = 0
-        Vauteurvar1 = ['']
-        Vfromvar1 = [0]
-        Vtovar1 = [0]
-        Vbases = ['']
+        self.Va1 = 0
+        self.Vauteurvar1 = ['']
+        self.Vfromvar1 = [0]
+        self.Vtovar1 = [0]
+        self.Vbases = ['']
 
         def VAjouter1():
-            global Va1
-            global Vauteurvar1
-            global Vfromvar1
-            global Vtovar1
-            global Vbases
-            if Va1 < 2:
-                temp1 = Va1 + 1
-                Va1 = temp1
+            if self.Va1 < 2:
+                temp1 = self.Va1 + 1
+                self.Va1 = temp1
                 labelauteur = ttk.Label(frame2, text='Auteur')
-                labelauteur.grid(column=1, row=9 + Va1, padx=10, pady=10)
-                Vauteurvar1.append('')
-                Vauteurvar1[Va1] = StringVar()
-                entryauteur = ttk.Entry(frame2, textvariable=Vauteurvar1[Va1])
-                entryauteur.grid(column=2, row=9 + Va1)
+                labelauteur.grid(column=1, row=9 + self.Va1, padx=10, pady=10)
+                self.Vauteurvar1.append('')
+                self.Vauteurvar1[self.Va1] = StringVar()
+                entryauteur = ttk.Entry(frame2, textvariable=self.Vauteurvar1[self.Va1])
+                entryauteur.grid(column=2, row=9 + self.Va1)
                 labelfrom = ttk.Label(frame2, text='from')
-                labelfrom.grid(column=3, row=9 + Va1, padx=10, pady=10)
-                Vfromvar1.append(0)
-                Vfromvar1[Va1] = IntVar()
-                entryfrom = ttk.Entry(frame2, textvariable=Vfromvar1[Va1])
-                entryfrom.grid(column=4, row=9 + Va1)
+                labelfrom.grid(column=3, row=9 + self.Va1, padx=10, pady=10)
+                self.Vfromvar1.append(0)
+                self.Vfromvar1[self.Va1] = IntVar()
+                entryfrom = ttk.Entry(frame2, textvariable=self.Vfromvar1[self.Va1])
+                entryfrom.grid(column=4, row=9 + self.Va1)
                 labelto = ttk.Label(frame2, text='to')
-                labelto.grid(column=5, row=9 + Va1, padx=10, pady=10)
-                Vtovar1.append(0)
-                Vtovar1[Va1] = IntVar()
-                entryto = ttk.Entry(frame2, textvariable=Vtovar1[Va1])
-                entryto.grid(column=6, row=9 + Va1)
-                Vbases.append('')
-                Vbases[Va1] = StringVar()
-                auteurofcategories = ttk.Entry(frame2, textvariable=Vbases[Va1])
-                auteurofcategories.grid(column=3 + Va1, row=14)
+                labelto.grid(column=5, row=9 + self.Va1, padx=10, pady=10)
+                self.Vtovar1.append(0)
+                self.Vtovar1[self.Va1] = IntVar()
+                entryto = ttk.Entry(frame2, textvariable=self.Vtovar1[self.Va1])
+                entryto.grid(column=6, row=9 + self.Va1)
+                self.Vbases.append('')
+                self.Vbases[self.Va1] = StringVar()
+                auteurofcategories = ttk.Entry(frame2, textvariable=self.Vbases[self.Va1])
+                auteurofcategories.grid(column=3 + self.Va1, row=14)
 
                 def VSupprimer1():
-                    global Va1
-                    global Vauteurvar1
-                    global Vfromvar1
-                    global Vtovar1
-                    global Vbases
                     labelauteur.destroy()
                     entryauteur.destroy()
                     labelfrom.destroy()
@@ -1120,15 +1117,15 @@ class FenetreEntree:
                     entryto.destroy()
                     auteurofcategories.destroy()
                     Vbuttonsupprimer1.destroy()
-                    del Vauteurvar1[Va1]
-                    del Vfromvar1[Va1]
-                    del Vtovar1[Va1]
-                    del Vbases[Va1]
-                    temp1 = Va1 - 1
-                    Va1 = temp1
+                    del self.Vauteurvar1[self.Va1]
+                    del self.Vfromvar1[self.Va1]
+                    del self.Vtovar1[self.Va1]
+                    del self.Vbases[self.Va1]
+                    temp1 = self.Va1 - 1
+                    self.Va1 = temp1
 
                 Vbuttonsupprimer1 = ttk.Button(frame2, text='Supprimer', command=VSupprimer1)
-                Vbuttonsupprimer1.grid(column=0, row=9 + Va1)
+                Vbuttonsupprimer1.grid(column=0, row=9 + self.Va1)
             else:
                 messagebox.showerror('ERROR!', 'Trop d\'auteurs à training!')
 
@@ -1160,50 +1157,40 @@ class FenetreEntree:
         Vcalibrage_to2var = IntVar()
         ttk.Entry(frame2, textvariable=Vcalibrage_to2var).grid(column=6, row=16)
 
-        Va2 = 0
-        Vauteurvar2 = ['']
-        Vfromvar2 = [0]
-        Vtovar2 = [0]
-        Vcalibrages = ['']
+        self.Va2 = 0
+        self.Vauteurvar2 = ['']
+        self.Vfromvar2 = [0]
+        self.Vtovar2 = [0]
+        self.Vcalibrages = ['']
 
         def VAjouter2():
-            global Va2
-            global Vauteurvar2
-            global Vfromvar2
-            global Vtovar2
-            global Vcalibrages
-            if Va2 < 2:
-                temp2 = Va2 + 1
-                Va2 = temp2
+            if self.Va2 < 2:
+                temp2 = self.Va2 + 1
+                self.Va2 = temp2
                 labelauteur = ttk.Label(frame2, text='Auteur')
-                labelauteur.grid(column=1, row=16 + Va2, padx=10, pady=10)
-                Vauteurvar2.append('')
-                Vauteurvar2[Va2] = StringVar()
-                entryauteur = ttk.Entry(frame2, textvariable=Vauteurvar2[Va2])
-                entryauteur.grid(column=2, row=16 + Va2)
+                labelauteur.grid(column=1, row=16 + self.Va2, padx=10, pady=10)
+                self.Vauteurvar2.append('')
+                self.Vauteurvar2[self.Va2] = StringVar()
+                entryauteur = ttk.Entry(frame2, textvariable=self.Vauteurvar2[self.Va2])
+                entryauteur.grid(column=2, row=16 + self.Va2)
                 labelfrom = ttk.Label(frame2, text='from')
-                labelfrom.grid(column=3, row=16 + Va2, padx=10, pady=10)
-                Vfromvar2.append(0)
-                Vfromvar2[Va2] = IntVar()
-                entryfrom = ttk.Entry(frame2, textvariable=Vfromvar2[Va2])
-                entryfrom.grid(column=4, row=16 + Va2)
+                labelfrom.grid(column=3, row=16 + self.Va2, padx=10, pady=10)
+                self.Vfromvar2.append(0)
+                self.Vfromvar2[self.Va2] = IntVar()
+                entryfrom = ttk.Entry(frame2, textvariable=self.Vfromvar2[self.Va2])
+                entryfrom.grid(column=4, row=16 + self.Va2)
                 labelto = ttk.Label(frame2, text='to')
-                labelto.grid(column=5, row=16 + Va2, padx=10, pady=10)
-                Vtovar2.append(0)
-                Vtovar2[Va2] = IntVar()
-                entryto = ttk.Entry(frame2, textvariable=Vtovar2[Va2])
-                entryto.grid(column=6, row=16 + Va2)
-                Vcalibrages.append('')
-                Vcalibrages[Va2] = StringVar()
-                auteurofcategories = ttk.Entry(frame2, textvariable=Vcalibrages[Va2])
-                auteurofcategories.grid(column=3 + Va2, row=21)
+                labelto.grid(column=5, row=16 + self.Va2, padx=10, pady=10)
+                self.Vtovar2.append(0)
+                self.Vtovar2[self.Va2] = IntVar()
+                entryto = ttk.Entry(frame2, textvariable=self.Vtovar2[self.Va2])
+                entryto.grid(column=6, row=16 + self.Va2)
+                self.Vcalibrages.append('')
+                self.Vcalibrages[self.Va2] = StringVar()
+                auteurofcategories = ttk.Entry(frame2, textvariable=self.Vcalibrages[self.Va2])
+                auteurofcategories.grid(column=3 + self.Va2, row=21)
 
                 def VSupprimer2():
-                    global Va2
-                    global Vauteurvar2
-                    global Vfromvar2
-                    global Vtovar2
-                    global Vcalibrages
                     labelauteur.destroy()
                     entryauteur.destroy()
                     labelfrom.destroy()
@@ -1212,15 +1199,15 @@ class FenetreEntree:
                     entryto.destroy()
                     auteurofcategories.destroy()
                     Vbuttonsupprimer2.destroy()
-                    del Vauteurvar2[Va2]
-                    del Vfromvar2[Va2]
-                    del Vtovar2[Va2]
-                    del Vcalibrages[Va2]
-                    temp2 = Va2 - 1
-                    Va2 = temp2
+                    del self.Vauteurvar2[self.Va2]
+                    del self.Vfromvar2[self.Va2]
+                    del self.Vtovar2[self.Va2]
+                    del self.Vcalibrages[self.Va2]
+                    temp2 = self.Va2 - 1
+                    self.Va2 = temp2
 
                 Vbuttonsupprimer2 = ttk.Button(frame2, text='Supprimer', command=VSupprimer2)
-                Vbuttonsupprimer2.grid(column=0, row=16 + Va2)
+                Vbuttonsupprimer2.grid(column=0, row=16 + self.Va2)
             else:
                 messagebox.showerror('ERROR!', 'Trop d\'auteurs à evaluer!')
 
@@ -1234,68 +1221,58 @@ class FenetreEntree:
 
         ttk.Label(frame2, text='id_oeuvres_disputees').grid(column=0, row=22, padx=10, pady=10)
         ttk.Label(frame2, text='Auteur').grid(column=1, row=22, padx=10, pady=10)
-        Vdisputees_auteur1var = StringVar()
-        ttk.Entry(frame2, textvariable=Vdisputees_auteur1var).grid(column=2, row=22)
+        Vdisputee_auteur1var = StringVar()
+        ttk.Entry(frame2, textvariable=Vdisputee_auteur1var).grid(column=2, row=22)
         ttk.Label(frame2, text='from').grid(column=3, row=22, padx=60, pady=10)
-        Vdisputees_from1var = IntVar()
-        ttk.Entry(frame2, textvariable=Vdisputees_from1var).grid(column=4, row=22)
+        Vdisputee_from1var = IntVar()
+        ttk.Entry(frame2, textvariable=Vdisputee_from1var).grid(column=4, row=22)
         ttk.Label(frame2, text='to').grid(column=5, row=22, padx=60, pady=10)
-        Vdisputees_to1var = IntVar()
-        ttk.Entry(frame2, textvariable=Vdisputees_to1var).grid(column=6, row=22)
+        Vdisputee_to1var = IntVar()
+        ttk.Entry(frame2, textvariable=Vdisputee_to1var).grid(column=6, row=22)
         ttk.Label(frame2, text='Auteur').grid(column=1, row=23, padx=10, pady=10)
-        Vdisputees_auteur2var = StringVar()
-        ttk.Entry(frame2, textvariable=Vdisputees_auteur2var).grid(column=2, row=23)
+        Vdisputee_auteur2var = StringVar()
+        ttk.Entry(frame2, textvariable=Vdisputee_auteur2var).grid(column=2, row=23)
         ttk.Label(frame2, text='from').grid(column=3, row=23, padx=60, pady=10)
-        Vdisputees_from2var = IntVar()
-        ttk.Entry(frame2, textvariable=Vdisputees_from2var).grid(column=4, row=23)
+        Vdisputee_from2var = IntVar()
+        ttk.Entry(frame2, textvariable=Vdisputee_from2var).grid(column=4, row=23)
         ttk.Label(frame2, text='to').grid(column=5, row=23, padx=60, pady=10)
-        Vdisputees_to2var = IntVar()
-        ttk.Entry(frame2, textvariable=Vdisputees_to2var).grid(column=6, row=23)
+        Vdisputee_to2var = IntVar()
+        ttk.Entry(frame2, textvariable=Vdisputee_to2var).grid(column=6, row=23)
 
-        Va3 = 0
-        Vauteurvar3 = ['']
-        Vfromvar3 = [0]
-        Vtovar3 = [0]
-        Vdisputees = ['']
+        self.Va3 = 0
+        self.Vauteurvar3 = ['']
+        self.Vfromvar3 = [0]
+        self.Vtovar3 = [0]
+        self.Vdisputees = ['']
 
         def VAjouter3():
-            global Va3
-            global Vauteurvar3
-            global Vfromvar3
-            global Vtovar3
-            global Vdisputees
-            if Va3 < 2:
-                temp3 = Va3 + 1
-                Va3 = temp3
+            if self.Va3 < 2:
+                temp3 = self.Va3 + 1
+                self.Va3 = temp3
                 labelauteur = ttk.Label(frame2, text='Auteur')
-                labelauteur.grid(column=1, row=23 + Va3, padx=10, pady=10)
-                Vauteurvar3.append('')
-                Vauteurvar3[Va3] = StringVar()
-                entryauteur = ttk.Entry(frame2, textvariable=Vauteurvar3[Va3])
-                entryauteur.grid(column=2, row=23 + Va3)
+                labelauteur.grid(column=1, row=23 + self.Va3, padx=10, pady=10)
+                self.Vauteurvar3.append('')
+                self.Vauteurvar3[self.Va3] = StringVar()
+                entryauteur = ttk.Entry(frame2, textvariable=self.Vauteurvar3[self.Va3])
+                entryauteur.grid(column=2, row=23 + self.Va3)
                 labelfrom = ttk.Label(frame2, text='from')
-                labelfrom.grid(column=3, row=23 + Va3, padx=10, pady=10)
-                Vfromvar3.append(0)
-                Vfromvar3[Va3] = IntVar()
-                entryfrom = ttk.Entry(frame2, textvariable=Vfromvar3[Va3])
-                entryfrom.grid(column=4, row=23 + Va3)
+                labelfrom.grid(column=3, row=23 + self.Va3, padx=10, pady=10)
+                self.Vfromvar3.append(0)
+                self.Vfromvar3[self.Va3] = IntVar()
+                entryfrom = ttk.Entry(frame2, textvariable=self.Vfromvar3[self.Va3])
+                entryfrom.grid(column=4, row=23 + self.Va3)
                 labelto = ttk.Label(frame2, text='to')
-                labelto.grid(column=5, row=23 + Va3, padx=10, pady=10)
-                Vtovar3.append(0)
-                Vtovar3[Va3] = IntVar()
-                entryto = ttk.Entry(frame2, textvariable=Vtovar3[Va3])
-                entryto.grid(column=6, row=23 + Va3)
-                Vdisputees.append('')
-                Vdisputees[Va3] = StringVar()
-                auteurofcategories = ttk.Entry(frame2, textvariable=Vdisputees[Va3])
-                auteurofcategories.grid(column=3 + Va3, row=28)
+                labelto.grid(column=5, row=23 + self.Va3, padx=10, pady=10)
+                self.Vtovar3.append(0)
+                self.Vtovar3[self.Va3] = IntVar()
+                entryto = ttk.Entry(frame2, textvariable=self.Vtovar3[self.Va3])
+                entryto.grid(column=6, row=23 + self.Va3)
+                self.Vdisputees.append('')
+                self.Vdisputees[self.Va3] = StringVar()
+                auteurofcategories = ttk.Entry(frame2, textvariable=self.Vdisputees[self.Va3])
+                auteurofcategories.grid(column=3 + self.Va3, row=28)
 
                 def VSupprimer3():
-                    global Va3
-                    global Vauteurvar3
-                    global Vfromvar3
-                    global Vtovar3
-                    global Vdisputees
                     labelauteur.destroy()
                     entryauteur.destroy()
                     labelfrom.destroy()
@@ -1304,15 +1281,15 @@ class FenetreEntree:
                     entryto.destroy()
                     auteurofcategories.destroy()
                     Vbuttonsupprimer3.destroy()
-                    del Vauteurvar3[Va3]
-                    del Vfromvar3[Va3]
-                    del Vtovar3[Va3]
-                    del Vdisputees[Va3]
-                    temp3 = Va3 - 1
-                    Va3 = temp3
+                    del self.Vauteurvar3[self.Va3]
+                    del self.Vfromvar3[self.Va3]
+                    del self.Vtovar3[self.Va3]
+                    del self.Vdisputees[self.Va3]
+                    temp3 = self.Va3 - 1
+                    self.Va3 = temp3
 
                 Vbuttonsupprimer3 = ttk.Button(frame2, text='Supprimer', command=VSupprimer3)
-                Vbuttonsupprimer3.grid(column=0, row=23 + Va3)
+                Vbuttonsupprimer3.grid(column=0, row=23 + self.Va3)
             else:
                 messagebox.showerror('ERROR!', 'Trop d\'auteurs à evaluer!')
 
@@ -1327,37 +1304,28 @@ class FenetreEntree:
         """cette fonction reset n'inclut pas la fonction supprimer. Donc il faut supprimer ce qu'on a ajouté manuellemnt et puis reset."""
 
         def reset_verification():
-            global verificateur
-            global Vlangue
-            global VMarkov_Gram_saut
-            global VMarkov_Gram_emondage
-            global VFreq_Ngrammes_n
-            global VComplexite_Grammaticale_saut
-            global id_oeuvres_base
-            global id_oeuvres_calibrage
-            global id_oeuvres_disputees
             if messagebox.askyesno('Confirmation!', 'Are you sure to reset all? You will lose all your choices.'):
                 VLanguevar.set('')
-                Vlangue = ''
+                self.Vlangue = ''
                 Verificateurvar.set('')
-                verificateur = ''
+                self.verificateur = ''
                 Vtaillevar.set(0)
                 Vfull_textvar.set('')
                 Vnormalisationvar.set('')
                 VFreq_Gramvar.set('')
                 VMarkov_Gramvar.set('')
-                VMarkov_Gram_saut = 0
-                VMarkov_Gram_emondage = ''
+                self.VMarkov_Gram_saut = 0
+                self.VMarkov_Gram_emondage = ''
                 VFreq_Ngrammesvar.set('')
-                VFreq_Ngrammes_n = 0
+                self.VFreq_Ngrammes_n = 0
                 VMarkov_Lettresvar.set('')
                 VFreq_Ponctvar.set('')
                 VLongueur_Phrasesvar.set('')
                 VComplexite_Grammaticalevar.set('')
-                VComplexite_Grammaticale_saut = 0
+                self.VComplexite_Grammaticale_saut = 0
                 VComplexite_Vocabulairevar.set('')
                 VFreq_Stopwordsvar.set('')
-                VA.clear()
+                self.VA.clear()
                 Vbase_auteur1var.set('')
                 Vbase_from1var.set(0)
                 Vbase_to1var.set(0)
@@ -1370,107 +1338,142 @@ class FenetreEntree:
                 Vcalibrage_auteur2var.set('')
                 Vcalibrage_from2var.set(0)
                 Vcalibrage_to2var.set(0)
-                Vdisputees_auteur1var.set('')
-                Vdisputees_from1var.set(0)
-                Vdisputees_to1var.set(0)
-                Vdisputees_auteur2var.set('')
-                Vdisputees_from2var.set(0)
-                Vdisputees_to2var.set(0)
+                Vdisputee_auteur1var.set('')
+                Vdisputee_from1var.set(0)
+                Vdisputee_to1var.set(0)
+                Vdisputee_auteur2var.set('')
+                Vdisputee_from2var.set(0)
+                Vdisputee_to2var.set(0)
                 Vbase1.set('')
                 Vbase2.set('')
                 Vcalibrage1.set('')
                 Vcalibrage2.set('')
                 Vdisputee1.set('')
                 Vdisputee2.set('')
-                id_oeuvres_base = []
-                id_oeuvres_calibrage = []
-                id_oeuvres_disputees = []
+                self.id_oeuvres_base = []
+                self.id_oeuvres_calibrage = []
+                self.id_oeuvres_disputees = []
 
         ttk.Button(frame2, text='Reset', command=reset_verification).grid(column=6, row=30, sticky=(E, S), padx=5,
                                                                           pady=30)
 
-        id_oeuvres_base = []
-        id_oeuvres_calibrage = []
-        id_oeuvres_disputees = []
+        self.id_oeuvres_base = []
+        self.id_oeuvres_calibrage = []
+        self.id_oeuvres_disputees = []
 
         def run_verification():
-            global id_oeuvres_base
-            global id_oeuvres_calibrage
-            global id_oeuvres_disputees
             if messagebox.askyesno('Confirmation!', 'Are you sure to run it?'):
                 Vliste_fonctions = []
-                if VA.count(Freq_Gram):
-                    Vliste_fonctions.append(Freq_Gram(langue))
-                if VA.count(Markov_Gram):
-                    Vliste_fonctions.append(Markov_Gram(langue, saut=VMarkov_Gram_saut))
-                if VA.count(Freq_Ngrammes):
-                    Vliste_fonctions.append(Freq_Ngrammes(langue, n=VFreq_Ngrammes_n))
-                if VA.count(Markov_Lettres):
-                    Vliste_fonctions.append(Markov_Lettres(langue))
-                if VA.count(Freq_Ponct):
-                    Vliste_fonctions.append(Freq_Ponct(langue))
-                if VA.count(Longueur_Phrases):
+                Vnom_analyseurs = None
+                if self.VA.count(Freq_Gram) != 0:
+                    Vliste_fonctions.append(Freq_Gram(self.Vlangue))
+                    if Vnom_analyseurs == None or Vnom_analyseurs == 'Grammaire':
+                        Vnom_analyseurs = 'Grammaire'
+                    else:
+                        Vnom_analyseurs = 'Tout'
+                if self.VA.count(Markov_Gram) != 0:
+                    Vliste_fonctions.append(
+                        Markov_Gram(self.Vlangue, saut=self.VMarkov_Gram_saut, emondage=self.VMarkov_Gram_emondage))
+                    if Vnom_analyseurs == None or Vnom_analyseurs == 'Grammaire':
+                        Vnom_analyseurs = 'Grammaire'
+                    else:
+                        Vnom_analyseurs = 'Tout'
+                if self.VA.count(Freq_Ngrammes) != 0:
+                    Vliste_fonctions.append(Freq_Ngrammes(self.Vlangue, n=self.VFreq_Ngrammes_n))
+                    if Vnom_analyseurs == None or Vnom_analyseurs == 'Lettres':
+                        Vnom_analyseurs = 'Lettres'
+                    else:
+                        Vnom_analyseurs = 'Tout'
+                if self.VA.count(Markov_Lettres) != 0:
+                    Vliste_fonctions.append(Markov_Lettres(self.Vlangue))
+                    if Vnom_analyseurs == None or Vnom_analyseurs == 'Lettres':
+                        Vnom_analyseurs = 'Lettres'
+                    else:
+                        Vnom_analyseurs = 'Tout'
+                if self.VA.count(Freq_Ponct) != 0:
+                    Vliste_fonctions.append(Freq_Ponct(self.Vlangue))
+                    if Vnom_analyseurs == None or Vnom_analyseurs == 'Ponctuation':
+                        Vnom_analyseurs = 'Ponctuation'
+                    else:
+                        Vnom_analyseurs = 'Tout'
+                if self.VA.count(Longueur_Phrases) != 0:
                     Vliste_fonctions.append(Longueur_Phrases())
-                if VA.count(Complexite_Grammaticale):
-                    Vliste_fonctions.append(Complexite_Grammaticale(langue, saut=VComplexite_Grammaticale_saut))
-                if VA.count(Complexite_Vocabulaire):
+                    if Vnom_analyseurs == None or Vnom_analyseurs == 'Ponctuation':
+                        Vnom_analyseurs = 'Ponctuation'
+                    else:
+                        Vnom_analyseurs = 'Tout'
+                if self.VA.count(Complexite_Grammaticale) != 0:
+                    Vliste_fonctions.append(Complexite_Grammaticale(self.Vlangue, saut=self.VComplexite_Grammaticale_saut))
+                    if Vnom_analyseurs == None or Vnom_analyseurs == 'Complexite':
+                        Vnom_analyseurs = 'Complexite'
+                    else:
+                        Vnom_analyseurs = 'Tout'
+                if self.VA.count(Complexite_Vocabulaire) != 0:
                     Vliste_fonctions.append(Complexite_Vocabulaire())
-                if VA.count(Freq_Stopwords):
-                    Vliste_fonctions.append(Freq_Stopwords(langue))
-                analyseur = Analyseur(Vliste_fonctions)
+                    if Vnom_analyseurs == None or Vnom_analyseurs == 'Complexite':
+                        Vnom_analyseurs = 'Complexite'
+                    else:
+                        Vnom_analyseurs = 'Tout'
+                if self.VA.count(Freq_Stopwords) != 0:
+                    Vliste_fonctions.append(Freq_Stopwords(self.Vlangue))
+                    if Vnom_analyseurs == None or Vnom_analyseurs == 'Stopwords':
+                        Vnom_analyseurs = 'Stopwords'
+                    else:
+                        Vnom_analyseurs = 'Tout'
+                analyseur = Analyseur(Vnom_analyseurs, Vliste_fonctions)
 
                 categories_base = [Vbase1.get()] + [Vbase2.get()]
                 # categories_base = ["categorie1"] + ["categorie2"]
-                id_oeuvres_base = [
+                self.id_oeuvres_base = [
                     [(Vbase_auteur1var.get(), k) for k in range(Vbase_from1var.get(), Vbase_to1var.get())],
                     [(Vbase_auteur2var.get(), k) for k in range(Vbase_from2var.get(), Vbase_to2var.get())]]
-                for i in range(1, len(Vauteurvar1)):
-                    print(Vauteurvar1[i].get())
-                    print(Vfromvar1[i].get())
-                    print(Vtovar1[i].get())
-                    print(Vbases[i].get())
-                    categories_base.append(Vbases[i].get())
-                    id_oeuvres_base.append(
-                        [(Vauteurvar1[i].get(), k) for k in range(Vfromvar1[i].get(), Vtovar1[i].get())])
+                for i in range(1, len(self.Vauteurvar1)):
+                    print(self.Vauteurvar1[i].get())
+                    print(self.Vfromvar1[i].get())
+                    print(self.Vtovar1[i].get())
+                    print(self.Vbases[i].get())
+                    categories_base.append(self.Vbases[i].get())
+                    self.id_oeuvres_base.append(
+                        [(self.Vauteurvar1[i].get(), k) for k in range(self.Vfromvar1[i].get(), self.Vtovar1[i].get())])
 
                 categories_calibrage = [Vcalibrage1.get()] + [Vcalibrage2.get()]
                 # categories_calibrage = ["categorie1"] + ["categorie2"]
-                id_oeuvres_calibrage = [[(Vcalibrage_auteur1var.get(), k) for k in
+                self.id_oeuvres_calibrage = [[(Vcalibrage_auteur1var.get(), k) for k in
                                          range(Vcalibrage_from1var.get(), Vcalibrage_to1var.get())],
                                         [(Vcalibrage_auteur2var.get(), k) for k in
                                          range(Vcalibrage_from2var.get(), Vcalibrage_to2var.get())]]
-                for i in range(1, len(Vauteurvar2)):
-                    print(Vauteurvar2[i].get())
-                    print(Vfromvar2[i].get())
-                    print(Vtovar2[i].get())
-                    print(Vcalibrages[i].get())
-                    categories_calibrage.append(Vcalibrages[i].get())
-                    id_oeuvres_calibrage.append(
-                        [(Vauteurvar2[i].get(), k) for k in range(Vfromvar2[i].get(), Vtovar2[i].get())])
+                for i in range(1, len(self.Vauteurvar2)):
+                    print(self.Vauteurvar2[i].get())
+                    print(self.Vfromvar2[i].get())
+                    print(self.Vtovar2[i].get())
+                    print(self.Vcalibrages[i].get())
+                    categories_calibrage.append(self.Vcalibrages[i].get())
+                    self.id_oeuvres_calibrage.append(
+                        [(self.Vauteurvar2[i].get(), k) for k in range(self.Vfromvar2[i].get(), self.Vtovar2[i].get())])
 
                 categories_disputees = [Vdisputee1.get()] + [Vdisputee2.get()]
                 # categories_disputees = ["categorie1"] + ["categorie2"]
-                id_oeuvres_disputees = [[(Vdisputees_auteur1var.get(), k) for k in
-                                         range(Vdisputees_from1var.get(), Vdisputees_to1var.get())],
-                                        [(Vdisputees_auteur2var.get(), k) for k in
-                                         range(Vdisputees_from2var.get(), Vdisputees_to2var.get())]]
-                for i in range(1, len(Vauteurvar3)):
-                    print(Vauteurvar3[i].get())
-                    print(Vfromvar3[i].get())
-                    print(Vtovar3[i].get())
-                    print(Vdisputees[i].get())
-                    categories_disputees.append(Vdisputees[i].get())
-                    id_oeuvres_disputees.append(
-                        [(Vauteurvar3[i].get(), k) for k in range(Vfromvar3[i].get(), Vtovar3[i].get())])
+                self.id_oeuvres_disputees = [[(Vdisputee_auteur1var.get(), k) for k in
+                                         range(Vdisputee_from1var.get(), Vdisputee_to1var.get())],
+                                        [(Vdisputee_auteur2var.get(), k) for k in
+                                         range(Vdisputee_from2var.get(), Vdisputee_to2var.get())]]
+                for i in range(1, len(self.Vauteurvar3)):
+                    print(self.Vauteurvar3[i].get())
+                    print(self.Vfromvar3[i].get())
+                    print(self.Vtovar3[i].get())
+                    print(self.Vdisputees[i].get())
+                    categories_disputees.append(self.Vdisputees[i].get())
+                    self.id_oeuvres_disputees.append(
+                        [(self.Vauteurvar3[i].get(), k) for k in range(self.Vfromvar3[i].get(), self.Vtovar3[i].get())])
 
                 if Vfull_textvar.get() == 'True':
-                    V = Verification(id_oeuvres_base, categories_base, id_oeuvres_calibrage, categories_calibrage,
-                                     id_oeuvres_disputees, categories_disputees, Vtaillevar.get(), analyseur,
-                                     verificateur, Vlangue, full_text=True)
+                    V = Verification(self.id_oeuvres_base, categories_base, self.id_oeuvres_calibrage, categories_calibrage,
+                                     self.id_oeuvres_disputees, categories_disputees, Vtaillevar.get(), analyseur,
+                                     self.verificateur, self.Vlangue, full_text=True)
                 else:
-                    V = Verification(id_oeuvres_base, categories_base, id_oeuvres_calibrage, categories_calibrage,
-                                     id_oeuvres_disputees, categories_disputees, Vtaillevar.get(), analyseur,
-                                     verificateur, Vlangue, full_text=False)
+                    V = Verification(self.id_oeuvres_base, categories_base, self.id_oeuvres_calibrage, categories_calibrage,
+                                     self.id_oeuvres_disputees, categories_disputees, Vtaillevar.get(), analyseur,
+                                     self.verificateur, self.Vlangue, full_text=False)
 
                 V.creer_textes()
 
@@ -1490,6 +1493,17 @@ class FenetreEntree:
         ttk.Button(frame2, text='Cancel', command=close_verification).grid(column=8, row=30, sticky=(E, S), padx=5,
                                                                            pady=30)
 
+
+
+
+
+
+
+
+
+
+
+
         """notebook About the database"""
 
         ttk.Separator(frame3, orient=VERTICAL).grid(column=5, rowspan=8, sticky="sn", padx=20, pady=10)
@@ -1508,11 +1522,10 @@ class FenetreEntree:
         forNom.grid(column=1, row=1)
 
         # genre
-        genre = None
+        self.genre = None
 
-        def setGenre(self):
-            global genre
-            genre = genrevar.get()
+        def setGenre(event):
+            self.genre = genrevar.get()
 
         ttk.Label(frame3, text='Genre').grid(column=0, row=2, padx=20, pady=10)
         genrevar = StringVar()
@@ -1529,20 +1542,19 @@ class FenetreEntree:
         forAuteur.grid(column=1, row=3)
 
         # langue
-        DBlangue = None
+        self.DBlangue = None
 
-        def DBsetLangue(self):
-            global DBlangue
+        def DBsetLangue(event):
             if DBforLangue.get() == 'Anglais':
-                DBlangue = "en"
+                self.DBlangue = "en"
             elif DBforLangue.get() == 'Francais':
-                DBlangue = "fr"
+                self.DBlangue = "fr"
             elif DBforLangue.get() == 'Allemand':
-                DBlangue = "de"
+                self.DBlangue = "de"
             elif DBforLangue.get() == 'Espagnol':
-                DBlangue = "es"
+                self.DBlangue = "es"
             elif DBforLangue.get() == 'Chinois':
-                DBlangue = "zh"
+                self.DBlangue = "zh"
 
         ttk.Label(frame3, text="Langue").grid(column=0, row=4, padx=20, pady=10)
         DBLanguevar = StringVar()
@@ -1552,11 +1564,10 @@ class FenetreEntree:
         DBforLangue.grid(column=1, row=4)
 
         # pays
-        pays = None
+        self.pays = None
 
-        def setPays(self):
-            global pays
-            pays = paysvar.get()
+        def setPays(event):
+            self.pays = paysvar.get()
 
         ttk.Label(frame3, text='Pays').grid(column=0, row=5, padx=20, pady=10)
         paysvar = StringVar()
@@ -1620,10 +1631,10 @@ class FenetreEntree:
                     corpus = corpusvar.get()
                     commentaires = commentairesvar.get()
                     if sexevar.get() == 'True':
-                        InsererFichier(fichier, nom, annee, genre, auteur, naissance, 'M', DBlangue, pays, corpus,
+                        InsererFichier(fichier, nom, annee, self.genre, auteur, naissance, 'M', self.DBlangue, self.pays, corpus,
                                        commentaires)
                     else:
-                        InsererFichier(fichier, nom, annee, genre, auteur, naissance, 'F', DBlangue, pays, corpus,
+                        InsererFichier(fichier, nom, annee, self.genre, auteur, naissance, 'F', self.DBlangue, self.pays, corpus,
                                        commentaires)
 
         ttk.Button(frame3, text='Insert', command=insert).grid(column=4, row=6, padx=0, pady=10)
@@ -1668,8 +1679,8 @@ class FenetreEntree:
                     corpus = None
                 else:
                     corpus = corpusvar.get()
-                table = SelectionnerFichiers(fichier, nom, annee_debut, annee_fin, genre, auteur, naissance_debut,
-                                             naissance_fin, sexe, DBlangue, pays, corpus)
+                table = SelectionnerFichiers(fichier, nom, annee_debut, annee_fin, self.genre, auteur, naissance_debut,
+                                             naissance_fin, sexe, self.DBlangue, self.pays, corpus)
                 lbox.delete(0, END)
                 for i in range(1, len(table)):
                     ListBoxAdd(table[i])
@@ -1744,9 +1755,10 @@ class FenetreEntree:
         def ListBoxAdd(string):
             lbox.insert(END, string)
 
+        self.textList = []
+
         def addToList(event):
-            global textList
-            textList = []
+            self.textList = []
             indexs = lbox.curselection()
             for i in indexs:
                 str = lbox.get(i).split(', ')[0].split(' : ')[1]
@@ -1754,47 +1766,37 @@ class FenetreEntree:
                 s = strs[0]
                 for j in range(1, len(strs) - 1):
                     s = s + '_' + strs[j]
-                textList.append((s, strs[len(strs) - 1]))
-            for k in range(0, len(textList)):
-                print(textList[k])
+                self.textList.append((s, strs[len(strs) - 1]))
+            for k in range(0, len(self.textList)):
+                print(self.textList[k])
 
         lbox = Listbox(frame3, selectmode=EXTENDED, height=20)
         lbox.grid(columnspan=8, row=9, rowspan=20, sticky=(N, S, E, W))
         lbox.bind('<Double-1>', addToList)
 
         def addToTraining():
-            global textList
-            global id_training_set
-            id_training_set = id_training_set + textList
-            print(id_training_set)
+            self.id_training_set = self.id_training_set + self.textList
+            print('Training Set: ', self.id_training_set)
 
         def addToEvaluation():
-            global textList
-            global id_eval_set
-            id_eval_set = id_eval_set + textList
-            print(id_eval_set)
+            self.id_eval_set = self.id_eval_set + self.textList
+            print('Evaluation Set: ', self.id_eval_set)
 
         ttk.Label(frame3, text='Classification').grid(column=8, row=9, padx=20, pady=10)
         ttk.Button(frame3, text='To Training Set', command=addToTraining).grid(column=8, row=10, padx=20, pady=10)
         ttk.Button(frame3, text='To Evaluation Set', command=addToEvaluation).grid(column=8, row=11, padx=20, pady=10)
 
         def addToBase():
-            global textList
-            global id_oeuvres_base
-            id_oeuvres_base = id_oeuvres_base + textList
-            print(id_oeuvres_base)
+            self.id_oeuvres_base = self.id_oeuvres_base + self.textList
+            print('Base: ', self.id_oeuvres_base)
 
         def addToCalibrage():
-            global textList
-            global id_oeuvres_calibrage
-            id_oeuvres_calibrage = id_oeuvres_calibrage + textList
-            print(id_oeuvres_calibrage)
+            self.id_oeuvres_calibrage = self.id_oeuvres_calibrage + self.textList
+            print('Calibrage: ', self.id_oeuvres_calibrage)
 
         def addToDisputees():
-            global textList
-            global id_oeuvres_disputees
-            id_oeuvres_disputees = id_oeuvres_disputees + textList
-            print(id_oeuvres_disputees)
+            self.id_oeuvres_disputees = self.id_oeuvres_disputees + self.textList
+            print('Disputees: ', self.id_oeuvres_disputees)
 
         ttk.Label(frame3, text='Verification').grid(column=8, row=12, padx=20, pady=10)
         ttk.Button(frame3, text='To base', command=addToBase).grid(column=8, row=13, padx=20, pady=10)
@@ -1802,9 +1804,6 @@ class FenetreEntree:
         ttk.Button(frame3, text='To disputees', command=addToDisputees).grid(column=8, row=15, padx=20, pady=10)
 
         def reset_database():
-            global genre
-            global DBlangue
-            global pays
             if messagebox.askyesno('Confirmation!', 'Are you sure to reset all? You will lose all your choices.'):
                 fichiervar.set('')
                 nomvar.set('')
@@ -1824,10 +1823,11 @@ class FenetreEntree:
                 valeur_champ_modifvar.set('')
                 champvar.set('')
                 valeur_champvar.set('')
-                genre = None
-                DBlangue = None
-                pays = None
+                self.genre = None
+                self.DBlangue = None
+                self.pays = None
                 lbox.delete(0, END)
+                self.textList = []
 
         ttk.Button(frame3, text='Reset', command=reset_database).grid(column=8, row=20, padx=5, pady=10)
 
