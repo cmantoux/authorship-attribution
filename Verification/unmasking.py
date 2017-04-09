@@ -2,9 +2,9 @@
 import sys
 sys.path.append("/Users/Guillaume/Documents/Informatique/Projets-git/psc")
 from time import time
-from carac_ponct import *
-from carac_complexite import *
-from carac_stopwords import *
+from Carac.carac_ponct import *
+from Carac.carac_complexite import *
+from Carac.carac_stopwords import *
 from classes import *
 import numpy as np
 from numpy.linalg import norm

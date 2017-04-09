@@ -21,7 +21,7 @@ from Carac.carac_complexite import *
 from Carac.carac_stopwords import *
 from classes import Analyseur, Probleme, Verification
 from Clustering.kmeans import Kmeans
-from Clustering.kmedoids import Kmedoids
+#from Clustering.kmedoids import Kmedoids
 from Apprentissage.reseau_textes import reseau_neurones
 from Apprentissage.Bayes import Bayes
 from Apprentissage.Apriori import Apriori
@@ -174,7 +174,7 @@ class FenetreEntree:
                     offvalue='non').grid(column=5, row=2, padx=10, pady=10)
 
         Markov_Gram_saut = 0
-        Markov_Gram_emondage = False
+        Markov_Gram_emondage = ''
         Markov_Gramvar = StringVar()
 
         def callMarkov_Gram():
@@ -190,9 +190,9 @@ class FenetreEntree:
 
                     ttk.Label(Markov_Gram_frame, text='Saut').grid(column=0, row=0)
                     Markov_Gram_sautvar = IntVar()
-                    ttk.Entry(Markov_Gram_root, textvariable=Markov_Gram_sautvar).grid(column=1, row=0, padx=5)
+                    ttk.Entry(Markov_Gram_frame, textvariable=Markov_Gram_sautvar).grid(column=1, row=0, padx=5)
 
-                    ttk.Label(Markov_Gram_frame, text="Utiliser Textes Training").grid(column=0, row=1, padx=10, pady=10)
+                    ttk.Label(Markov_Gram_frame, text="Emondage").grid(column=0, row=1, padx=10, pady=10)
                     Markov_Gram_emondagevar = StringVar()
                     true = Radiobutton(Markov_Gram_frame, text='True', variable=Markov_Gram_emondagevar, value='True')
                     true.grid(column=1, row=1)
@@ -209,19 +209,19 @@ class FenetreEntree:
                             Markov_Gram_emondage = False
                         Markov_Gram_root.destroy()
 
-                    ttk.Button(Markov_Gram_root, text='Okay', command=Markov_Gram_Okay).grid(column=2, row=0, padx=5)
+                    ttk.Button(Markov_Gram_frame, text='Okay', command=Markov_Gram_Okay).grid(column=2, row=3, padx=5)
 
                     def Markov_Gram_Cancel():
                         Markov_Gram_root.destroy()
 
-                    ttk.Button(Markov_Gram_root, text='Cancel', command=Markov_Gram_Cancel).grid(column=3, row=0,
+                    ttk.Button(Markov_Gram_frame, text='Cancel', command=Markov_Gram_Cancel).grid(column=3, row=3,
                                                                                                  padx=5)
                     A.append(Markov_Gram)
                     print('add Markov_Gram')
                     Markov_Gram_root.mainloop()
             else:
                 Markov_Gram_saut = 0
-                Markov_Gram_emondage = False
+                Markov_Gram_emondage = ''
                 A.remove(Markov_Gram)
                 print('remove Markov_Gram')
 
@@ -626,7 +626,7 @@ class FenetreEntree:
                 Freq_Gramvar.set('')
                 Markov_Gramvar.set('')
                 Markov_Gram_saut = 0
-                Markov_Gram_emondage = False
+                Markov_Gram_emondage = ''
                 Freq_Ngrammesvar.set('')
                 Freq_Ngrammes_n = 0
                 Markov_Lettresvar.set('')
@@ -838,7 +838,7 @@ class FenetreEntree:
                     offvalue='non').grid(column=5, row=1, padx=10, pady=10)
 
         VMarkov_Gram_saut = 0
-        VMarkov_Gram_emondage = False
+        VMarkov_Gram_emondage = ''
         VMarkov_Gramvar = StringVar()
 
         def VcallMarkov_Gram():
@@ -854,10 +854,9 @@ class FenetreEntree:
 
                     ttk.Label(VMarkov_Gram_frame, text='Saut').grid(column=0, row=0)
                     VMarkov_Gram_sautvar = IntVar()
-                    ttk.Entry(VMarkov_Gram_root, textvariable=VMarkov_Gram_sautvar).grid(column=1, row=0, padx=5)
+                    ttk.Entry(VMarkov_Gram_frame, textvariable=VMarkov_Gram_sautvar).grid(column=1, row=0, padx=5)
 
-                    ttk.Label(VMarkov_Gram_frame, text="Utiliser Textes Training").grid(column=0, row=1, padx=10,
-                                                                                       pady=10)
+                    ttk.Label(VMarkov_Gram_frame, text="Emondage").grid(column=0, row=1, padx=10, pady=10)
                     VMarkov_Gram_emondagevar = StringVar()
                     true = Radiobutton(VMarkov_Gram_frame, text='True', variable=VMarkov_Gram_emondagevar, value='True')
                     true.grid(column=1, row=1)
@@ -875,19 +874,19 @@ class FenetreEntree:
                             VMarkov_Gram_emondage = False
                         VMarkov_Gram_root.destroy()
 
-                    ttk.Button(VMarkov_Gram_root, text='Okay', command=VMarkov_Gram_Okay).grid(column=2, row=0, padx=5)
+                    ttk.Button(VMarkov_Gram_frame, text='Okay', command=VMarkov_Gram_Okay).grid(column=2, row=0, padx=5)
 
                     def VMarkov_Gram_Cancel():
                         VMarkov_Gram_root.destroy()
 
-                    ttk.Button(VMarkov_Gram_root, text='Cancel', command=VMarkov_Gram_Cancel).grid(column=3, row=0,
+                    ttk.Button(VMarkov_Gram_frame, text='Cancel', command=VMarkov_Gram_Cancel).grid(column=3, row=0,
                                                                                                    padx=5)
                     VA.append(Markov_Gram)
                     print('add Markov_Gram')
                     VMarkov_Gram_root.mainloop()
             else:
                 VMarkov_Gram_saut = 0
-                VMarkov_Gram_emondage = False
+                VMarkov_Gram_emondage = ''
                 VA.remove(Markov_Gram)
                 print('remove Markov_Gram')
 
@@ -1348,7 +1347,7 @@ class FenetreEntree:
                 VFreq_Gramvar.set('')
                 VMarkov_Gramvar.set('')
                 VMarkov_Gram_saut = 0
-                VMarkov_Gram_emondage = False
+                VMarkov_Gram_emondage = ''
                 VFreq_Ngrammesvar.set('')
                 VFreq_Ngrammes_n = 0
                 VMarkov_Lettresvar.set('')
