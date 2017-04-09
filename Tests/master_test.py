@@ -18,7 +18,7 @@ from Evaluation import evaluation_externe as ee
 import matplotlib.pyplot as plt
 
 a1 = Freq_Gram(langue = "fr")
-a2 = Markov_Gram(langue = "fr",saut=1)
+a2 = Markov_Gram(langue = "fr",saut=1, emondage=True)
 a3 = Freq_Ngrammes(langue = "fr",n=1)
 a4 = Markov_Lettres(langue = "fr")
 a5 = Freq_Ponct(langue = "fr")
@@ -48,10 +48,12 @@ def test_probleme():
     P.creer_textes()
     P.analyser()
     P.appliquer_classifieur()
-    P.interpreter()
-    P.afficher()
+    #P.interpreter()
+    #P.afficher()
     #P.evaluer()
-    #P.afficher_graphique()
+    P.afficher_graphique()
+
+test_probleme()
     
 ## Cross-validation
 

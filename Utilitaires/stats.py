@@ -25,6 +25,7 @@ def markov(saut,X,states):
     for i in range(len(states)):
         if (N[i]>0):
             Nij[i, :] /= N[i]
+
     for i in range(len(states)):
         for j in range(len(states)):
             res.append(Nij[i,j])
