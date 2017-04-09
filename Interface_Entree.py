@@ -174,25 +174,39 @@ class FenetreEntree:
                     offvalue='non').grid(column=5, row=2, padx=10, pady=10)
 
         Markov_Gram_saut = 0
+        Markov_Gram_emondage = False
         Markov_Gramvar = StringVar()
 
         def callMarkov_Gram():
             if Markov_Gramvar.get() == 'oui':
                 if A.count(Markov_Gram) == 0:
                     Markov_Gram_root = Tk()
-                    Markov_Gram_root.title('choose the saut of Markov_Gram')
+                    Markov_Gram_root.title('choose the saut and emondage of Markov_Gram')
                     Markov_Gram_frame = ttk.Frame(Markov_Gram_root, padding='10 10 10 10', borderwidth='3',
                                                   relief='flat')
                     Markov_Gram_frame.grid(column=0, row=0, sticky=(N, W, E, S))
                     Markov_Gram_frame.columnconfigure(0, weight=1)
                     Markov_Gram_frame.rowconfigure(0, weight=1)
+
                     ttk.Label(Markov_Gram_frame, text='Saut').grid(column=0, row=0)
                     Markov_Gram_sautvar = IntVar()
                     ttk.Entry(Markov_Gram_root, textvariable=Markov_Gram_sautvar).grid(column=1, row=0, padx=5)
 
+                    ttk.Label(Markov_Gram_frame, text="Utiliser Textes Training").grid(column=0, row=1, padx=10, pady=10)
+                    Markov_Gram_emondagevar = StringVar()
+                    true = Radiobutton(Markov_Gram_frame, text='True', variable=Markov_Gram_emondagevar, value='True')
+                    true.grid(column=1, row=1)
+                    false = Radiobutton(Markov_Gram_frame, text='False', variable=Markov_Gram_emondagevar, value='False')
+                    false.grid(column=1, row=2)
+
                     def Markov_Gram_Okay():
                         global Markov_Gram_saut
+                        global Markov_Gram_emondage
                         Markov_Gram_saut = Markov_Gram_sautvar.get()
+                        if Markov_Gram_emondagevar.get() == 'True':
+                            Markov_Gram_emondage = True
+                        else:
+                            Markov_Gram_emondage = False
                         Markov_Gram_root.destroy()
 
                     ttk.Button(Markov_Gram_root, text='Okay', command=Markov_Gram_Okay).grid(column=2, row=0, padx=5)
@@ -207,6 +221,7 @@ class FenetreEntree:
                     Markov_Gram_root.mainloop()
             else:
                 Markov_Gram_saut = 0
+                Markov_Gram_emondage = False
                 A.remove(Markov_Gram)
                 print('remove Markov_Gram')
 
@@ -593,6 +608,7 @@ class FenetreEntree:
                 global langue
                 global classifieur
                 global Markov_Gram_saut
+                global Markov_Gram_emondage
                 global Freq_Ngrammes_n
                 global Complexite_Grammaticale_saut
                 global id_training_set
@@ -610,6 +626,7 @@ class FenetreEntree:
                 Freq_Gramvar.set('')
                 Markov_Gramvar.set('')
                 Markov_Gram_saut = 0
+                Markov_Gram_emondage = False
                 Freq_Ngrammesvar.set('')
                 Freq_Ngrammes_n = 0
                 Markov_Lettresvar.set('')
@@ -821,6 +838,7 @@ class FenetreEntree:
                     offvalue='non').grid(column=5, row=1, padx=10, pady=10)
 
         VMarkov_Gram_saut = 0
+        VMarkov_Gram_emondage = False
         VMarkov_Gramvar = StringVar()
 
         def VcallMarkov_Gram():
@@ -833,13 +851,28 @@ class FenetreEntree:
                     VMarkov_Gram_frame.grid(column=0, row=0, sticky=(N, W, E, S))
                     VMarkov_Gram_frame.columnconfigure(0, weight=1)
                     VMarkov_Gram_frame.rowconfigure(0, weight=1)
+
                     ttk.Label(VMarkov_Gram_frame, text='Saut').grid(column=0, row=0)
                     VMarkov_Gram_sautvar = IntVar()
                     ttk.Entry(VMarkov_Gram_root, textvariable=VMarkov_Gram_sautvar).grid(column=1, row=0, padx=5)
 
+                    ttk.Label(VMarkov_Gram_frame, text="Utiliser Textes Training").grid(column=0, row=1, padx=10,
+                                                                                       pady=10)
+                    VMarkov_Gram_emondagevar = StringVar()
+                    true = Radiobutton(VMarkov_Gram_frame, text='True', variable=VMarkov_Gram_emondagevar, value='True')
+                    true.grid(column=1, row=1)
+                    false = Radiobutton(VMarkov_Gram_frame, text='False', variable=VMarkov_Gram_emondagevar,
+                                        value='False')
+                    false.grid(column=1, row=2)
+
                     def VMarkov_Gram_Okay():
                         global VMarkov_Gram_saut
+                        global VMarkov_Gram_emondage
                         VMarkov_Gram_saut = VMarkov_Gram_sautvar.get()
+                        if VMarkov_Gram_emondagevar.get() == 'True':
+                            VMarkov_Gram_emondage = True
+                        else:
+                            VMarkov_Gram_emondage = False
                         VMarkov_Gram_root.destroy()
 
                     ttk.Button(VMarkov_Gram_root, text='Okay', command=VMarkov_Gram_Okay).grid(column=2, row=0, padx=5)
@@ -854,6 +887,7 @@ class FenetreEntree:
                     VMarkov_Gram_root.mainloop()
             else:
                 VMarkov_Gram_saut = 0
+                VMarkov_Gram_emondage = False
                 VA.remove(Markov_Gram)
                 print('remove Markov_Gram')
 
@@ -1297,6 +1331,7 @@ class FenetreEntree:
             global verificateur
             global Vlangue
             global VMarkov_Gram_saut
+            global VMarkov_Gram_emondage
             global VFreq_Ngrammes_n
             global VComplexite_Grammaticale_saut
             global id_oeuvres_base
@@ -1313,6 +1348,7 @@ class FenetreEntree:
                 VFreq_Gramvar.set('')
                 VMarkov_Gramvar.set('')
                 VMarkov_Gram_saut = 0
+                VMarkov_Gram_emondage = False
                 VFreq_Ngrammesvar.set('')
                 VFreq_Ngrammes_n = 0
                 VMarkov_Lettresvar.set('')
