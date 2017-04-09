@@ -119,7 +119,7 @@ def Test(Inconnus, Result):
 class Apriori(Classifieur):
     
     def __init__(self):
-        print("Création du classifieur Apriori")
+        #print("Création du classifieur Apriori")
         self.eval_set = None
         self.training_set = None
         self.p = None
@@ -128,14 +128,15 @@ class Apriori(Classifieur):
         self.indecis = None
         pass
     
-    def classifier(self, training_set, eval_set):
+    def classifier(self, training_set, eval_set, categories):
         self.eval_set = eval_set
         self.training_set = training_set
+        self.categories = categories
         vecteurs_training = [t.vecteur for t in training_set]
-        auteurs_training = [t.auteur for t in training_set]
+        auteurs_training = [t.categorie for t in training_set]
         t = len(vecteurs_training)
         vecteurs_eval = [t.vecteur for t in eval_set]
-        auteurs_eval = [t.auteur for t in eval_set]
+        auteurs_eval = [t.categorie for t in eval_set]
         vecteurs = vecteurs_training + vecteurs_eval
         vecteurs = pca(vecteurs)
         vecteurs_training = vecteurs[0:t]

@@ -293,5 +293,5 @@ class Similarity:
         noms_oeuvres = [self.oeuvres[i][0] + str(self.oeuvres[i][1]) for i in range(len(self.oeuvres))]
         plt.xticks(index + bar_width / 2, noms_oeuvres)
         plt.legend(loc="best")
-        plt.tight_layout()
+        #plt.tight_layout()
         plt.savefig("similarity_graph"+ str(int(time())) + ".png")

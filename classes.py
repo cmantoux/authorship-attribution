@@ -554,7 +554,8 @@ class CrossValidation:
                 eval_set = [self.liste_textes[i] for i in indices_eval_set]
                 training_set = equilibrer1([self.liste_textes[j] for j in range(len(self.liste_textes)) if j not in indices_eval_set])
                 classifieur.classifier(training_set, eval_set, self.categories)
-                p = ee.precision(classifieur.eval_set, classifieur.p, classifieur.p_ref)
+                p_d = defuzze(classifieur.p)
+                p = ee.precision(classifieur.eval_set, p_d, classifieur.p_ref)
                 prec += p
             prec/=self.nombre_essais
         print("")
