@@ -12,8 +12,11 @@ def InsererFichier(fichier, nom, annee, genre, auteur, naissance, sexe, langue, 
 
 def AfficherTable():
     cursor.execute("""SELECT * FROM textes""")
+    table = ['']
     for row in cursor:
         print('{0} : {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}'.format(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11]))
+        table.append('{0} : {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}'.format(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11]))
+    return table
 
 def AfficherFichier(champ, valeur_champ):
     if(champ=="annee" or champ=="naissance"):
@@ -21,8 +24,11 @@ def AfficherFichier(champ, valeur_champ):
     else:
         query = "SELECT * FROM textes WHERE "+champ+" = '"+valeur_champ+"'"
     cursor.execute(query)
+    table = ['']
     for row in cursor:
         print('{0} : {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}'.format(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11]))
+        table.append('{0} : {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}'.format(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11]))
+    return table
 
 def InfosFichier(fichier):
     query = "SELECT * FROM textes WHERE fichier = '"+fichier+"'"
@@ -114,8 +120,11 @@ def SelectionnerFichiers(fichier, nom, annee_debut, annee_fin, genre, auteur, na
     else:
         query = "SELECT * FROM textes"
     cursor.execute(query)
+    table = ['']
     for row in cursor:
-        print('{0} : {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}'.format(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11]))     
+        print('{0} : {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}'.format(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11]))
+        table.append('{0} : {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}'.format(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11]))
+    return table
     
 
 #bcp plus de résultats pour gertrude atherton sur le projet gutenberg

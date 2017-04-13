@@ -30,7 +30,7 @@ from Interpretation.importance_composantes import importance, gain_information
 from Verification.similarite import Similarity
 from Verification.unmasking import Unmasking
 
-from base_de_donnees import *
+from bdd import *
 
 
 
@@ -1531,7 +1531,7 @@ class FenetreEntree:
         genrevar = StringVar()
         forGenre = ttk.Combobox(frame3, textvariable=genrevar)
         forGenre['values'] = (
-        'Roman', 'Nouvelle', 'Pièce de théâtre', 'Poésie', 'Essai', 'Oeuvre pour enfant', 'Article de presse', 'Autres')
+        'Roman', 'roman pour enfant', 'Nouvelles pour enfants', 'Nouvelles', 'traité historique', 'poésie')
         forGenre.bind('<<ComboboxSelected>>', setGenre)
         forGenre.grid(column=1, row=2)
 
@@ -1545,21 +1545,12 @@ class FenetreEntree:
         self.DBlangue = None
 
         def DBsetLangue(event):
-            if DBforLangue.get() == 'Anglais':
-                self.DBlangue = "en"
-            elif DBforLangue.get() == 'Francais':
-                self.DBlangue = "fr"
-            elif DBforLangue.get() == 'Allemand':
-                self.DBlangue = "de"
-            elif DBforLangue.get() == 'Espagnol':
-                self.DBlangue = "es"
-            elif DBforLangue.get() == 'Chinois':
-                self.DBlangue = "zh"
+            self.DBlangue = DBforLangue.get()
 
         ttk.Label(frame3, text="Langue").grid(column=0, row=4, padx=20, pady=10)
         DBLanguevar = StringVar()
         DBforLangue = ttk.Combobox(frame3, textvariable=DBLanguevar)
-        DBforLangue['values'] = ('Anglais', 'Francais', 'Chinois')
+        DBforLangue['values'] = ('English', 'French', 'Chinese')
         DBforLangue.bind('<<ComboboxSelected>>', DBsetLangue)
         DBforLangue.grid(column=1, row=4)
 
