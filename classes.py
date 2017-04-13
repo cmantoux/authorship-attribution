@@ -14,6 +14,7 @@ from Utilitaires.equilibrage_et_normalisation import normaliser1, equilibrer1
 from Utilitaires.defuzze import defuzze
 from Representation.fenetre import FenetreAffichage
 import random
+from bdd import InfosFichier
 
 
 emplacement_maxime = "/Users/maximegodin/Google Drive/Groupe PSC/"
@@ -28,25 +29,24 @@ dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "
 
 class Infos:
     """Contient les méta-données concernant notre oeuvre : nom complet de l'auteur, titre de l'oeuvre, année, genre. Ces infos sont extraites du fichier csv (tableur) infos_corpus situé à la racine du dossier Corpus."""
-    emplacement_infos = emplacement_dossier_groupe + "Corpus/infos_corpus.csv"
-
     def __init__(self,auteur,numero):
-        """Va chercher dans le tableur infos_corpus les données associées à (auteur,numero)"""
-        with codecs.open(self.emplacement_infos, 'r', encoding = 'utf-8') as csvfile:
-            spamreader = csv.reader(csvfile, delimiter=';')
-            n = 0
-            for row in spamreader:
-                n+=1
-                aut = row[0]
-                num = int(row[1])
-                if aut == auteur and num == numero:
-                    self.nom_auteur = row[2]
-                    self.titre = row[3]
-                    self.annee = row[4]
-                    self.genre = row[5]
-                    break
-                if n>1000:
-                    break
+        """Va chercher dans la bdd les données associées à (auteur,numero)"""
+        fichier = auteur + str(numero)
+        infos = InfosFichier(fichier)
+        if(infos != None):
+            self.nom_oeuvre = infos[2]
+            self.annee_publication = infos[3]
+            self.genre = infos[4]
+            self.auteur = infos[5]
+            self.naissance_auteur = infos[6]
+            self.sexe_auteur = infos[7]
+            self.langue_oeuvre = infos[8]
+            self.nationalite_auteur = infos[9]
+            self.corpus = infos[10]
+            self.commentaires = infos[11]
+
+            
+
 
 
 class Oeuvre:
@@ -290,7 +290,7 @@ class Probleme:
         print("Taux de liaisons et non-liaisons correctes et incorrectes : " + str(
                 ee.calcul_taux(self.eval_set, p_d, self.classifieur.p_ref)))
 
-    def interpreter(self, utiliser_textes_training = True, alpha = 1):
+    def interpreter(self, utiliser_textes_training = True, alpha = 0.5):
         print("Composantes les plus importantes dans la classification :")
         noms_composantes = self.analyseur.noms_composantes()
         if utiliser_textes_training:

@@ -24,6 +24,14 @@ def AfficherFichier(champ, valeur_champ):
     for row in cursor:
         print('{0} : {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}'.format(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11]))
 
+def InfosFichier(fichier):
+    query = "SELECT * FROM textes WHERE fichier = '"+fichier+"'"
+    cursor.execute(query)
+    for row in cursor:
+        return row
+
+        
+        
 def ModifierFichier(fichier, champ_modif, valeur_champ_modif):
     if(champ_modif=="annee" or champ_modif=="naissance"):
         query = "UPDATE textes SET "+champ_modif+" = "+str(valeur_champ_modif)+"  WHERE fichier = '"+fichier+"'"
@@ -182,4 +190,4 @@ def SelectionnerFichiers(fichier, nom, annee_debut, annee_fin, genre, auteur, na
 
 
 
-AfficherTable()
+
