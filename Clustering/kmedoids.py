@@ -83,14 +83,15 @@ def clusterize(l,S,U,dis):
 class KMedoids(Classifieur):
     
     def __init__(self):
-        print("Création du classifieur KMedoids")
+        #print("Création du classifieur KMedoids")
         pass
     
-    def classifier(self, training_set, eval_set):
+    def classifier(self, training_set, eval_set, categories):
         self.liste_textes = training_set + eval_set
         self.eval_set = eval_set
         self.training_set = training_set
-        self.auteurs = list(set([texte.auteur for texte in self.liste_textes]))
+        self.auteurs = categories
+        self.categories = categories
         self.k = len(self.auteurs)
         S,U,dis = build(self.liste_textes,self.k)
         swap(S,U,dis)
@@ -105,7 +106,7 @@ class KMedoids(Classifieur):
                 nb_oeuvres_par_auteur[auteur] = 0
             for t in clusters[j]:
                 if t in self.training_set:
-                    nb_oeuvres_par_auteur[t.auteur] +=1
+                    nb_oeuvres_par_auteur[t.categorie] +=1
             auteur_max = "?"
             nb_max = 0
             for auteur in self.auteurs:
@@ -128,7 +129,7 @@ class KMedoids(Classifieur):
 
         for i in range(n):
             t = eval_set[i]
-            self.p_ref[i, self.auteurs.index(t.auteur)] = 1
+            self.p_ref[i, self.auteurs.index(t.categorie)] = 1
             for j in range(self.k):
                 if t in self.clusters[j]:
                     self.p[i, j] = 1

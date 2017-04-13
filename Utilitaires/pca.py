@@ -26,6 +26,7 @@ class PCA:
         #print("valeurs propres")
         #print(self.vals)
         s = sum(self.vals)
+        print(s)
         self.explained_variance = [self.vals[j]/s for j in range(self.p)]
         self.A = np.array(self.vects)
         self.Y = np.dot(self.Xc,np.transpose(self.A))

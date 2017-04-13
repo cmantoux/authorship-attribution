@@ -46,14 +46,18 @@ def g(moyenne, ecart_type, inconnus):
     for i in range (m): 
         for l in range(k):
             for j in range(n):
-                Probabilite[i][l] *= 1/(sqrt(2*pi)*ecart_type[l][j]) * e**(-1/2*((inconnus[i][j]-moyenne[l][j])/ecart_type[l][j])**2)
+                if ecart_type[l][j] != 0:
+                    p = 1/(sqrt(2*pi)*ecart_type[l][j]) * e**(-1/2*((inconnus[i][j]-moyenne[l][j])/ecart_type[l][j])**2)
+                else:
+                    p = 0
+                Probabilite[i][l] *= p
     
     return Probabilite
 
 class Bayes(Classifieur):
     
     def __init__(self):
-        print("Création du classifieur Bayes")
+        #print("Création du classifieur Bayes")
         self.eval_set = None
         self.training_set = None
         self.p = None
@@ -71,7 +75,7 @@ class Bayes(Classifieur):
         categorie_training = [t.categorie for t in training_set]
         Intermediaires = f(vecteur_training, categorie_training, categories)
         Probabilite = g(Intermediaires[0], Intermediaires[1], vecteurs_eval)
-        print(Intermediaires[1])
+        #print(Intermediaires[1])
         self.p = Probabilite
         k = np.shape(Probabilite)[1]
         m = np.shape(Probabilite)[0]
