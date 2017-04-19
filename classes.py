@@ -23,7 +23,7 @@ emplacement_clement = "C:/Users/Clement/Google Drive/Groupe PSC/"
 emplacement_wang = "/home/wang/Documents/PSC/GitDePSC/"
 emplacement_lucile = "/Users/Lucile/Google Drive/Groupe PSC/"
 
-emplacement_dossier_groupe = emplacement_wang
+emplacement_dossier_groupe = emplacement_clement
 
 
 dico_langues = {"fr" : "francais", "en" : "anglais", "es" : "espagnol", "de" : "allemand", "zh" : "chinois"}

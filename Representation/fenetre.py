@@ -24,7 +24,6 @@ def nouvelles_matrices(training_set, p, p_ref, categories):
 
 
 class FenetreAffichage:
-
     def __init__(self, analyseur, classifieur, poids_composantes):
         self.analyseur = analyseur
         self.poids_composantes = poids_composantes
@@ -71,12 +70,12 @@ class FenetreAffichage:
 
         # Tableau des indices des composantes vectorielles, triées par importance
         indices_coefficients_separateurs = self.tri_par_importance(range(0, self.dimension))
-        nb_minimal_curseurs = 12 # nombre minimal de curseurs à afficher
+        nb_minimal_curseurs = 12  # nombre minimal de curseurs à afficher
         # Nombres de composantes dont le curseur s'affiche à l'écran
         self.n_composantes_ajustables = min(nb_minimal_curseurs, len(self.liste_textes[0].vecteur))
         self.liste_composantes_ajustables = indices_coefficients_separateurs[:self.n_composantes_ajustables]
 
-        self.coefficients_coordonnees = [1]*self.dimension
+        self.coefficients_coordonnees = [1] * self.dimension
 
         self.points = self.normaliser_points(vecteurs)
 
@@ -114,7 +113,7 @@ class FenetreAffichage:
             sc.set(1)
             self.scales.append(sc)
 
-        self.intVars = [] # stocke les valeurs des boutons du menu
+        self.intVars = []  # stocke les valeurs des boutons du menu
         for i in range(self.dimension):
             iv = IntVar()
             if i in self.liste_composantes_ajustables:
@@ -129,15 +128,22 @@ class FenetreAffichage:
                                    justify=LEFT)
 
     def mouse_motion_canvas(self, arg):
-        tab = [(point[0]-arg.x)**2+(point[1]-arg.y)**2 for point in self.points]
+        tab = [(point[0] - arg.x) ** 2 + (point[1] - arg.y) ** 2 for point in self.points]
         m = min(tab)
         indice = tab.index(m)
+        t = self.liste_textes[indice]
         s = "Texte le plus proche : \n" \
-            "Auteur : {0} \n" \
-            "Numéro oeuvre : {1} \n" \
-            "Identifiant chunk : {2}".format(self.liste_textes[indice].auteur,
-                                             self.liste_textes[indice].numero,
-                                             self.liste_textes[indice].numero_morceau)
+            "Auteur : {0} ({4}) \n" \
+            "Oeuvre : {1} ({5}) \n" \
+            "Genre  : {6} \n" \
+            "Année  : {3} \n" \
+            "Identifiant chunk : {2}".format(t.auteur,
+                                             t.infos.nom_oeuvre,
+                                             t.numero_morceau,
+                                             t.infos.annee_publication,
+                                             t.infos.sexe_auteur,
+                                             t.infos.langue_oeuvre,
+                                             t.infos.genre)
         self.texte_courant['text'] = s
 
     def tri_par_importance(self, liste_indices_composantes):
@@ -170,7 +176,7 @@ class FenetreAffichage:
         """dilatation[indice][indice] = float(arg)/max(float(self.coefficients_coordonnees[indice]), 0.1)
         self.matrice_proportions = np.dot(self.matrice_proportions, dilatation)"""
         for k in range(self.dimension):
-            self.matrice_proportions[k][indice] *= float(arg)/max(float(self.coefficients_coordonnees[indice]), 0.1)
+            self.matrice_proportions[k][indice] *= float(arg) / max(float(self.coefficients_coordonnees[indice]), 0.1)
         self.coefficients_coordonnees[indice] = arg
 
         vecteurs = []
@@ -218,7 +224,7 @@ class FenetreAffichage:
         else:
             self.theorique_concret_switch['text'] = "Afficher la position théorique"
         self.repaint()
-    
+
     def switch_points_enveloppe(self):
         self.affiche_enveloppe = not self.affiche_enveloppe
         self.repaint()
@@ -273,7 +279,7 @@ class FenetreAffichage:
         scrollbar = Scrollbar(self.fenetre, orient=VERTICAL)
         scrollbar.grid(row=0, column=2, rowspan=10, sticky=NS)
         canvas = Canvas(self.fenetre, bd=0, highlightthickness=0, height=self.height,
-                                 yscrollcommand=scrollbar.set)
+                        yscrollcommand=scrollbar.set)
         frame = Frame(canvas)
         scrollbar.config(command=canvas.yview)
         canvas.xview_moveto(0)
@@ -299,14 +305,13 @@ class FenetreAffichage:
         for i in range(len(self.liste_composantes_ajustables)):
             lb = Label(frame, text=self.noms_composantes[self.liste_composantes_ajustables[i]])
             self.noms_scales[self.liste_composantes_ajustables[i]] = lb
-            lb.grid(row=2*i, column=0, rowspan=1, columnspan=1, sticky=W)
+            lb.grid(row=2 * i, column=0, rowspan=1, columnspan=1, sticky=W)
 
             sc = Scale(frame, orient='horizontal', resolution=1, from_=1, to=100,
                        command=self.change_proportion_builder(i))
             sc.set(self.scales[self.liste_composantes_ajustables[i]].get())
             self.scales[self.liste_composantes_ajustables[i]] = sc
-            sc.grid(row=2*i+1, column=0, rowspan=1, columnspan=1, sticky=W)
-
+            sc.grid(row=2 * i + 1, column=0, rowspan=1, columnspan=1, sticky=W)
 
         canvas.grid(row=0, column=3, columnspan=1, rowspan=10, sticky=NW)
 
@@ -358,7 +363,7 @@ class FenetreAffichage:
             cluster_label.grid(row=i, column=0, columnspan=2)
             couleur__cluster = Canvas(frame_clusters, width=20, height=20, background=self.couleurs[i])
             couleur__cluster.grid(row=i, column=2)
-            cluster_canvas = Canvas(frame_clusters, width=self.width-100, height=20, background="white")
+            cluster_canvas = Canvas(frame_clusters, width=self.width - 100, height=20, background="white")
 
             # nombres_auteurs[n] = nombre de textes de l'auteur n dans le cluster i
             nombres_auteurs = [0] * len(self.noms_auteurs)
@@ -367,9 +372,9 @@ class FenetreAffichage:
 
             x = 0
             for k in range(len(nombres_auteurs)):
-                x2 = x + (self.width-100) * nombres_auteurs[k] / len(self.clusters_concrets_indices[i])
+                x2 = x + (self.width - 100) * nombres_auteurs[k] / len(self.clusters_concrets_indices[i])
                 cluster_canvas.create_rectangle(x, 0, x2, 21, fill=self.couleurs[k])
-                x = x2+1
+                x = x2 + 1
             cluster_canvas.grid(row=i, column=3, columnspan=6)
         frame_auteurs.grid(row=12, column=0, columnspan=2, sticky=W)
         frame_clusters.grid(row=13, column=0, columnspan=2, sticky=W)
