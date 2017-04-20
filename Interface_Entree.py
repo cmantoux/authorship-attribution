@@ -620,12 +620,16 @@ class FenetreEntree:
                 supposee2.set('')
                 self.id_training_set = []
                 self.id_eval_set = []
+                self.training_use_BDD = False
+                self.eval_use_BDD = False
 
         ttk.Button(frame1, text='Reset', command=reset_classification).grid(column=6, row=30, sticky=(E, S), padx=5,
                                                                             pady=30)
 
         self.id_training_set = []
         self.id_eval_set = []
+        self.training_use_BDD = False
+        self.eval_use_BDD = False
 
         def run_classification():
             if messagebox.askyesno('Confirmation!', 'Are you sure to run it?'):
@@ -690,27 +694,44 @@ class FenetreEntree:
                 analyseur.numeroter()
 
                 categories = [categorie1var.get()] + [categorie2var.get()]
-                self.id_training_set = [[(auteur1var.get(), k) for k in range(from1var.get(), to1var.get())],
-                                   [(auteur2var.get(), k) for k in range(from2var.get(), to2var.get())]]
-                for i in range(1, len(self.auteurvar1)):
-                    print(self.auteurvar1[i].get())
-                    print(self.fromvar1[i].get())
-                    print(self.tovar1[i].get())
-                    print(self.categoriesvar[i].get())
-                    categories.append(self.categoriesvar[i].get())
-                    self.id_training_set.append(
-                        [(self.auteurvar1[i].get(), k) for k in range(self.fromvar1[i].get(), self.tovar1[i].get())])
+                if self.training_use_BDD:
+                    for i in range(1, len(self.auteurvar1)):
+                        print(self.auteurvar1[i].get())
+                        print(self.fromvar1[i].get())
+                        print(self.tovar1[i].get())
+                        print(self.categoriesvar[i].get())
+                        categories.append(self.categoriesvar[i].get())
+                else:
+                    self.id_training_set = [[(auteur1var.get(), k) for k in range(from1var.get(), to1var.get())], [(auteur2var.get(), k) for k in range(from2var.get(), to2var.get())]]
+                    for i in range(1, len(self.auteurvar1)):
+                        print(self.auteurvar1[i].get())
+                        print(self.fromvar1[i].get())
+                        print(self.tovar1[i].get())
+                        print(self.categoriesvar[i].get())
+                        categories.append(self.categoriesvar[i].get())
+                        self.id_training_set.append([(self.auteurvar1[i].get(), k) for k in range(self.fromvar1[i].get(), self.tovar1[i].get())])
+
+                print('Training Set: ', self.id_training_set)
 
                 categories_supposees = [supposee1.get()] + [supposee2.get()]
-                self.id_eval_set = [[(evalauteur1var.get(), k) for k in range(evalfrom1var.get(), evalto1var.get())],
-                               [(evalauteur2var.get(), k) for k in range(evalfrom2var.get(), evalto2var.get())]]
-                for i in range(1, len(self.auteurvar2)):
-                    print(self.auteurvar2[i].get())
-                    print(self.fromvar2[i].get())
-                    print(self.tovar2[i].get())
-                    print(self.supposees[i].get())
-                    categories_supposees.append(self.supposees[i].get())
-                    self.id_eval_set.append([(self.auteurvar2[i].get(), k) for k in range(self.fromvar2[i].get(), self.tovar2[i].get())])
+                if self.eval_use_BDD:
+                    for i in range(1, len(self.auteurvar2)):
+                        print(self.auteurvar2[i].get())
+                        print(self.fromvar2[i].get())
+                        print(self.tovar2[i].get())
+                        print(self.supposees[i].get())
+                        categories_supposees.append(self.supposees[i].get())
+                else:
+                    self.id_eval_set = [[(evalauteur1var.get(), k) for k in range(evalfrom1var.get(), evalto1var.get())], [(evalauteur2var.get(), k) for k in range(evalfrom2var.get(), evalto2var.get())]]
+                    for i in range(1, len(self.auteurvar2)):
+                        print(self.auteurvar2[i].get())
+                        print(self.fromvar2[i].get())
+                        print(self.tovar2[i].get())
+                        print(self.supposees[i].get())
+                        categories_supposees.append(self.supposees[i].get())
+                        self.id_eval_set.append([(self.auteurvar2[i].get(), k) for k in range(self.fromvar2[i].get(), self.tovar2[i].get())])
+
+                print('Evaluation Set: ', self.id_eval_set)
 
                 if full_textvar.get() == 'True':
                     P = Probleme(self.id_training_set, categories, self.id_eval_set, categories_supposees, taillevar.get(),
@@ -1353,6 +1374,9 @@ class FenetreEntree:
                 self.id_oeuvres_base = []
                 self.id_oeuvres_calibrage = []
                 self.id_oeuvres_disputees = []
+                self.base_use_BDD = False
+                self.calibrage_use_BDD = False
+                self.disputees_use_BDD = False
 
         ttk.Button(frame2, text='Reset', command=reset_verification).grid(column=6, row=30, sticky=(E, S), padx=5,
                                                                           pady=30)
@@ -1360,6 +1384,9 @@ class FenetreEntree:
         self.id_oeuvres_base = []
         self.id_oeuvres_calibrage = []
         self.id_oeuvres_disputees = []
+        self.base_use_BDD = False
+        self.calibrage_use_BDD = False
+        self.disputees_use_BDD = False
 
         def run_verification():
             if messagebox.askyesno('Confirmation!', 'Are you sure to run it?'):
@@ -1424,47 +1451,72 @@ class FenetreEntree:
 
                 categories_base = [Vbase1.get()] + [Vbase2.get()]
                 # categories_base = ["categorie1"] + ["categorie2"]
-                self.id_oeuvres_base = [
-                    [(Vbase_auteur1var.get(), k) for k in range(Vbase_from1var.get(), Vbase_to1var.get())],
-                    [(Vbase_auteur2var.get(), k) for k in range(Vbase_from2var.get(), Vbase_to2var.get())]]
-                for i in range(1, len(self.Vauteurvar1)):
-                    print(self.Vauteurvar1[i].get())
-                    print(self.Vfromvar1[i].get())
-                    print(self.Vtovar1[i].get())
-                    print(self.Vbases[i].get())
-                    categories_base.append(self.Vbases[i].get())
-                    self.id_oeuvres_base.append(
-                        [(self.Vauteurvar1[i].get(), k) for k in range(self.Vfromvar1[i].get(), self.Vtovar1[i].get())])
+                if self.base_use_BDD:
+                    for i in range(1, len(self.Vauteurvar1)):
+                        print(self.Vauteurvar1[i].get())
+                        print(self.Vfromvar1[i].get())
+                        print(self.Vtovar1[i].get())
+                        print(self.Vbases[i].get())
+                        categories_base.append(self.Vbases[i].get())
+                else:
+                    self.id_oeuvres_base = [[(Vbase_auteur1var.get(), k) for k in range(Vbase_from1var.get(), Vbase_to1var.get())], [(Vbase_auteur2var.get(), k) for k in range(Vbase_from2var.get(), Vbase_to2var.get())]]
+                    for i in range(1, len(self.Vauteurvar1)):
+                        print(self.Vauteurvar1[i].get())
+                        print(self.Vfromvar1[i].get())
+                        print(self.Vtovar1[i].get())
+                        print(self.Vbases[i].get())
+                        categories_base.append(self.Vbases[i].get())
+                        self.id_oeuvres_base.append([(self.Vauteurvar1[i].get(), k) for k in range(self.Vfromvar1[i].get(), self.Vtovar1[i].get())])
+
 
                 categories_calibrage = [Vcalibrage1.get()] + [Vcalibrage2.get()]
                 # categories_calibrage = ["categorie1"] + ["categorie2"]
-                self.id_oeuvres_calibrage = [[(Vcalibrage_auteur1var.get(), k) for k in
-                                         range(Vcalibrage_from1var.get(), Vcalibrage_to1var.get())],
-                                        [(Vcalibrage_auteur2var.get(), k) for k in
-                                         range(Vcalibrage_from2var.get(), Vcalibrage_to2var.get())]]
-                for i in range(1, len(self.Vauteurvar2)):
-                    print(self.Vauteurvar2[i].get())
-                    print(self.Vfromvar2[i].get())
-                    print(self.Vtovar2[i].get())
-                    print(self.Vcalibrages[i].get())
-                    categories_calibrage.append(self.Vcalibrages[i].get())
-                    self.id_oeuvres_calibrage.append(
-                        [(self.Vauteurvar2[i].get(), k) for k in range(self.Vfromvar2[i].get(), self.Vtovar2[i].get())])
+                if self.calibrage_use_BDD:
+                    for i in range(1, len(self.Vauteurvar2)):
+                        print(self.Vauteurvar2[i].get())
+                        print(self.Vfromvar2[i].get())
+                        print(self.Vtovar2[i].get())
+                        print(self.Vcalibrages[i].get())
+                        categories_calibrage.append(self.Vcalibrages[i].get())
+                else:
+                    self.id_oeuvres_calibrage = [[(Vcalibrage_auteur1var.get(), k) for k in
+                                                  range(Vcalibrage_from1var.get(), Vcalibrage_to1var.get())],
+                                                 [(Vcalibrage_auteur2var.get(), k) for k in
+                                                  range(Vcalibrage_from2var.get(), Vcalibrage_to2var.get())]]
+                    for i in range(1, len(self.Vauteurvar2)):
+                        print(self.Vauteurvar2[i].get())
+                        print(self.Vfromvar2[i].get())
+                        print(self.Vtovar2[i].get())
+                        print(self.Vcalibrages[i].get())
+                        categories_calibrage.append(self.Vcalibrages[i].get())
+                        self.id_oeuvres_calibrage.append(
+                            [(self.Vauteurvar2[i].get(), k) for k in
+                             range(self.Vfromvar2[i].get(), self.Vtovar2[i].get())])
 
                 categories_disputees = [Vdisputee1.get()] + [Vdisputee2.get()]
                 # categories_disputees = ["categorie1"] + ["categorie2"]
-                self.id_oeuvres_disputees = [[(Vdisputee_auteur1var.get(), k) for k in
-                                         range(Vdisputee_from1var.get(), Vdisputee_to1var.get())],
-                                        [(Vdisputee_auteur2var.get(), k) for k in
-                                         range(Vdisputee_from2var.get(), Vdisputee_to2var.get())]]
-                for i in range(1, len(self.Vauteurvar3)):
-                    print(self.Vauteurvar3[i].get())
-                    print(self.Vfromvar3[i].get())
-                    print(self.Vtovar3[i].get())
-                    print(self.Vdisputees[i].get())
-                    categories_disputees.append(self.Vdisputees[i].get())
-                    self.id_oeuvres_disputees.append(
-                        [(self.Vauteurvar3[i].get(), k) for k in range(self.Vfromvar3[i].get(), self.Vtovar3[i].get())])
+                if self.disputees_use_BDD:
+                    for i in range(1, len(self.Vauteurvar3)):
+                        print(self.Vauteurvar3[i].get())
+                        print(self.Vfromvar3[i].get())
+                        print(self.Vtovar3[i].get())
+                        print(self.Vdisputees[i].get())
+                        categories_disputees.append(self.Vdisputees[i].get())
+                else:
+                    self.id_oeuvres_disputees = [[(Vdisputee_auteur1var.get(), k) for k in
+                                                  range(Vdisputee_from1var.get(), Vdisputee_to1var.get())],
+                                                 [(Vdisputee_auteur2var.get(), k) for k in
+                                                  range(Vdisputee_from2var.get(), Vdisputee_to2var.get())]]
+                    for i in range(1, len(self.Vauteurvar3)):
+                        print(self.Vauteurvar3[i].get())
+                        print(self.Vfromvar3[i].get())
+                        print(self.Vtovar3[i].get())
+                        print(self.Vdisputees[i].get())
+                        categories_disputees.append(self.Vdisputees[i].get())
+                        self.id_oeuvres_disputees.append(
+                            [(self.Vauteurvar3[i].get(), k) for k in
+                             range(self.Vfromvar3[i].get(), self.Vtovar3[i].get())])
+
 
                 if Vfull_textvar.get() == 'True':
                     V = Verification(self.id_oeuvres_base, categories_base, self.id_oeuvres_calibrage, categories_calibrage,
@@ -1754,10 +1806,10 @@ class FenetreEntree:
             for i in indexs:
                 str = lbox.get(i).split(', ')[0].split(' : ')[1]
                 strs = str.split('_')
-                s = strs[0]
-                for j in range(1, len(strs) - 1):
-                    s = s + '_' + strs[j]
-                self.textList.append((s, strs[len(strs) - 1]))
+                s = ""
+                for j in range(0, len(strs) - 1):
+                    s = s + strs[j] + "_"
+                self.textList.append([(s, int(strs[len(strs) - 1]))])
             for k in range(0, len(self.textList)):
                 print(self.textList[k])
 
@@ -1767,10 +1819,12 @@ class FenetreEntree:
 
         def addToTraining():
             self.id_training_set = self.id_training_set + self.textList
+            self.training_use_BDD = True
             print('Training Set: ', self.id_training_set)
 
         def addToEvaluation():
             self.id_eval_set = self.id_eval_set + self.textList
+            self.eval_use_BDD = True
             print('Evaluation Set: ', self.id_eval_set)
 
         ttk.Label(frame3, text='Classification').grid(column=8, row=9, padx=20, pady=10)
@@ -1779,14 +1833,17 @@ class FenetreEntree:
 
         def addToBase():
             self.id_oeuvres_base = self.id_oeuvres_base + self.textList
+            self.base_use_BDD = True
             print('Base: ', self.id_oeuvres_base)
 
         def addToCalibrage():
             self.id_oeuvres_calibrage = self.id_oeuvres_calibrage + self.textList
+            self.calibrage_use_BDD = True
             print('Calibrage: ', self.id_oeuvres_calibrage)
 
         def addToDisputees():
             self.id_oeuvres_disputees = self.id_oeuvres_disputees + self.textList
+            self.disputees_use_BDD = True
             print('Disputees: ', self.id_oeuvres_disputees)
 
         ttk.Label(frame3, text='Verification').grid(column=8, row=12, padx=20, pady=10)
@@ -1819,6 +1876,11 @@ class FenetreEntree:
                 self.pays = None
                 lbox.delete(0, END)
                 self.textList = []
+                self.training_use_BDD = False
+                self.eval_use_BDD = False
+                self.base_use_BDD = False
+                self.calibrage_use_BDD = False
+                self.disputees_use_BDD = False
 
         ttk.Button(frame3, text='Reset', command=reset_database).grid(column=8, row=20, padx=5, pady=10)
 
