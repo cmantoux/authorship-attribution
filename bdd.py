@@ -197,6 +197,17 @@ def SelectionnerFichiers(fichier, nom, annee_debut, annee_fin, genre, auteur, na
 #InsererFichier("william_nelson_taft_1", "On Secret Service", 1921, "Roman", "William Nelson Taft", 1835, "M", "English", "USA", "genre", "publié à titre posthume (auteur mort en 1910)")
 
 
+#InsererFichier("balzac1", "La maison du chat-qui-pelote", 1830, "Nouvelle", "Honoré de Balzac", 1799, "M", "Français", "France", "soutenance", "")
+#InsererFichier("balzac2", "Mémoires de deux jeunes mariées", 1830, "Roman épistolaire", "Honoré de Balzac", 1799, "M", "Français", "France", "soutenance", "")
+#InsererFichier("balzac3", "La Femme de trente ans", 1842, "Roman", "Honoré de Balzac", 1799, "M", "Français", "France", "soutenance", "")
+#InsererFichier("flaubert1", "Madame Bovary", 1857, "Roman", "Gustave Flaubert", 1821, "M", "Français", "France", "soutenance", "")
+#InsererFichier("flaubert3", """L’Éducation sentimentale, Partie 1""", 1869, "Roman", "Gustave Flaubert", 1821, "M", "Français", "France", "soutenance", "")
+#InsererFichier("flaubert4", """L’Éducation sentimentale, Partie 2""", 1869, "Roman", "Gustave Flaubert", 1821, "M", "Français", "France", "soutenance", "")
+#InsererFichier("stendhal1", "Le Rouge et le Noir", 1830, "Roman", "Henri Beyle / Stendhal", 1783, "M", "Français", "France", "soutenance", "")
+#InsererFichier("stendhal2", "Le Rouge et le Noir", 1839, "Roman", "Henri Beyle / Stendhal", 1783, "M", "Français", "France", "soutenance", "")
+
+
+#AfficherTable()
 
 
 
