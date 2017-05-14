@@ -9,6 +9,7 @@ from tkinter import *
 from tkinter import ttk
 #from tkinter import filedialog
 from tkinter import messagebox
+from tkinter import simpledialog
 #import os
 #from tkinter import filedialog as fd
 
@@ -177,43 +178,53 @@ class FenetreEntree:
         def callMarkov_Gram():
             if Markov_Gramvar.get() == 'oui':
                 if self.A.count(Markov_Gram) == 0:
-                    Markov_Gram_root = Tk()
-                    Markov_Gram_root.title('choose the saut and emondage of Markov_Gram')
-                    Markov_Gram_frame = ttk.Frame(Markov_Gram_root, padding='10 10 10 10', borderwidth='3',
-                                                  relief='flat')
-                    Markov_Gram_frame.grid(column=0, row=0, sticky=(N, W, E, S))
-                    Markov_Gram_frame.columnconfigure(0, weight=1)
-                    Markov_Gram_frame.rowconfigure(0, weight=1)
+                    # Markov_Gram_root = Tk()
+                    # Markov_Gram_root.title('choose the saut and emondage of Markov_Gram')
+                    # Markov_Gram_frame = ttk.Frame(Markov_Gram_root, padding='10 10 10 10', borderwidth='3',
+                    #                               relief='flat')
+                    # Markov_Gram_frame.grid(column=0, row=0, sticky=(N, W, E, S))
+                    # Markov_Gram_frame.columnconfigure(0, weight=1)
+                    # Markov_Gram_frame.rowconfigure(0, weight=1)
+                    #
+                    # ttk.Label(Markov_Gram_frame, text='Saut').grid(column=0, row=0)
+                    # Markov_Gram_sautvar = IntVar()
+                    # ttk.Entry(Markov_Gram_frame, textvariable=Markov_Gram_sautvar).grid(column=1, row=0, padx=5)
+                    #
+                    # ttk.Label(Markov_Gram_frame, text="Emondage").grid(column=0, row=1, padx=10, pady=10)
+                    # Markov_Gram_emondagevar = StringVar()
+                    # true = Radiobutton(Markov_Gram_frame, text='True', variable=Markov_Gram_emondagevar, value='True')
+                    # true.grid(column=1, row=1)
+                    # false = Radiobutton(Markov_Gram_frame, text='False', variable=Markov_Gram_emondagevar, value='False')
+                    # false.grid(column=1, row=2)
+                    #
+                    # def Markov_Gram_Okay():
+                    #     self.Markov_Gram_saut = Markov_Gram_sautvar.get()
+                    #     if Markov_Gram_emondagevar.get() == 'True':
+                    #         self.Markov_Gram_emondage = True
+                    #     else:
+                    #         self.Markov_Gram_emondage = False
+                    #     print(Markov_Gram_sautvar.get())
+                    #     print(self.Markov_Gram_saut)
+                    #     print(self.Markov_Gram_emondage)
+                    #     Markov_Gram_root.destroy()
+                    #
+                    # ttk.Button(Markov_Gram_frame, text='Okay', command=Markov_Gram_Okay).grid(column=2, row=3, padx=5)
+                    #
+                    # def Markov_Gram_Cancel():
+                    #     Markov_Gram_root.destroy()
+                    #
+                    # ttk.Button(Markov_Gram_frame, text='Cancel', command=Markov_Gram_Cancel).grid(column=3, row=3,
+                    #                                                                              padx=5)
 
-                    ttk.Label(Markov_Gram_frame, text='Saut').grid(column=0, row=0)
-                    Markov_Gram_sautvar = IntVar()
-                    ttk.Entry(Markov_Gram_frame, textvariable=Markov_Gram_sautvar).grid(column=1, row=0, padx=5)
-
-                    ttk.Label(Markov_Gram_frame, text="Emondage").grid(column=0, row=1, padx=10, pady=10)
-                    Markov_Gram_emondagevar = StringVar()
-                    true = Radiobutton(Markov_Gram_frame, text='True', variable=Markov_Gram_emondagevar, value='True')
-                    true.grid(column=1, row=1)
-                    false = Radiobutton(Markov_Gram_frame, text='False', variable=Markov_Gram_emondagevar, value='False')
-                    false.grid(column=1, row=2)
-
-                    def Markov_Gram_Okay():
-                        self.Markov_Gram_saut = Markov_Gram_sautvar.get()
-                        if Markov_Gram_emondagevar.get() == 'True':
-                            self.Markov_Gram_emondage = True
-                        else:
-                            self.Markov_Gram_emondage = False
-                        Markov_Gram_root.destroy()
-
-                    ttk.Button(Markov_Gram_frame, text='Okay', command=Markov_Gram_Okay).grid(column=2, row=3, padx=5)
-
-                    def Markov_Gram_Cancel():
-                        Markov_Gram_root.destroy()
-
-                    ttk.Button(Markov_Gram_frame, text='Cancel', command=Markov_Gram_Cancel).grid(column=3, row=3,
-                                                                                                 padx=5)
+                    self.Markov_Gram_saut = simpledialog.askinteger("Insert the saut of Markov_Gram", "Saut")
+                    emondage = simpledialog.askstring("Insert the emondage of Markov_Gram", "Emondage: True/False?")
+                    if emondage == "True":
+                        self.Markov_Gram_emondage = True
+                    else:
+                        self.Markov_Gram_emondage = False
                     self.A.append(Markov_Gram)
                     print('add Markov_Gram')
-                    Markov_Gram_root.mainloop()
+                    # Markov_Gram_root.mainloop()
             else:
                 self.Markov_Gram_saut = 0
                 self.Markov_Gram_emondage = ''
@@ -229,32 +240,35 @@ class FenetreEntree:
         def callFreq_Ngrammes():
             if Freq_Ngrammesvar.get() == 'oui':
                 if self.A.count(Freq_Ngrammes) == 0:
-                    Freq_Ngrammes_root = Tk()
-                    Freq_Ngrammes_root.title('choose the n of Freq_Ngrammes')
-                    Freq_Ngrammes_frame = ttk.Frame(Freq_Ngrammes_root, padding='10 10 10 10', borderwidth='3',
-                                                    relief='flat')
-                    Freq_Ngrammes_frame.grid(column=0, row=0, sticky=(N, W, E, S))
-                    Freq_Ngrammes_frame.columnconfigure(0, weight=1)
-                    Freq_Ngrammes_frame.rowconfigure(0, weight=1)
-                    ttk.Label(Freq_Ngrammes_frame, text='N').grid(column=0, row=0)
-                    Freq_Ngrammes_nvar = IntVar()
-                    ttk.Entry(Freq_Ngrammes_root, textvariable=Freq_Ngrammes_nvar).grid(column=1, row=0, padx=5)
+                    # Freq_Ngrammes_root = Tk()
+                    # Freq_Ngrammes_root.title('choose the n of Freq_Ngrammes')
+                    # Freq_Ngrammes_frame = ttk.Frame(Freq_Ngrammes_root, padding='10 10 10 10', borderwidth='3',
+                    #                                 relief='flat')
+                    # Freq_Ngrammes_frame.grid(column=0, row=0, sticky=(N, W, E, S))
+                    # Freq_Ngrammes_frame.columnconfigure(0, weight=1)
+                    # Freq_Ngrammes_frame.rowconfigure(0, weight=1)
+                    # ttk.Label(Freq_Ngrammes_frame, text='N').grid(column=0, row=0)
+                    # Freq_Ngrammes_nvar = IntVar()
+                    # ttk.Entry(Freq_Ngrammes_root, textvariable=Freq_Ngrammes_nvar).grid(column=1, row=0, padx=5)
+                    #
+                    # def Freq_Ngrammes_Okay():
+                    #     self.Freq_Ngrammes_n = Freq_Ngrammes_nvar.get()
+                    #     print (self.Freq_Ngrammes_n)
+                    #     Freq_Ngrammes_root.destroy()
+                    #
+                    # ttk.Button(Freq_Ngrammes_root, text='Okay', command=Freq_Ngrammes_Okay).grid(column=2, row=0,
+                    #                                                                              padx=5)
+                    #
+                    # def Freq_Ngrammes_Cancel():
+                    #     Freq_Ngrammes_root.destroy()
+                    #
+                    # ttk.Button(Freq_Ngrammes_root, text='Cancel', command=Freq_Ngrammes_Cancel).grid(column=3, row=0,
+                    #                                                                                  padx=5)
 
-                    def Freq_Ngrammes_Okay():
-                        self.Freq_Ngrammes_n = Freq_Ngrammes_nvar.get()
-                        Freq_Ngrammes_root.destroy()
-
-                    ttk.Button(Freq_Ngrammes_root, text='Okay', command=Freq_Ngrammes_Okay).grid(column=2, row=0,
-                                                                                                 padx=5)
-
-                    def Freq_Ngrammes_Cancel():
-                        Freq_Ngrammes_root.destroy()
-
-                    ttk.Button(Freq_Ngrammes_root, text='Cancel', command=Freq_Ngrammes_Cancel).grid(column=3, row=0,
-                                                                                                     padx=5)
+                    self.Freq_Ngrammes_n = simpledialog.askinteger("Insert the n of Freq_Ngrammes", "n")
                     self.A.append(Freq_Ngrammes)
                     print('add Freq_Ngrammes')
-                    Freq_Ngrammes_root.mainloop()
+                    # Freq_Ngrammes_root.mainloop()
             else:
                 self.Freq_Ngrammes_n = 0
                 self.A.remove(Freq_Ngrammes)
@@ -311,34 +325,37 @@ class FenetreEntree:
         def callComplexite_Grammaticale():
             if Complexite_Grammaticalevar.get() == 'oui':
                 if self.A.count(Complexite_Grammaticale) == 0:
-                    Complexite_Grammaticale_root = Tk()
-                    Complexite_Grammaticale_root.title('choose the saut of Complexite_Grammaticale')
-                    Complexite_Grammaticale_frame = ttk.Frame(Complexite_Grammaticale_root, padding='10 10 10 10',
-                                                              borderwidth='3', relief='flat')
-                    Complexite_Grammaticale_frame.grid(column=0, row=0, sticky=(N, W, E, S))
-                    Complexite_Grammaticale_frame.columnconfigure(0, weight=1)
-                    Complexite_Grammaticale_frame.rowconfigure(0, weight=1)
-                    ttk.Label(Complexite_Grammaticale_frame, text='Saut').grid(column=0, row=0)
-                    Complexite_Grammaticale_sautvar = IntVar()
-                    ttk.Entry(Complexite_Grammaticale_root, textvariable=Complexite_Grammaticale_sautvar).grid(column=1,
-                                                                                                               row=0,
-                                                                                                               padx=5)
+                    # Complexite_Grammaticale_root = Tk()
+                    # Complexite_Grammaticale_root.title('choose the saut of Complexite_Grammaticale')
+                    # Complexite_Grammaticale_frame = ttk.Frame(Complexite_Grammaticale_root, padding='10 10 10 10',
+                    #                                           borderwidth='3', relief='flat')
+                    # Complexite_Grammaticale_frame.grid(column=0, row=0, sticky=(N, W, E, S))
+                    # Complexite_Grammaticale_frame.columnconfigure(0, weight=1)
+                    # Complexite_Grammaticale_frame.rowconfigure(0, weight=1)
+                    # ttk.Label(Complexite_Grammaticale_frame, text='Saut').grid(column=0, row=0)
+                    # Complexite_Grammaticale_sautvar = IntVar()
+                    # ttk.Entry(Complexite_Grammaticale_root, textvariable=Complexite_Grammaticale_sautvar).grid(column=1,
+                    #                                                                                            row=0,
+                    #                                                                                            padx=5)
+                    #
+                    # def Complexite_Grammaticale_Okay():
+                    #     self.Complexite_Grammaticale_saut = Complexite_Grammaticale_sautvar.get()
+                    #     print (self.Complexite_Grammaticale_saut)
+                    #     Complexite_Grammaticale_root.destroy()
+                    #
+                    # ttk.Button(Complexite_Grammaticale_root, text='Okay', command=Complexite_Grammaticale_Okay).grid(
+                    #     column=2, row=0, padx=5)
+                    #
+                    # def Complexite_Grammaticale_Cancel():
+                    #     Complexite_Grammaticale_root.destroy()
+                    #
+                    # ttk.Button(Complexite_Grammaticale_root, text='Cancel',
+                    #            command=Complexite_Grammaticale_Cancel).grid(column=3, row=0, padx=5)
 
-                    def Complexite_Grammaticale_Okay():
-                        self.Complexite_Grammaticale_saut = Complexite_Grammaticale_sautvar.get()
-                        Complexite_Grammaticale_root.destroy()
-
-                    ttk.Button(Complexite_Grammaticale_root, text='Okay', command=Complexite_Grammaticale_Okay).grid(
-                        column=2, row=0, padx=5)
-
-                    def Complexite_Grammaticale_Cancel():
-                        Complexite_Grammaticale_root.destroy()
-
-                    ttk.Button(Complexite_Grammaticale_root, text='Cancel',
-                               command=Complexite_Grammaticale_Cancel).grid(column=3, row=0, padx=5)
+                    self.Complexite_Grammaticale_saut = simpledialog.askinteger("Insert the saut of Complexite_Grammaticale", "Saut")
                     self.A.append(Complexite_Grammaticale)
                     print('add Complexite_Grammaticale')
-                    Complexite_Grammaticale_root.mainloop()
+                    # Complexite_Grammaticale_root.mainloop()
             else:
                 self.Complexite_Grammaticale_saut = 0
                 self.A.remove(Complexite_Grammaticale)
@@ -875,44 +892,51 @@ class FenetreEntree:
         def VcallMarkov_Gram():
             if VMarkov_Gramvar.get() == 'oui':
                 if self.VA.count(Markov_Gram) == 0:
-                    VMarkov_Gram_root = Tk()
-                    VMarkov_Gram_root.title('choose the saut of Markov_Gram')
-                    VMarkov_Gram_frame = ttk.Frame(VMarkov_Gram_root, padding='10 10 10 10', borderwidth='3',
-                                                   relief='flat')
-                    VMarkov_Gram_frame.grid(column=0, row=0, sticky=(N, W, E, S))
-                    VMarkov_Gram_frame.columnconfigure(0, weight=1)
-                    VMarkov_Gram_frame.rowconfigure(0, weight=1)
+                    # VMarkov_Gram_root = Tk()
+                    # VMarkov_Gram_root.title('choose the saut of Markov_Gram')
+                    # VMarkov_Gram_frame = ttk.Frame(VMarkov_Gram_root, padding='10 10 10 10', borderwidth='3',
+                    #                                relief='flat')
+                    # VMarkov_Gram_frame.grid(column=0, row=0, sticky=(N, W, E, S))
+                    # VMarkov_Gram_frame.columnconfigure(0, weight=1)
+                    # VMarkov_Gram_frame.rowconfigure(0, weight=1)
+                    #
+                    # ttk.Label(VMarkov_Gram_frame, text='Saut').grid(column=0, row=0)
+                    # VMarkov_Gram_sautvar = IntVar()
+                    # ttk.Entry(VMarkov_Gram_frame, textvariable=VMarkov_Gram_sautvar).grid(column=1, row=0, padx=5)
+                    #
+                    # ttk.Label(VMarkov_Gram_frame, text="Emondage").grid(column=0, row=1, padx=10, pady=10)
+                    # VMarkov_Gram_emondagevar = StringVar()
+                    # true = Radiobutton(VMarkov_Gram_frame, text='True', variable=VMarkov_Gram_emondagevar, value='True')
+                    # true.grid(column=1, row=1)
+                    # false = Radiobutton(VMarkov_Gram_frame, text='False', variable=VMarkov_Gram_emondagevar,
+                    #                     value='False')
+                    # false.grid(column=1, row=2)
+                    #
+                    # def VMarkov_Gram_Okay():
+                    #     self.VMarkov_Gram_saut = VMarkov_Gram_sautvar.get()
+                    #     if VMarkov_Gram_emondagevar.get() == 'True':
+                    #         self.VMarkov_Gram_emondage = True
+                    #     else:
+                    #         self.VMarkov_Gram_emondage = False
+                    #     VMarkov_Gram_root.destroy()
+                    #
+                    # ttk.Button(VMarkov_Gram_frame, text='Okay', command=VMarkov_Gram_Okay).grid(column=2, row=0, padx=5)
+                    #
+                    # def VMarkov_Gram_Cancel():
+                    #     VMarkov_Gram_root.destroy()
+                    #
+                    # ttk.Button(VMarkov_Gram_frame, text='Cancel', command=VMarkov_Gram_Cancel).grid(column=3, row=0,
+                    #                                                                                padx=5)
 
-                    ttk.Label(VMarkov_Gram_frame, text='Saut').grid(column=0, row=0)
-                    VMarkov_Gram_sautvar = IntVar()
-                    ttk.Entry(VMarkov_Gram_frame, textvariable=VMarkov_Gram_sautvar).grid(column=1, row=0, padx=5)
-
-                    ttk.Label(VMarkov_Gram_frame, text="Emondage").grid(column=0, row=1, padx=10, pady=10)
-                    VMarkov_Gram_emondagevar = StringVar()
-                    true = Radiobutton(VMarkov_Gram_frame, text='True', variable=VMarkov_Gram_emondagevar, value='True')
-                    true.grid(column=1, row=1)
-                    false = Radiobutton(VMarkov_Gram_frame, text='False', variable=VMarkov_Gram_emondagevar,
-                                        value='False')
-                    false.grid(column=1, row=2)
-
-                    def VMarkov_Gram_Okay():
-                        self.VMarkov_Gram_saut = VMarkov_Gram_sautvar.get()
-                        if VMarkov_Gram_emondagevar.get() == 'True':
-                            self.VMarkov_Gram_emondage = True
-                        else:
-                            self.VMarkov_Gram_emondage = False
-                        VMarkov_Gram_root.destroy()
-
-                    ttk.Button(VMarkov_Gram_frame, text='Okay', command=VMarkov_Gram_Okay).grid(column=2, row=0, padx=5)
-
-                    def VMarkov_Gram_Cancel():
-                        VMarkov_Gram_root.destroy()
-
-                    ttk.Button(VMarkov_Gram_frame, text='Cancel', command=VMarkov_Gram_Cancel).grid(column=3, row=0,
-                                                                                                   padx=5)
+                    self.VMarkov_Gram_saut = simpledialog.askinteger("Insert the saut of Markov_Gram", "Saut")
+                    Vemondage = simpledialog.askstring("Insert the emondage of Markov_Gram", "Emondage: True/False?")
+                    if Vemondage == "True":
+                        self.VMarkov_Gram_emondage = True
+                    else:
+                        self.VMarkov_Gram_emondage = False
                     self.VA.append(Markov_Gram)
                     print('add Markov_Gram')
-                    VMarkov_Gram_root.mainloop()
+                    # VMarkov_Gram_root.mainloop()
             else:
                 self.VMarkov_Gram_saut = 0
                 self.VMarkov_Gram_emondage = ''
@@ -928,32 +952,34 @@ class FenetreEntree:
         def VcallFreq_Ngrammes():
             if VFreq_Ngrammesvar.get() == 'oui':
                 if self.VA.count(Freq_Ngrammes) == 0:
-                    VFreq_Ngrammes_root = Tk()
-                    VFreq_Ngrammes_root.title('choose the n of Freq_Ngrammes')
-                    VFreq_Ngrammes_frame = ttk.Frame(VFreq_Ngrammes_root, padding='10 10 10 10', borderwidth='3',
-                                                     relief='flat')
-                    VFreq_Ngrammes_frame.grid(column=0, row=0, sticky=(N, W, E, S))
-                    VFreq_Ngrammes_frame.columnconfigure(0, weight=1)
-                    VFreq_Ngrammes_frame.rowconfigure(0, weight=1)
-                    ttk.Label(VFreq_Ngrammes_frame, text='N').grid(column=0, row=0)
-                    VFreq_Ngrammes_nvar = IntVar()
-                    ttk.Entry(VFreq_Ngrammes_root, textvariable=VFreq_Ngrammes_nvar).grid(column=1, row=0, padx=5)
+                    # VFreq_Ngrammes_root = Tk()
+                    # VFreq_Ngrammes_root.title('choose the n of Freq_Ngrammes')
+                    # VFreq_Ngrammes_frame = ttk.Frame(VFreq_Ngrammes_root, padding='10 10 10 10', borderwidth='3',
+                    #                                  relief='flat')
+                    # VFreq_Ngrammes_frame.grid(column=0, row=0, sticky=(N, W, E, S))
+                    # VFreq_Ngrammes_frame.columnconfigure(0, weight=1)
+                    # VFreq_Ngrammes_frame.rowconfigure(0, weight=1)
+                    # ttk.Label(VFreq_Ngrammes_frame, text='N').grid(column=0, row=0)
+                    # VFreq_Ngrammes_nvar = IntVar()
+                    # ttk.Entry(VFreq_Ngrammes_root, textvariable=VFreq_Ngrammes_nvar).grid(column=1, row=0, padx=5)
+                    #
+                    # def VFreq_Ngrammes_Okay():
+                    #     self.VFreq_Ngrammes_n = VFreq_Ngrammes_nvar.get()
+                    #     VFreq_Ngrammes_root.destroy()
+                    #
+                    # ttk.Button(VFreq_Ngrammes_root, text='Okay', command=VFreq_Ngrammes_Okay).grid(column=2, row=0,
+                    #                                                                                padx=5)
+                    #
+                    # def VFreq_Ngrammes_Cancel():
+                    #     VFreq_Ngrammes_root.destroy()
+                    #
+                    # ttk.Button(VFreq_Ngrammes_root, text='Cancel', command=VFreq_Ngrammes_Cancel).grid(column=3, row=0,
+                    #                                                                                    padx=5)
 
-                    def VFreq_Ngrammes_Okay():
-                        self.VFreq_Ngrammes_n = VFreq_Ngrammes_nvar.get()
-                        VFreq_Ngrammes_root.destroy()
-
-                    ttk.Button(VFreq_Ngrammes_root, text='Okay', command=VFreq_Ngrammes_Okay).grid(column=2, row=0,
-                                                                                                   padx=5)
-
-                    def VFreq_Ngrammes_Cancel():
-                        VFreq_Ngrammes_root.destroy()
-
-                    ttk.Button(VFreq_Ngrammes_root, text='Cancel', command=VFreq_Ngrammes_Cancel).grid(column=3, row=0,
-                                                                                                       padx=5)
+                    self.VFreq_Ngrammes_n = simpledialog.askinteger("Insert the n of Freq_Ngrammes", "n")
                     self.VA.append(Freq_Ngrammes)
                     print('add Freq_Ngrammes')
-                    VFreq_Ngrammes_root.mainloop()
+                    # VFreq_Ngrammes_root.mainloop()
             else:
                 self.VFreq_Ngrammes_n = 0
                 self.VA.remove(Freq_Ngrammes)
@@ -1010,33 +1036,36 @@ class FenetreEntree:
         def VcallComplexite_Grammaticale():
             if VComplexite_Grammaticalevar.get() == 'oui':
                 if self.VA.count(Complexite_Grammaticale) == 0:
-                    VComplexite_Grammaticale_root = Tk()
-                    VComplexite_Grammaticale_root.title('choose the saut of Complexite_Grammaticale')
-                    VComplexite_Grammaticale_frame = ttk.Frame(VComplexite_Grammaticale_root, padding='10 10 10 10',
-                                                               borderwidth='3', relief='flat')
-                    VComplexite_Grammaticale_frame.grid(column=0, row=0, sticky=(N, W, E, S))
-                    VComplexite_Grammaticale_frame.columnconfigure(0, weight=1)
-                    VComplexite_Grammaticale_frame.rowconfigure(0, weight=1)
-                    ttk.Label(VComplexite_Grammaticale_frame, text='Saut').grid(column=0, row=0)
-                    VComplexite_Grammaticale_sautvar = IntVar()
-                    ttk.Entry(VComplexite_Grammaticale_root, textvariable=VComplexite_Grammaticale_sautvar).grid(
-                        column=1, row=0, padx=5)
+                    # VComplexite_Grammaticale_root = Tk()
+                    # VComplexite_Grammaticale_root.title('choose the saut of Complexite_Grammaticale')
+                    # VComplexite_Grammaticale_frame = ttk.Frame(VComplexite_Grammaticale_root, padding='10 10 10 10',
+                    #                                            borderwidth='3', relief='flat')
+                    # VComplexite_Grammaticale_frame.grid(column=0, row=0, sticky=(N, W, E, S))
+                    # VComplexite_Grammaticale_frame.columnconfigure(0, weight=1)
+                    # VComplexite_Grammaticale_frame.rowconfigure(0, weight=1)
+                    # ttk.Label(VComplexite_Grammaticale_frame, text='Saut').grid(column=0, row=0)
+                    # VComplexite_Grammaticale_sautvar = IntVar()
+                    # ttk.Entry(VComplexite_Grammaticale_root, textvariable=VComplexite_Grammaticale_sautvar).grid(
+                    #     column=1, row=0, padx=5)
+                    #
+                    # def VComplexite_Grammaticale_Okay():
+                    #     self.VComplexite_Grammaticale_saut = VComplexite_Grammaticale_sautvar.get()
+                    #     VComplexite_Grammaticale_root.destroy()
+                    #
+                    # ttk.Button(VComplexite_Grammaticale_root, text='Okay', command=VComplexite_Grammaticale_Okay).grid(
+                    #     column=2, row=0, padx=5)
+                    #
+                    # def VComplexite_Grammaticale_Cancel():
+                    #     VComplexite_Grammaticale_root.destroy()
+                    #
+                    # ttk.Button(VComplexite_Grammaticale_root, text='Cancel',
+                    #            command=VComplexite_Grammaticale_Cancel).grid(column=3, row=0, padx=5)
 
-                    def VComplexite_Grammaticale_Okay():
-                        self.VComplexite_Grammaticale_saut = VComplexite_Grammaticale_sautvar.get()
-                        VComplexite_Grammaticale_root.destroy()
-
-                    ttk.Button(VComplexite_Grammaticale_root, text='Okay', command=VComplexite_Grammaticale_Okay).grid(
-                        column=2, row=0, padx=5)
-
-                    def VComplexite_Grammaticale_Cancel():
-                        VComplexite_Grammaticale_root.destroy()
-
-                    ttk.Button(VComplexite_Grammaticale_root, text='Cancel',
-                               command=VComplexite_Grammaticale_Cancel).grid(column=3, row=0, padx=5)
+                    self.VComplexite_Grammaticale_saut = simpledialog.askinteger(
+                        "Insert the saut of Complexite_Grammaticale", "Saut")
                     self.VA.append(Complexite_Grammaticale)
                     print('add Complexite_Grammaticale')
-                    VComplexite_Grammaticale_root.mainloop()
+                    # VComplexite_Grammaticale_root.mainloop()
             else:
                 self.VComplexite_Grammaticale_saut = 0
                 self.VA.remove(Complexite_Grammaticale)

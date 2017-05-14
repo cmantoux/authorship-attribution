@@ -18,7 +18,7 @@ class Complexite_Grammaticale(FonctionAnalyse):
 
     def analyser(self, liste_textes):
 
-        markov_gram = Markov_Gram(self.langue,self.saut)
+        markov_gram = Markov_Gram(self.langue,self.saut, False)
 
         N = len(markov_gram.natures)
         M = np.zeros((N,N))
