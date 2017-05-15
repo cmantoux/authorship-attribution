@@ -1838,7 +1838,7 @@ class FenetreEntree:
                 s = ""
                 for j in range(0, len(strs) - 1):
                     s = s + strs[j] + "_"
-                self.textList.append([(s, int(strs[len(strs) - 1]))])
+                self.textList.append((s, int(strs[len(strs) - 1])))
             for k in range(0, len(self.textList)):
                 print(self.textList[k])
 
@@ -1847,12 +1847,12 @@ class FenetreEntree:
         lbox.bind('<Double-1>', addToList)
 
         def addToTraining():
-            self.id_training_set = self.id_training_set + self.textList
+            self.id_training_set = self.id_training_set + [self.textList]
             self.training_use_BDD = True
             print('Training Set: ', self.id_training_set)
 
         def addToEvaluation():
-            self.id_eval_set = self.id_eval_set + self.textList
+            self.id_eval_set = self.id_eval_set + [self.textList]
             self.eval_use_BDD = True
             print('Evaluation Set: ', self.id_eval_set)
 
@@ -1861,17 +1861,17 @@ class FenetreEntree:
         ttk.Button(frame3, text='To Evaluation Set', command=addToEvaluation).grid(column=8, row=11, padx=20, pady=10)
 
         def addToBase():
-            self.id_oeuvres_base = self.id_oeuvres_base + self.textList
+            self.id_oeuvres_base = self.id_oeuvres_base + [self.textList]
             self.base_use_BDD = True
             print('Base: ', self.id_oeuvres_base)
 
         def addToCalibrage():
-            self.id_oeuvres_calibrage = self.id_oeuvres_calibrage + self.textList
+            self.id_oeuvres_calibrage = self.id_oeuvres_calibrage + [self.textList]
             self.calibrage_use_BDD = True
             print('Calibrage: ', self.id_oeuvres_calibrage)
 
         def addToDisputees():
-            self.id_oeuvres_disputees = self.id_oeuvres_disputees + self.textList
+            self.id_oeuvres_disputees = self.id_oeuvres_disputees + [self.textList]
             self.disputees_use_BDD = True
             print('Disputees: ', self.id_oeuvres_disputees)
 
