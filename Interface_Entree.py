@@ -22,7 +22,7 @@ from Carac.carac_complexite import *
 from Carac.carac_stopwords import *
 from classes import Analyseur, Probleme, Verification
 from Clustering.kmeans import Kmeans
-#from Clustering.kmedoids import Kmedoids
+from Clustering.kmedoids import KMedoids
 from Apprentissage.reseau_textes import reseau_neurones
 from Apprentissage.Bayes import Bayes
 from Apprentissage.Apriori import Apriori
@@ -90,24 +90,15 @@ class FenetreEntree:
                 self.classifieur = SVM()
             elif forClassifieur.get() == 'reseau_neurones':
                 self.classifieur = reseau_neurones()
-            elif forClassifieur.get() == 'Bayes':
-                self.classifieur = Bayes()
-            elif forClassifieur.get() == 'Apriori':
-                self.classifieur = Apriori()
             elif forClassifieur.get() == 'Kmeans':
                 self.classifieur = Kmeans()
             elif forClassifieur.get() == 'KMedoids':
                 self.classifieur = KMedoids()
-            elif forClassifieur.get() == 'kPPV':
-                self.classifieur = kPPV()
-            elif forClassifieur.get() == 'OPTICS':
-                self.classifieur = OPTICS()
 
         ttk.Label(frame1, text="Classifieur").grid(column=0, row=1, padx=10, pady=10)
         Classifieurvar = StringVar()
         forClassifieur = ttk.Combobox(frame1, textvariable=Classifieurvar)
-        forClassifieur['values'] = (
-        'SVM', 'reseau_neurones', 'Bayes', 'Apriori', 'Kmeans', 'KMedoids', 'kPPV', 'OPTICS')
+        forClassifieur['values'] = ('SVM', 'reseau_neurones', 'Kmeans', 'KMedoids')
         forClassifieur.bind('<<ComboboxSelected>>', setClassifieur)
         forClassifieur.grid(column=1, row=1)
 
